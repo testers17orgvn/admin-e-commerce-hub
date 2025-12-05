@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Plus, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 
 export default function AdminBlogs() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -83,7 +84,7 @@ export default function AdminBlogs() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div><label className="text-sm font-medium">Tiêu đề *</label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></div>
               <div><label className="text-sm font-medium">Slug</label><Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="Tự động tạo" /></div>
-              <div><label className="text-sm font-medium">URL hình ảnh</label><Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} /></div>
+              <ImageUpload value={form.image_url} onChange={(url) => setForm({ ...form, image_url: url })} folder="blogs" label="Hình ảnh bài viết" />
               <div><label className="text-sm font-medium">Tóm tắt</label><Textarea value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} rows={2} /></div>
               <div><label className="text-sm font-medium">Nội dung</label><Textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={10} /></div>
               <div className="flex items-center gap-2"><Switch checked={form.is_published} onCheckedChange={(c) => setForm({ ...form, is_published: c })} /><span className="text-sm">Xuất bản</span></div>

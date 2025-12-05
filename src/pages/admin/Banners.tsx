@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Switch } from '@/components/ui/switch';
 import { Plus, Pencil, Trash2, GripVertical } from 'lucide-react';
 import { toast } from 'sonner';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 
 export default function AdminBanners() {
   const [banners, setBanners] = useState<Banner[]>([]);
@@ -76,7 +77,7 @@ export default function AdminBanners() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div><label className="text-sm font-medium">Tiêu đề *</label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></div>
               <div><label className="text-sm font-medium">Phụ đề</label><Input value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} /></div>
-              <div><label className="text-sm font-medium">URL hình ảnh *</label><Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} required /></div>
+              <ImageUpload value={form.image_url} onChange={(url) => setForm({ ...form, image_url: url })} folder="banners" label="Hình ảnh banner *" />
               <div><label className="text-sm font-medium">URL liên kết</label><Input value={form.link_url} onChange={(e) => setForm({ ...form, link_url: e.target.value })} /></div>
               <div className="grid grid-cols-2 gap-4">
                 <div><label className="text-sm font-medium">Vị trí</label><Input type="number" value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} /></div>

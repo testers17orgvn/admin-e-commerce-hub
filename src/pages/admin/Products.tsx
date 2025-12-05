@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Switch } from '@/components/ui/switch';
 import { Plus, Pencil, Trash2, Star } from 'lucide-react';
 import { toast } from 'sonner';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 
 export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -92,7 +93,7 @@ export default function AdminProducts() {
                 <div><label className="text-sm font-medium">Giá gốc</label><Input type="number" value={form.original_price} onChange={(e) => setForm({ ...form, original_price: e.target.value })} /></div>
                 <div><label className="text-sm font-medium">Tồn kho</label><Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} /></div>
               </div>
-              <div><label className="text-sm font-medium">URL hình ảnh</label><Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} /></div>
+              <ImageUpload value={form.image_url} onChange={(url) => setForm({ ...form, image_url: url })} folder="products" label="Hình ảnh sản phẩm" />
               <div><label className="text-sm font-medium">Danh mục</label>
                 <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
                   <SelectTrigger><SelectValue placeholder="Chọn danh mục" /></SelectTrigger>
