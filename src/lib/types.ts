@@ -64,7 +64,7 @@ export interface Contact {
 
 export interface OrderItem {
   product_id: string;
-  product_name: string;
+  name: string;
   price: number;
   quantity: number;
   image_url?: string;
@@ -78,7 +78,7 @@ export interface Order {
   customer_address: string | null;
   items: OrderItem[];
   total_amount: number;
-  status: 'pending' | 'confirmed' | 'shipping' | 'completed' | 'cancelled';
+  status: string;
   notes: string | null;
   created_at: string;
   updated_at: string;
