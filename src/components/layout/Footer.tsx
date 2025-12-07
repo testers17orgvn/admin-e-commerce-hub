@@ -1,108 +1,130 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import logo from '@/assets/logo.png';
 
 export function Footer() {
   return (
-    <footer className="bg-charcoal text-cream">
-      <div className="container py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+    <footer className="bg-charcoal text-cream relative overflow-hidden">
+      {/* Decorative background */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-accent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-accent rounded-full blur-3xl" />
+      </div>
+
+      <div className="container py-16 lg:py-20 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
           {/* Brand */}
-          <div>
-            <h3 className="font-display text-2xl font-bold mb-4">
-              Luxe<span className="text-accent">Shop</span>
-            </h3>
-            <p className="text-cream/70 text-sm leading-relaxed mb-6">
+          <div className="lg:col-span-1">
+            <Link to="/" className="inline-flex items-center gap-3 mb-6 group">
+              <img 
+                src={logo} 
+                alt="Hibiki" 
+                className="h-14 w-auto object-contain filter brightness-0 invert transition-transform duration-300 group-hover:scale-105" 
+              />
+              <span className="font-display text-2xl font-bold">
+                Hibiki<span className="text-accent">Shop</span>
+              </span>
+            </Link>
+            <p className="text-cream/60 text-sm leading-relaxed mb-6 max-w-xs">
               Cửa hàng thời trang cao cấp với những sản phẩm được tuyển chọn kỹ lưỡng từ các thương hiệu hàng đầu.
             </p>
-            <div className="flex gap-4">
-              <a href="#" className="hover:text-accent transition-colors">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="hover:text-accent transition-colors">
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="hover:text-accent transition-colors">
-                <Youtube className="h-5 w-5" />
-              </a>
+            <div className="flex gap-3">
+              {[Facebook, Instagram, Youtube].map((Icon, i) => (
+                <a 
+                  key={i}
+                  href="#" 
+                  className="w-10 h-10 rounded-full bg-cream/10 flex items-center justify-center hover:bg-accent hover:text-charcoal transition-all duration-300"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold mb-4 text-lg">Liên kết</h4>
-            <ul className="space-y-3">
-              <li>
-                <Link to="/products" className="text-cream/70 hover:text-accent transition-colors text-sm">
-                  Sản phẩm
-                </Link>
-              </li>
-              <li>
-                <Link to="/blog" className="text-cream/70 hover:text-accent transition-colors text-sm">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-cream/70 hover:text-accent transition-colors text-sm">
-                  Liên hệ
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="text-cream/70 hover:text-accent transition-colors text-sm">
-                  Về chúng tôi
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Policies */}
-          <div>
-            <h4 className="font-semibold mb-4 text-lg">Chính sách</h4>
-            <ul className="space-y-3">
-              <li>
-                <a href="#" className="text-cream/70 hover:text-accent transition-colors text-sm">
-                  Chính sách đổi trả
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-cream/70 hover:text-accent transition-colors text-sm">
-                  Chính sách bảo mật
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-cream/70 hover:text-accent transition-colors text-sm">
-                  Điều khoản dịch vụ
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-cream/70 hover:text-accent transition-colors text-sm">
-                  Hướng dẫn mua hàng
-                </a>
-              </li>
+            <h4 className="font-display font-semibold mb-6 text-lg relative inline-block">
+              Liên kết
+              <span className="absolute -bottom-2 left-0 w-8 h-0.5 bg-accent" />
+            </h4>
+            <ul className="space-y-4">
+              {[
+                { to: '/products', label: 'Sản phẩm' },
+                { to: '/blog', label: 'Blog' },
+                { to: '/contact', label: 'Liên hệ' },
+                { to: '/about', label: 'Về chúng tôi' },
+              ].map((link) => (
+                <li key={link.to}>
+                  <Link 
+                    to={link.to} 
+                    className="text-cream/60 hover:text-accent transition-colors text-sm inline-flex items-center gap-2 group"
+                  >
+                    <span className="w-0 group-hover:w-2 h-0.5 bg-accent transition-all duration-300" />
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="font-semibold mb-4 text-lg">Liên hệ</h4>
+            <h4 className="font-display font-semibold mb-6 text-lg relative inline-block">
+              Liên hệ
+              <span className="absolute -bottom-2 left-0 w-8 h-0.5 bg-accent" />
+            </h4>
             <ul className="space-y-4">
-              <li className="flex items-start gap-3 text-sm">
-                <MapPin className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
-                <span className="text-cream/70">123 Nguyễn Huệ, Quận 1, TP.HCM</span>
+              <li className="flex items-start gap-3 text-sm group">
+                <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/30 transition-colors">
+                  <MapPin className="h-4 w-4 text-accent" />
+                </div>
+                <span className="text-cream/60 pt-1">123 Nguyễn Huệ, Quận 1, TP.HCM</span>
               </li>
-              <li className="flex items-center gap-3 text-sm">
-                <Phone className="h-5 w-5 text-accent flex-shrink-0" />
-                <span className="text-cream/70">0909 123 456</span>
+              <li className="flex items-center gap-3 text-sm group">
+                <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/30 transition-colors">
+                  <Phone className="h-4 w-4 text-accent" />
+                </div>
+                <span className="text-cream/60">0909 123 456</span>
               </li>
-              <li className="flex items-center gap-3 text-sm">
-                <Mail className="h-5 w-5 text-accent flex-shrink-0" />
-                <span className="text-cream/70">contact@luxeshop.vn</span>
+              <li className="flex items-center gap-3 text-sm group">
+                <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/30 transition-colors">
+                  <Mail className="h-4 w-4 text-accent" />
+                </div>
+                <span className="text-cream/60">contact@hibiki.vn</span>
               </li>
             </ul>
           </div>
+
+          {/* Newsletter */}
+          <div>
+            <h4 className="font-display font-semibold mb-6 text-lg relative inline-block">
+              Đăng ký nhận tin
+              <span className="absolute -bottom-2 left-0 w-8 h-0.5 bg-accent" />
+            </h4>
+            <p className="text-cream/60 text-sm mb-4">
+              Nhận thông tin về sản phẩm mới và ưu đãi độc quyền.
+            </p>
+            <div className="flex gap-2">
+              <Input 
+                placeholder="Email của bạn" 
+                className="bg-cream/10 border-cream/20 text-cream placeholder:text-cream/40 focus:border-accent"
+              />
+              <Button size="icon" className="bg-accent hover:bg-accent/90 text-charcoal flex-shrink-0">
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
 
-        <div className="border-t border-cream/10 mt-12 pt-8 text-center text-sm text-cream/50">
-          <p>&copy; {new Date().getFullYear()} LuxeShop. All rights reserved.</p>
+        <div className="border-t border-cream/10 mt-12 lg:mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-cream/40">
+          <p>&copy; {new Date().getFullYear()} HibikiShop. All rights reserved.</p>
+          <div className="flex gap-6">
+            <a href="#" className="hover:text-accent transition-colors">Điều khoản</a>
+            <a href="#" className="hover:text-accent transition-colors">Bảo mật</a>
+            <a href="#" className="hover:text-accent transition-colors">Cookie</a>
+          </div>
         </div>
       </div>
     </footer>

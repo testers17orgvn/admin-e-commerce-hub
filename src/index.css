@@ -155,6 +155,18 @@
     animation: scaleIn 0.4s ease-out forwards;
   }
 
+  .animate-slow-zoom {
+    animation: slowZoom 20s ease-out forwards;
+  }
+
+  .animate-pulse-slow {
+    animation: pulseSlow 4s ease-in-out infinite;
+  }
+
+  .animate-scroll-hint {
+    animation: scrollHint 1.5s ease-in-out infinite;
+  }
+
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -163,7 +175,7 @@
   @keyframes slideUp {
     from { 
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(30px);
     }
     to { 
       opacity: 1;
@@ -180,6 +192,21 @@
       opacity: 1;
       transform: scale(1);
     }
+  }
+
+  @keyframes slowZoom {
+    from { transform: scale(1.05); }
+    to { transform: scale(1); }
+  }
+
+  @keyframes pulseSlow {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.4; }
+  }
+
+  @keyframes scrollHint {
+    0%, 100% { transform: translateY(0); opacity: 0.5; }
+    50% { transform: translateY(4px); opacity: 1; }
   }
 
   .stagger-1 { animation-delay: 0.1s; }
