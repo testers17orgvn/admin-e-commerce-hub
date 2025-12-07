@@ -21,6 +21,10 @@ export interface Product {
   stock: number;
   is_featured: boolean;
   is_active: boolean;
+  is_hot: boolean;
+  colors: string[];
+  sizes: string[];
+  tags: string[];
   created_at: string;
   updated_at: string;
   category?: Category;
