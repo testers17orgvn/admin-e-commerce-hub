@@ -422,7 +422,10 @@ const ProductDetail = () => {
                 variant="hero"
                 size="xl"
                 className="flex-1 h-14"
-                onClick={() => addItem(product, quantity)}
+                onClick={() => addItem(product, quantity, { 
+                  selectedColor: selectedColor || undefined, 
+                  selectedSize: selectedSize || undefined 
+                })}
                 disabled={!canAddToCart}
               >
                 <ShoppingBag className="h-5 w-5" />
