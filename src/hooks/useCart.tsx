@@ -2,17 +2,27 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { CartItem, Product } from '@/lib/types';
 import { toast } from 'sonner';
 
+interface AddToCartOptions {
+  selectedColor?: string;
+  selectedSize?: string;
+}
+
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: Product, quantity?: number) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  addItem: (product: Product, quantity?: number, options?: AddToCartOptions) => void;
+  removeItem: (cartItemId: string) => void;
+  updateQuantity: (cartItemId: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
+
+// Generate unique cart item ID based on product + variants
+const generateCartItemId = (productId: string, color?: string, size?: string) => {
+  return `${productId}-${color || 'no-color'}-${size || 'no-size'}`;
+};
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
@@ -24,34 +34,45 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('cart', JSON.stringify(items));
   }, [items]);
 
-  const addItem = (product: Product, quantity = 1) => {
+  const addItem = (product: Product, quantity = 1, options?: AddToCartOptions) => {
+    const cartItemId = generateCartItemId(product.id, options?.selectedColor, options?.selectedSize);
+    
     setItems(prev => {
-      const existing = prev.find(item => item.id === product.id);
+      // Find existing item with same product AND same variants
+      const existing = prev.find(item => item.cartItemId === cartItemId);
+      
       if (existing) {
         return prev.map(item =>
-          item.id === product.id
+          item.cartItemId === cartItemId
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
-      return [...prev, { ...product, quantity }];
+      
+      return [...prev, { 
+        ...product, 
+        quantity,
+        selectedColor: options?.selectedColor,
+        selectedSize: options?.selectedSize,
+        cartItemId
+      }];
     });
     toast.success('Đã thêm vào giỏ hàng');
   };
 
-  const removeItem = (productId: string) => {
-    setItems(prev => prev.filter(item => item.id !== productId));
+  const removeItem = (cartItemId: string) => {
+    setItems(prev => prev.filter(item => item.cartItemId !== cartItemId));
     toast.success('Đã xóa khỏi giỏ hàng');
   };
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (cartItemId: string, quantity: number) => {
     if (quantity <= 0) {
-      removeItem(productId);
+      removeItem(cartItemId);
       return;
     }
     setItems(prev =>
       prev.map(item =>
-        item.id === productId ? { ...item, quantity } : item
+        item.cartItemId === cartItemId ? { ...item, quantity } : item
       )
     );
   };

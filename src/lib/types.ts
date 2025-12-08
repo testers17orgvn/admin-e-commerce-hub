@@ -72,6 +72,8 @@ export interface OrderItem {
   price: number;
   quantity: number;
   image_url?: string;
+  selectedColor?: string;
+  selectedSize?: string;
 }
 
 export interface Order {
@@ -90,6 +92,9 @@ export interface Order {
 
 export interface CartItem extends Product {
   quantity: number;
+  selectedColor?: string;
+  selectedSize?: string;
+  cartItemId: string;
 }
 
 export interface Profile {

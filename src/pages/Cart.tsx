@@ -43,6 +43,8 @@ const Cart = () => {
       price: item.price,
       quantity: item.quantity,
       image_url: item.image_url,
+      selectedColor: item.selectedColor,
+      selectedSize: item.selectedSize,
     }));
 
     const { error } = await supabase.from('orders').insert({
@@ -99,7 +101,7 @@ const Cart = () => {
             {!isCheckout ? (
               items.map((item) => (
                 <div
-                  key={item.id}
+                  key={item.cartItemId}
                   className="flex gap-4 p-4 bg-card rounded-lg border"
                 >
                   <Link to={`/products/${item.slug}`} className="flex-shrink-0">
@@ -123,6 +125,19 @@ const Cart = () => {
                         {item.name}
                       </h3>
                     </Link>
+                    {/* Show selected variants */}
+                    {(item.selectedColor || item.selectedSize) && (
+                      <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+                        {item.selectedColor && (
+                          <span className="flex items-center gap-1">
+                            <span className="w-3 h-3 rounded-full bg-current" style={{ color: item.selectedColor === 'Đen' ? '#000' : item.selectedColor === 'Trắng' ? '#fff' : undefined }} />
+                            {item.selectedColor}
+                          </span>
+                        )}
+                        {item.selectedColor && item.selectedSize && <span>•</span>}
+                        {item.selectedSize && <span>Size: {item.selectedSize}</span>}
+                      </div>
+                    )}
                     <p className="text-lg font-semibold mt-1">
                       {formatPrice(item.price)}
                     </p>
@@ -132,7 +147,7 @@ const Cart = () => {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
                         >
                           <Minus className="h-3 w-3" />
                         </Button>
@@ -141,7 +156,7 @@ const Cart = () => {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
                         >
                           <Plus className="h-3 w-3" />
                         </Button>
@@ -150,7 +165,7 @@ const Cart = () => {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-destructive"
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeItem(item.cartItemId)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
