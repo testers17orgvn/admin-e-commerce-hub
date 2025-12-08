@@ -1,13 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { ProductCard } from '@/components/products/ProductCard';
+import { ProductFilters } from '@/components/products/ProductFilters';
 import { supabase } from '@/integrations/supabase/client';
 import { Product, Category } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Grid3X3, List } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+interface FilterState {
+  colors: string[];
+  sizes: string[];
+  tags: string[];
+  priceRange: [number, number];
+  isHot: boolean;
+  hasDiscount: boolean;
+}
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -18,6 +28,47 @@ const Products = () => {
 
   const categorySlug = searchParams.get('category');
   const sortBy = searchParams.get('sort') || 'newest';
+
+  // Extract all available filter options from products
+  const { availableColors, availableSizes, availableTags, maxPrice } = useMemo(() => {
+    const colors = new Set<string>();
+    const sizes = new Set<string>();
+    const tags = new Set<string>();
+    let max = 10000000;
+
+    products.forEach(product => {
+      product.colors?.forEach(c => colors.add(c));
+      product.sizes?.forEach(s => sizes.add(s));
+      product.tags?.forEach(t => tags.add(t));
+      if (product.price > max) max = product.price;
+    });
+
+    return {
+      availableColors: Array.from(colors),
+      availableSizes: Array.from(sizes),
+      availableTags: Array.from(tags),
+      maxPrice: max,
+    };
+  }, [products]);
+
+  const [filters, setFilters] = useState<FilterState>({
+    colors: [],
+    sizes: [],
+    tags: [],
+    priceRange: [0, 10000000],
+    isHot: false,
+    hasDiscount: false,
+  });
+
+  // Update price range when maxPrice changes
+  useEffect(() => {
+    if (maxPrice > 0) {
+      setFilters(prev => ({
+        ...prev,
+        priceRange: [prev.priceRange[0], Math.min(prev.priceRange[1], maxPrice) || maxPrice]
+      }));
+    }
+  }, [maxPrice]);
 
   useEffect(() => {
     async function fetchData() {
@@ -58,6 +109,49 @@ const Products = () => {
     fetchData();
   }, [categorySlug, sortBy]);
 
+  // Apply client-side filters
+  const filteredProducts = useMemo(() => {
+    return products.filter(product => {
+      // Price filter
+      if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) {
+        return false;
+      }
+
+      // Color filter
+      if (filters.colors.length > 0) {
+        if (!product.colors?.some(c => filters.colors.includes(c))) {
+          return false;
+        }
+      }
+
+      // Size filter
+      if (filters.sizes.length > 0) {
+        if (!product.sizes?.some(s => filters.sizes.includes(s))) {
+          return false;
+        }
+      }
+
+      // Tag filter
+      if (filters.tags.length > 0) {
+        if (!product.tags?.some(t => filters.tags.includes(t))) {
+          return false;
+        }
+      }
+
+      // Hot filter
+      if (filters.isHot && !product.is_hot) {
+        return false;
+      }
+
+      // Discount filter
+      if (filters.hasDiscount && (!product.original_price || product.original_price <= product.price)) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [products, filters]);
+
   const handleCategoryChange = (value: string) => {
     if (value === 'all') {
       searchParams.delete('category');
@@ -70,6 +164,17 @@ const Products = () => {
   const handleSortChange = (value: string) => {
     searchParams.set('sort', value);
     setSearchParams(searchParams);
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      colors: [],
+      sizes: [],
+      tags: [],
+      priceRange: [0, maxPrice],
+      isHot: false,
+      hasDiscount: false,
+    });
   };
 
   return (
@@ -85,9 +190,20 @@ const Products = () => {
           </p>
         </div>
 
-        {/* Filters */}
+        {/* Filters Bar */}
         <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 pb-6 border-b">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
+            {/* Mobile Filters */}
+            <ProductFilters
+              availableColors={availableColors}
+              availableSizes={availableSizes}
+              availableTags={availableTags}
+              maxPrice={maxPrice}
+              filters={filters}
+              onFiltersChange={setFilters}
+              onReset={resetFilters}
+            />
+
             <Select value={categorySlug || 'all'} onValueChange={handleCategoryChange}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Danh mục" />
@@ -117,7 +233,7 @@ const Products = () => {
 
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">
-              {products.length} sản phẩm
+              {filteredProducts.length} sản phẩm
             </span>
             <div className="flex border rounded-md">
               <Button
@@ -138,29 +254,50 @@ const Products = () => {
           </div>
         </div>
 
-        {/* Products */}
-        {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="aspect-[3/4] bg-muted animate-pulse rounded-lg" />
-            ))}
+        {/* Main Content with Sidebar */}
+        <div className="flex gap-8">
+          {/* Desktop Filters Sidebar */}
+          <div className="hidden lg:block">
+            <ProductFilters
+              availableColors={availableColors}
+              availableSizes={availableSizes}
+              availableTags={availableTags}
+              maxPrice={maxPrice}
+              filters={filters}
+              onFiltersChange={setFilters}
+              onReset={resetFilters}
+            />
           </div>
-        ) : products.length > 0 ? (
-          <div className={cn(
-            'grid gap-6',
-            viewMode === 'grid' 
-              ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' 
-              : 'grid-cols-1 md:grid-cols-2'
-          )}>
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+
+          {/* Products Grid */}
+          <div className="flex-1">
+            {loading ? (
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="aspect-[3/4] bg-muted animate-pulse rounded-lg" />
+                ))}
+              </div>
+            ) : filteredProducts.length > 0 ? (
+              <div className={cn(
+                'grid gap-6',
+                viewMode === 'grid' 
+                  ? 'grid-cols-2 md:grid-cols-2 lg:grid-cols-3' 
+                  : 'grid-cols-1 md:grid-cols-2'
+              )}>
+                {filteredProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20">
+                <p className="text-muted-foreground mb-4">Không tìm thấy sản phẩm nào.</p>
+                <Button variant="outline" onClick={resetFilters}>
+                  Xóa bộ lọc
+                </Button>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground">Không tìm thấy sản phẩm nào.</p>
-          </div>
-        )}
+        </div>
       </div>
     </Layout>
   );
