@@ -5,10 +5,13 @@ import { Product } from '@/lib/types';
 import { ProductCard } from '@/components/products/ProductCard';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { useHomepageSettings } from '@/hooks/useHomepageSettings';
 
 export function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { settings } = useHomepageSettings();
+  const featured = settings.featured;
 
   useEffect(() => {
     async function fetchFeatured() {
@@ -32,13 +35,13 @@ export function FeaturedProducts() {
         <div className="text-center mb-12 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-accent/10 rounded-full text-accent text-sm font-medium mb-4">
             <Sparkles className="h-4 w-4" />
-            Nổi bật
+            {featured.badge_text}
           </div>
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-            Sản phẩm nổi bật
+            {featured.title}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Những sản phẩm được yêu thích nhất tại LuxeShop
+            {featured.description}
           </p>
         </div>
 
@@ -67,7 +70,7 @@ export function FeaturedProducts() {
         <div className="text-center mt-12">
           <Link to="/products">
             <Button variant="elegant-outline" size="lg" className="group">
-              Xem tất cả sản phẩm
+              {featured.button_text}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>

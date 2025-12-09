@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Category } from '@/lib/types';
+import { useHomepageSettings } from '@/hooks/useHomepageSettings';
 
 export function CategoriesSection() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const { settings } = useHomepageSettings();
+  const categoriesSettings = settings.categories;
 
   useEffect(() => {
     async function fetchCategories() {
@@ -44,10 +47,10 @@ export function CategoriesSection() {
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-            Danh mục sản phẩm
+            {categoriesSettings.title}
           </h2>
           <p className="text-muted-foreground">
-            Khám phá các danh mục sản phẩm đa dạng
+            {categoriesSettings.description}
           </p>
         </div>
 
