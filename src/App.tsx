@@ -16,12 +16,16 @@ import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
+import Profile from "./pages/Profile";
+
 import Dashboard from "./pages/admin/Dashboard";
 import AdminProducts from "./pages/admin/Products";
 import AdminCategories from "./pages/admin/Categories";
 import AdminBanners from "./pages/admin/Banners";
 import AdminBlogs from "./pages/admin/Blogs";
 import AdminOrders from "./pages/admin/Orders";
+import AdminUsers from "./pages/admin/Users";
+import AdminHomepage from "./pages/admin/Homepage";
 import AdminContacts from "./pages/admin/Contacts";
 import AdminSettings from "./pages/admin/Settings";
 
@@ -44,6 +48,7 @@ const App = () => (
               <Route path="/blog/:slug" element={<BlogDetail />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/profile" element={<Profile />} />
               
               {/* Admin Routes */}
               <Route path="/admin" element={<Dashboard />} />
@@ -52,6 +57,8 @@ const App = () => (
               <Route path="/admin/banners" element={<AdminBanners />} />
               <Route path="/admin/blogs" element={<AdminBlogs />} />
               <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/homepage" element={<AdminHomepage />} />
               <Route path="/admin/contacts" element={<AdminContacts />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
               

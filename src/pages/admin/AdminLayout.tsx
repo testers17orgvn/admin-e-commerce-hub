@@ -12,6 +12,8 @@ const menuItems = [
   { href: '/admin/banners', icon: Image, label: 'Banner' },
   { href: '/admin/blogs', icon: FileText, label: 'Blog' },
   { href: '/admin/orders', icon: ShoppingCart, label: 'Đơn hàng' },
+  { href: '/admin/users', icon: Users, label: 'Người dùng' },
+  { href: '/admin/homepage', icon: Image, label: 'Trang chủ' },
   { href: '/admin/contacts', icon: Mail, label: 'Liên hệ' },
   { href: '/admin/settings', icon: Settings, label: 'Cài đặt' },
 ];
