@@ -2,14 +2,18 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import heroBanner from '@/assets/hero-banner.jpg';
+import { useHomepageSettings } from '@/hooks/useHomepageSettings';
 
 export function HeroSection() {
+  const { settings, loading } = useHomepageSettings();
+  const hero = settings.hero;
+
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0">
         <img
-          src={heroBanner}
+          src={hero.background_image || heroBanner}
           alt="Hero banner"
           className="w-full h-full object-cover scale-105 animate-slow-zoom"
         />
@@ -26,40 +30,36 @@ export function HeroSection() {
         <div className="max-w-2xl space-y-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/20 backdrop-blur-sm text-accent rounded-full text-sm font-medium tracking-wide animate-slide-up border border-accent/30">
             <Sparkles className="h-4 w-4" />
-            Bộ sưu tập mới 2024
+            {loading ? '...' : hero.badge_text}
           </div>
           
           <h1 className="font-display text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-cream leading-[1.1] animate-slide-up stagger-1">
-            Phong cách
+            {loading ? '...' : hero.title_line1}
             <br />
-            <span className="text-gradient-gold">Đẳng cấp</span>
+            <span className="text-gradient-gold">{loading ? '...' : hero.title_line2}</span>
           </h1>
           
           <p className="text-cream/70 text-lg md:text-xl max-w-lg leading-relaxed animate-slide-up stagger-2">
-            Khám phá những thiết kế độc quyền, tinh tế được tuyển chọn từ các thương hiệu hàng đầu thế giới.
+            {loading ? '...' : hero.description}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 pt-4 animate-slide-up stagger-3">
             <Link to="/products">
               <Button variant="hero" size="xl" className="group w-full sm:w-auto">
-                Khám phá ngay
+                {loading ? '...' : hero.button_primary_text}
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
             <Link to="/contact">
               <Button variant="hero-outline" size="xl" className="w-full sm:w-auto">
-                Liên hệ tư vấn
+                {loading ? '...' : hero.button_secondary_text}
               </Button>
             </Link>
           </div>
 
           {/* Stats */}
           <div className="flex items-center gap-8 pt-8 animate-slide-up stagger-4">
-            {[
-              { value: '500+', label: 'Sản phẩm' },
-              { value: '10K+', label: 'Khách hàng' },
-              { value: '5★', label: 'Đánh giá' },
-            ].map((stat, i) => (
+            {(hero.stats || []).map((stat, i) => (
               <div key={i} className="text-center">
                 <p className="font-display text-2xl md:text-3xl font-bold text-accent">{stat.value}</p>
                 <p className="text-cream/50 text-sm">{stat.label}</p>
