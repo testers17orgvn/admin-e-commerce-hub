@@ -63,15 +63,16 @@ export function Header() {
                   </Button>
                 </Link>
               )}
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={signOut}
-                className="hover:bg-destructive/10 hover:text-destructive transition-colors"
-                title="Đăng xuất"
-              >
-                <User className="h-5 w-5" />
-              </Button>
+              <Link to="/profile">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="hover:bg-accent/10 hover:text-accent transition-colors"
+                  title="Tài khoản"
+                >
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
             </div>
           ) : (
             <Link to="/auth">
@@ -121,14 +122,25 @@ export function Header() {
               {link.label}
             </Link>
           ))}
-          {user && isAdmin && (
-            <Link
-              to="/admin"
-              onClick={() => setIsOpen(false)}
-              className="px-4 py-3 text-sm font-medium text-accent hover:bg-accent/10 rounded-lg transition-all duration-200"
-            >
-              Quản trị
-            </Link>
+          {user && (
+            <>
+              <Link
+                to="/profile"
+                onClick={() => setIsOpen(false)}
+                className="px-4 py-3 text-sm font-medium hover:bg-accent/10 hover:text-accent rounded-lg transition-all duration-200"
+              >
+                Tài khoản
+              </Link>
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="px-4 py-3 text-sm font-medium text-accent hover:bg-accent/10 rounded-lg transition-all duration-200"
+                >
+                  Quản trị
+                </Link>
+              )}
+            </>
           )}
         </nav>
       </div>
