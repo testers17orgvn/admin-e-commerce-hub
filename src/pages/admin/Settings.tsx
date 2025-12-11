@@ -5,7 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Save, Store, Phone, Mail, MapPin, Facebook, Instagram } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Save, Store, Phone, Mail, MapPin, Facebook, Instagram, CreditCard, Building2, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Settings {
@@ -19,8 +23,52 @@ interface Settings {
   footer_text?: string;
 }
 
+interface PaymentSettings {
+  bank_name: string;
+  bank_account: string;
+  bank_holder: string;
+  momo_phone: string;
+  momo_name: string;
+  enable_bank: boolean;
+  enable_momo: boolean;
+}
+
+const BANKS = [
+  'Vietcombank',
+  'Techcombank',
+  'MB Bank',
+  'BIDV',
+  'Agribank',
+  'VPBank',
+  'ACB',
+  'Sacombank',
+  'VietinBank',
+  'TPBank',
+  'HDBank',
+  'OCB',
+  'SHB',
+  'VIB',
+  'MSB',
+  'SeABank',
+  'Eximbank',
+  'LienVietPostBank',
+  'NamABank',
+  'BacABank',
+  'PVcomBank',
+  'SCB',
+];
+
 export default function AdminSettings() {
   const [settings, setSettings] = useState<Settings>({});
+  const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>({
+    bank_name: '',
+    bank_account: '',
+    bank_holder: '',
+    momo_phone: '',
+    momo_name: '',
+    enable_bank: true,
+    enable_momo: true,
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -29,7 +77,11 @@ export default function AdminSettings() {
     if (data) {
       const settingsMap: Settings = {};
       data.forEach((item: { key: string; value: unknown }) => {
-        settingsMap[item.key as keyof Settings] = item.value as string;
+        if (item.key === 'payment_settings') {
+          setPaymentSettings(prev => ({ ...prev, ...(item.value as object) }));
+        } else {
+          settingsMap[item.key as keyof Settings] = item.value as string;
+        }
       });
       setSettings(settingsMap);
     }
@@ -38,13 +90,13 @@ export default function AdminSettings() {
 
   useEffect(() => { fetchData(); }, []);
 
-  const saveSetting = async (key: string, value: string) => {
+  const saveSetting = async (key: string, value: unknown) => {
     const { data: existing } = await supabase.from('settings').select('id').eq('key', key).maybeSingle();
     
     if (existing) {
-      await supabase.from('settings').update({ value }).eq('key', key);
+      await supabase.from('settings').update({ value: value as never }).eq('key', key);
     } else {
-      await supabase.from('settings').insert({ key, value });
+      await supabase.from('settings').insert([{ key, value: value as never }]);
     }
   };
 
@@ -52,7 +104,10 @@ export default function AdminSettings() {
     setSaving(true);
     try {
       const entries = Object.entries(settings);
-      await Promise.all(entries.map(([key, value]) => saveSetting(key, value || '')));
+      await Promise.all([
+        ...entries.map(([key, value]) => saveSetting(key, value || '')),
+        saveSetting('payment_settings', paymentSettings),
+      ]);
       toast.success('Lưu cài đặt thành công');
     } catch (error) {
       toast.error('Lỗi khi lưu cài đặt');
@@ -64,12 +119,20 @@ export default function AdminSettings() {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
+  const updatePayment = <K extends keyof PaymentSettings>(key: K, value: PaymentSettings[K]) => {
+    setPaymentSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  if (loading) {
+    return <AdminLayout><div className="p-8 text-center">Đang tải...</div></AdminLayout>;
+  }
+
   return (
     <AdminLayout>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Cài đặt</h1>
-        <Button variant="hero" onClick={handleSave} disabled={saving}>
-          <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+        <Button onClick={handleSave} disabled={saving}>
+          <Save className="h-4 w-4 mr-2" /> {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
         </Button>
       </div>
 
@@ -78,6 +141,7 @@ export default function AdminSettings() {
           <TabsTrigger value="general">Tổng quan</TabsTrigger>
           <TabsTrigger value="contact">Liên hệ</TabsTrigger>
           <TabsTrigger value="social">Mạng xã hội</TabsTrigger>
+          <TabsTrigger value="payment">Thanh toán</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="space-y-6">
@@ -130,6 +194,151 @@ export default function AdminSettings() {
               <Input value={settings.instagram_url || ''} onChange={(e) => updateSetting('instagram_url', e.target.value)} placeholder="https://instagram.com/yourpage" />
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="payment" className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Bank Settings */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Building2 className="h-5 w-5" />
+                    Chuyển khoản ngân hàng
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="enable-bank"
+                      checked={paymentSettings.enable_bank}
+                      onCheckedChange={(checked) => updatePayment('enable_bank', checked)}
+                    />
+                    <Label htmlFor="enable-bank" className="text-sm">Bật</Label>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Cấu hình tài khoản ngân hàng để tự động tạo mã QR thanh toán
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Ngân hàng</label>
+                  <Select 
+                    value={paymentSettings.bank_name} 
+                    onValueChange={(value) => updatePayment('bank_name', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn ngân hàng" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BANKS.map((bank) => (
+                        <SelectItem key={bank} value={bank}>{bank}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Số tài khoản</label>
+                  <Input
+                    value={paymentSettings.bank_account}
+                    onChange={(e) => updatePayment('bank_account', e.target.value)}
+                    placeholder="0123456789"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Tên chủ tài khoản</label>
+                  <Input
+                    value={paymentSettings.bank_holder}
+                    onChange={(e) => updatePayment('bank_holder', e.target.value)}
+                    placeholder="NGUYEN VAN A"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* MoMo Settings */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Smartphone className="h-5 w-5 text-pink-500" />
+                    Ví MoMo
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="enable-momo"
+                      checked={paymentSettings.enable_momo}
+                      onCheckedChange={(checked) => updatePayment('enable_momo', checked)}
+                    />
+                    <Label htmlFor="enable-momo" className="text-sm">Bật</Label>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Cấu hình ví MoMo để nhận thanh toán
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Số điện thoại MoMo</label>
+                  <Input
+                    value={paymentSettings.momo_phone}
+                    onChange={(e) => updatePayment('momo_phone', e.target.value)}
+                    placeholder="0909123456"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Tên tài khoản MoMo</label>
+                  <Input
+                    value={paymentSettings.momo_name}
+                    onChange={(e) => updatePayment('momo_name', e.target.value)}
+                    placeholder="Nguyễn Văn A"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Xem trước mã QR
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {paymentSettings.enable_bank && paymentSettings.bank_account && paymentSettings.bank_name ? (
+                <div className="flex flex-col items-center gap-4 p-4 bg-muted/50 rounded-lg">
+                  <p className="text-sm text-muted-foreground">Mã QR ngân hàng (ví dụ với 100,000đ)</p>
+                  <div className="bg-white p-4 rounded-lg">
+                    <img
+                      src={`https://img.vietqr.io/image/${
+                        {
+                          'Vietcombank': 'VCB',
+                          'Techcombank': 'TCB',
+                          'MB Bank': 'MB',
+                          'BIDV': 'BIDV',
+                          'Agribank': 'VBA',
+                          'VPBank': 'VPB',
+                          'ACB': 'ACB',
+                          'Sacombank': 'STB',
+                          'VietinBank': 'ICB',
+                          'TPBank': 'TPB',
+                        }[paymentSettings.bank_name] || paymentSettings.bank_name
+                      }-${paymentSettings.bank_account}-compact2.png?amount=100000&addInfo=Thanh%20toan%20don%20hang&accountName=${encodeURIComponent(paymentSettings.bank_holder)}`}
+                      alt="Bank QR Preview"
+                      className="w-48 h-48 object-contain"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://placehold.co/200x200?text=QR+Preview';
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  Điền thông tin ngân hàng để xem trước mã QR
+                </p>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </AdminLayout>

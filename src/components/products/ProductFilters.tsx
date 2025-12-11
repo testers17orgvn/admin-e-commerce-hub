@@ -26,6 +26,8 @@ interface ProductFiltersProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
   onReset: () => void;
+  isMobileOnly?: boolean;
+  isDesktopOnly?: boolean;
 }
 
 const colorMap: Record<string, string> = {
@@ -51,6 +53,8 @@ export function ProductFilters({
   filters,
   onFiltersChange,
   onReset,
+  isMobileOnly = false,
+  isDesktopOnly = false,
 }: ProductFiltersProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -227,17 +231,54 @@ export function ProductFilters({
     </div>
   );
 
+  // Desktop only mode
+  if (isDesktopOnly) {
+    return (
+      <div className="w-64 flex-shrink-0">
+        <div className="sticky top-24 bg-card rounded-lg border p-4">
+          <h3 className="font-display font-bold text-lg mb-4">Bộ lọc</h3>
+          <FilterContent />
+        </div>
+      </div>
+    );
+  }
+
+  // Mobile only mode
+  if (isMobileOnly) {
+    return (
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" className="gap-2">
+            <SlidersHorizontal className="h-4 w-4" />
+            Bộ lọc
+            {activeFiltersCount > 0 && (
+              <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center">
+                {activeFiltersCount}
+              </Badge>
+            )}
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-80 overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Bộ lọc sản phẩm</SheetTitle>
+          </SheetHeader>
+          <div className="mt-6">
+            <FilterContent />
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // Default: render both
   return (
     <>
-      {/* Desktop Filters */}
       <div className="hidden lg:block w-64 flex-shrink-0">
         <div className="sticky top-24 bg-card rounded-lg border p-4">
           <h3 className="font-display font-bold text-lg mb-4">Bộ lọc</h3>
           <FilterContent />
         </div>
       </div>
-
-      {/* Mobile Filter Sheet */}
       <div className="lg:hidden">
         <Sheet>
           <SheetTrigger asChild>

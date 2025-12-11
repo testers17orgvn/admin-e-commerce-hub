@@ -8,12 +8,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { PaymentQR } from '@/components/checkout/PaymentQR';
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, clearCart, totalPrice } = useCart();
   const navigate = useNavigate();
   const [isCheckout, setIsCheckout] = useState(false);
+  const [showPaymentQR, setShowPaymentQR] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -47,7 +50,7 @@ const Cart = () => {
       selectedSize: item.selectedSize,
     }));
 
-    const { error } = await supabase.from('orders').insert({
+    const { data, error } = await supabase.from('orders').insert({
       customer_name: formData.name,
       customer_email: formData.email,
       customer_phone: formData.phone,
@@ -55,7 +58,7 @@ const Cart = () => {
       items: orderItems,
       total_amount: totalPrice,
       notes: formData.notes,
-    });
+    }).select('id').single();
 
     if (error) {
       toast.error('Đã có lỗi xảy ra. Vui lòng thử lại.');
@@ -63,9 +66,16 @@ const Cart = () => {
       return;
     }
 
-    toast.success('Đặt hàng thành công! Chúng tôi sẽ liên hệ bạn sớm.');
+    setOrderId(data.id);
+    setShowPaymentQR(true);
+    toast.success('Đặt hàng thành công! Vui lòng thanh toán theo mã QR bên dưới.');
+    setLoading(false);
+  };
+
+  const handleCompleteOrder = () => {
     clearCart();
     navigate('/');
+    toast.success('Cảm ơn bạn đã mua hàng!');
   };
 
   if (items.length === 0) {
@@ -251,17 +261,15 @@ const Cart = () => {
               </div>
               {!isCheckout ? (
                 <Button
-                  variant="hero"
                   className="w-full"
                   size="lg"
                   onClick={() => setIsCheckout(true)}
                 >
                   Tiến hành thanh toán
                 </Button>
-              ) : (
+              ) : !showPaymentQR ? (
                 <div className="space-y-2">
                   <Button
-                    variant="hero"
                     className="w-full"
                     size="lg"
                     type="submit"
@@ -278,8 +286,24 @@ const Cart = () => {
                     Quay lại giỏ hàng
                   </Button>
                 </div>
+              ) : (
+                <Button
+                  className="w-full"
+                  size="lg"
+                  onClick={handleCompleteOrder}
+                >
+                  Hoàn tất đơn hàng
+                </Button>
               )}
             </div>
+
+            {/* Payment QR */}
+            {showPaymentQR && (
+              <PaymentQR 
+                amount={totalPrice} 
+                orderDescription={`DH${orderId?.slice(0, 8).toUpperCase()}`} 
+              />
+            )}
           </div>
         </div>
       </div>

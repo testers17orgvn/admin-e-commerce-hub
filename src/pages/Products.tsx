@@ -193,16 +193,19 @@ const Products = () => {
         {/* Filters Bar */}
         <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 pb-6 border-b">
           <div className="flex items-center gap-4 flex-wrap">
-            {/* Mobile Filters */}
-            <ProductFilters
-              availableColors={availableColors}
-              availableSizes={availableSizes}
-              availableTags={availableTags}
-              maxPrice={maxPrice}
-              filters={filters}
-              onFiltersChange={setFilters}
-              onReset={resetFilters}
-            />
+            {/* Mobile Filters - Only show on mobile */}
+            <div className="lg:hidden">
+              <ProductFilters
+                availableColors={availableColors}
+                availableSizes={availableSizes}
+                availableTags={availableTags}
+                maxPrice={maxPrice}
+                filters={filters}
+                onFiltersChange={setFilters}
+                onReset={resetFilters}
+                isMobileOnly
+              />
+            </div>
 
             <Select value={categorySlug || 'all'} onValueChange={handleCategoryChange}>
               <SelectTrigger className="w-[180px]">
@@ -256,7 +259,7 @@ const Products = () => {
 
         {/* Main Content with Sidebar */}
         <div className="flex gap-8">
-          {/* Desktop Filters Sidebar */}
+          {/* Desktop Filters Sidebar - Only show on desktop */}
           <div className="hidden lg:block">
             <ProductFilters
               availableColors={availableColors}
@@ -266,6 +269,7 @@ const Products = () => {
               filters={filters}
               onFiltersChange={setFilters}
               onReset={resetFilters}
+              isDesktopOnly
             />
           </div>
 
