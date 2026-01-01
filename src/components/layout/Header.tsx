@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Menu, X, User, Search, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import logo from '@/assets/logo.png';
+import { supabase } from '@/integrations/supabase/client';
+import defaultLogo from '@/assets/logo.png';
 
 const navLinks = [
   { href: '/', label: 'Trang chủ' },
@@ -18,6 +19,22 @@ export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const { totalItems } = useCart();
   const { user, isAdmin, signOut } = useAuth();
+  const [logo, setLogo] = useState(defaultLogo);
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      const { data } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'logo_url')
+        .maybeSingle();
+      
+      if (data?.value && typeof data.value === 'string') {
+        setLogo(data.value);
+      }
+    };
+    fetchLogo();
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-sm">
@@ -26,7 +43,7 @@ export function Header() {
         <Link to="/" className="flex items-center gap-3 group">
           <img 
             src={logo} 
-            alt="Hibiki" 
+            alt="Logo" 
             className="h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105" 
           />
           <span className="font-display text-2xl font-bold tracking-tight hidden sm:block">

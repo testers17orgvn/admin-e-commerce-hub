@@ -52,40 +52,64 @@ export type Database = {
       }
       blogs: {
         Row: {
+          author_avatar: string | null
+          author_name: string | null
+          category: string | null
           content: string | null
           created_at: string | null
           excerpt: string | null
           id: string
           image_url: string | null
           is_published: boolean | null
+          meta_description: string | null
+          meta_title: string | null
           published_at: string | null
+          reading_time: number | null
           slug: string
+          tags: string[] | null
           title: string
           updated_at: string | null
+          view_count: number | null
         }
         Insert: {
+          author_avatar?: string | null
+          author_name?: string | null
+          category?: string | null
           content?: string | null
           created_at?: string | null
           excerpt?: string | null
           id?: string
           image_url?: string | null
           is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
           published_at?: string | null
+          reading_time?: number | null
           slug: string
+          tags?: string[] | null
           title: string
           updated_at?: string | null
+          view_count?: number | null
         }
         Update: {
+          author_avatar?: string | null
+          author_name?: string | null
+          category?: string | null
           content?: string | null
           created_at?: string | null
           excerpt?: string | null
           id?: string
           image_url?: string | null
           is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
           published_at?: string | null
+          reading_time?: number | null
           slug?: string
+          tags?: string[] | null
           title?: string
           updated_at?: string | null
+          view_count?: number | null
         }
         Relationships: []
       }

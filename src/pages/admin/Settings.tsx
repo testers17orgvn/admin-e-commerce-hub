@@ -9,8 +9,9 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Save, Store, Phone, Mail, MapPin, Facebook, Instagram, CreditCard, Building2, Smartphone } from 'lucide-react';
+import { Save, Store, Phone, Mail, MapPin, Facebook, Instagram, CreditCard, Building2, Smartphone, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 
 interface Settings {
   site_name?: string;
@@ -21,6 +22,8 @@ interface Settings {
   facebook_url?: string;
   instagram_url?: string;
   footer_text?: string;
+  logo_url?: string;
+  favicon_url?: string;
 }
 
 interface PaymentSettings {
@@ -139,6 +142,7 @@ export default function AdminSettings() {
       <Tabs defaultValue="general" className="space-y-6">
         <TabsList>
           <TabsTrigger value="general">Tổng quan</TabsTrigger>
+          <TabsTrigger value="branding">Logo & Favicon</TabsTrigger>
           <TabsTrigger value="contact">Liên hệ</TabsTrigger>
           <TabsTrigger value="social">Mạng xã hội</TabsTrigger>
           <TabsTrigger value="payment">Thanh toán</TabsTrigger>
@@ -160,6 +164,71 @@ export default function AdminSettings() {
               <Input value={settings.footer_text || ''} onChange={(e) => updateSetting('footer_text', e.target.value)} placeholder="Text hiển thị ở footer" />
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="branding" className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ImageIcon className="h-5 w-5" />
+                  Logo
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Logo hiển thị trên header và các vị trí khác
+                </p>
+              </CardHeader>
+              <CardContent>
+                <ImageUpload
+                  value={settings.logo_url || ''}
+                  onChange={(url) => updateSetting('logo_url', url)}
+                  folder="branding"
+                  label="Tải lên logo"
+                />
+                {settings.logo_url && (
+                  <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+                    <p className="text-xs text-muted-foreground mb-2">Xem trước:</p>
+                    <img src={settings.logo_url} alt="Logo" className="h-12 object-contain" />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ImageIcon className="h-5 w-5" />
+                  Favicon
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Icon hiển thị trên tab trình duyệt (khuyến nghị 32x32 hoặc 64x64 px)
+                </p>
+              </CardHeader>
+              <CardContent>
+                <ImageUpload
+                  value={settings.favicon_url || ''}
+                  onChange={(url) => updateSetting('favicon_url', url)}
+                  folder="branding"
+                  label="Tải lên favicon"
+                />
+                {settings.favicon_url && (
+                  <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+                    <p className="text-xs text-muted-foreground mb-2">Xem trước:</p>
+                    <img src={settings.favicon_url} alt="Favicon" className="h-8 w-8 object-contain" />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
+            <CardContent className="pt-6">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                <strong>Lưu ý:</strong> Sau khi thay đổi logo hoặc favicon, vui lòng reload lại trang để xem thay đổi. 
+                Logo sẽ tự động cập nhật trên header, favicon sẽ cập nhật trên tab trình duyệt.
+              </p>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="contact" className="space-y-6">

@@ -6,18 +6,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-    <title>08d23209-a3fa-4e21-89ae-293032715374</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
+    <link rel="icon" id="dynamic-favicon" href="/favicon.ico" type="image/x-icon" />
+    <title>Hibiki Shop</title>
+    <meta name="description" content="Hibiki Shop - Cửa hàng thời trang" />
+    <meta name="author" content="Hibiki" />
 
-    <meta property="og:title" content="08d23209-a3fa-4e21-89ae-293032715374" />
-    <meta property="og:description" content="Lovable Generated Project" />
+    <meta property="og:title" content="Hibiki Shop" />
+    <meta property="og:description" content="Hibiki Shop - Cửa hàng thời trang" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@Lovable" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <script>
+      // Load dynamic favicon from settings
+      fetch('https://bhrzvkwcrmwkyjahykhm.supabase.co/rest/v1/settings?key=eq.favicon_url&select=value', {
+        headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJocnp2a3djcm13a3lqYWh5a2htIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NjM3MzksImV4cCI6MjA4MDMzOTczOX0.R5a60XcIDhar94sWaR_gD3hxOtSMPKtTBPp_77hntUo' }
+      }).then(r => r.json()).then(data => {
+        if (data[0]?.value) document.getElementById('dynamic-favicon').href = data[0].value;
+      }).catch(() => {});
+    </script>
   </head>
 
   <body>
