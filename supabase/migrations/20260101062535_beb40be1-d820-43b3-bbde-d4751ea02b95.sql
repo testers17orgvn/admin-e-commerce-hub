@@ -1,0 +1,10 @@
+-- Thêm các cột mới cho Blog để chi tiết hơn
+ALTER TABLE public.blogs 
+ADD COLUMN IF NOT EXISTS author_name TEXT,
+ADD COLUMN IF NOT EXISTS author_avatar TEXT,
+ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS category TEXT,
+ADD COLUMN IF NOT EXISTS reading_time INTEGER DEFAULT 5,
+ADD COLUMN IF NOT EXISTS meta_title TEXT,
+ADD COLUMN IF NOT EXISTS meta_description TEXT,
+ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0;

@@ -53,6 +53,14 @@ export interface Blog {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  author_name: string | null;
+  author_avatar: string | null;
+  tags: string[] | null;
+  category: string | null;
+  reading_time: number | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  view_count: number | null;
 }
 
 export interface Contact {
