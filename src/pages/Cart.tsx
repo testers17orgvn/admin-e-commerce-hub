@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useCart } from '@/hooks/useCart';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,6 +13,7 @@ import { PaymentQR } from '@/components/checkout/PaymentQR';
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, clearCart, totalPrice } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [isCheckout, setIsCheckout] = useState(false);
   const [showPaymentQR, setShowPaymentQR] = useState(false);
@@ -24,6 +26,36 @@ const Cart = () => {
     address: '',
     notes: '',
   });
+
+  // Auto-fill từ profile khi user đăng nhập
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, phone, address')
+        .eq('id', user.id)
+        .single();
+
+      if (profile) {
+        setFormData(prev => ({
+          ...prev,
+          name: profile.full_name || prev.name,
+          email: user.email || prev.email,
+          phone: profile.phone || prev.phone,
+          address: profile.address || prev.address,
+        }));
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          email: user.email || prev.email,
+        }));
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
