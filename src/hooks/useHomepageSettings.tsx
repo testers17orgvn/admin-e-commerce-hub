@@ -10,6 +10,10 @@ interface HeroSettings {
   button_secondary_text: string;
   stats: Array<{ value: string; label: string }>;
   background_image?: string;
+  show_badge?: boolean;
+  show_description?: boolean;
+  show_buttons?: boolean;
+  show_stats?: boolean;
 }
 
 interface FeaturedSettings {
@@ -51,6 +55,10 @@ const defaultSettings: HomepageSettings = {
       { value: '10K+', label: 'Khách hàng' },
       { value: '5★', label: 'Đánh giá' },
     ],
+    show_badge: true,
+    show_description: true,
+    show_buttons: true,
+    show_stats: true,
   },
   featured: {
     badge_text: 'Nổi bật',
