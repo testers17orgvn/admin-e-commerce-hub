@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Save, Layout, Sparkles, Grid, Mail, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/admin/ImageUpload';
@@ -27,6 +29,10 @@ export default function AdminHomepage() {
       button_secondary_text: '',
       stats: [],
       background_image: '',
+      show_badge: true,
+      show_description: true,
+      show_buttons: true,
+      show_stats: true,
     },
     featured: {
       badge_text: '',
@@ -112,7 +118,7 @@ export default function AdminHomepage() {
     setSaving(false);
   };
 
-  const updateHero = (key: keyof typeof settings.hero, value: string | StatItem[]) => {
+  const updateHero = (key: keyof typeof settings.hero, value: string | StatItem[] | boolean) => {
     setSettings(prev => ({
       ...prev,
       hero: { ...prev.hero, [key]: value }
@@ -197,6 +203,45 @@ export default function AdminHomepage() {
               <p className="text-sm text-muted-foreground">Phần banner chính ở đầu trang</p>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Visibility Toggles */}
+              <div className="p-4 bg-muted/50 rounded-lg space-y-4">
+                <h4 className="font-medium text-sm">Hiển thị các phần tử</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="show_badge"
+                      checked={settings.hero.show_badge !== false}
+                      onCheckedChange={(checked) => updateHero('show_badge', checked)}
+                    />
+                    <Label htmlFor="show_badge" className="text-sm">Badge</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="show_description"
+                      checked={settings.hero.show_description !== false}
+                      onCheckedChange={(checked) => updateHero('show_description', checked)}
+                    />
+                    <Label htmlFor="show_description" className="text-sm">Mô tả</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="show_buttons"
+                      checked={settings.hero.show_buttons !== false}
+                      onCheckedChange={(checked) => updateHero('show_buttons', checked)}
+                    />
+                    <Label htmlFor="show_buttons" className="text-sm">Nút CTA</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="show_stats"
+                      checked={settings.hero.show_stats !== false}
+                      onCheckedChange={(checked) => updateHero('show_stats', checked)}
+                    />
+                    <Label htmlFor="show_stats" className="text-sm">Thống kê</Label>
+                  </div>
+                </div>
+              </div>
+
               {/* Background Image */}
               <div>
                 <ImageUpload
@@ -214,6 +259,7 @@ export default function AdminHomepage() {
                   value={settings.hero.badge_text}
                   onChange={(e) => updateHero('badge_text', e.target.value)}
                   placeholder="Bộ sưu tập mới 2024"
+                  disabled={settings.hero.show_badge === false}
                 />
               </div>
 
@@ -245,6 +291,7 @@ export default function AdminHomepage() {
                   onChange={(e) => updateHero('description', e.target.value)}
                   placeholder="Khám phá những thiết kế độc quyền..."
                   rows={3}
+                  disabled={settings.hero.show_description === false}
                 />
               </div>
 
@@ -256,6 +303,7 @@ export default function AdminHomepage() {
                     value={settings.hero.button_primary_text}
                     onChange={(e) => updateHero('button_primary_text', e.target.value)}
                     placeholder="Khám phá ngay"
+                    disabled={settings.hero.show_buttons === false}
                   />
                 </div>
                 <div>
@@ -264,12 +312,13 @@ export default function AdminHomepage() {
                     value={settings.hero.button_secondary_text}
                     onChange={(e) => updateHero('button_secondary_text', e.target.value)}
                     placeholder="Liên hệ tư vấn"
+                    disabled={settings.hero.show_buttons === false}
                   />
                 </div>
               </div>
 
               {/* Stats */}
-              <div>
+              <div className={settings.hero.show_stats === false ? 'opacity-50 pointer-events-none' : ''}>
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-sm font-medium">Thống kê</label>
                   <Button type="button" variant="outline" size="sm" onClick={addStat}>
