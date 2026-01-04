@@ -31,6 +31,17 @@ import {
   XCircle,
   ShoppingBag,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { format, addDays } from "date-fns";
 import { vi } from "date-fns/locale";
 import { toast } from "sonner";
@@ -167,6 +178,27 @@ const OrderHistory = () => {
       navigate("/cart");
     } catch (error) {
       toast.error("Không thể đặt lại đơn hàng");
+    }
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: "cancelled" })
+        .eq("id", orderId);
+
+      if (error) throw error;
+
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === orderId ? { ...order, status: "cancelled" } : order
+        )
+      );
+      toast.success("Đã hủy đơn hàng thành công");
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      toast.error("Không thể hủy đơn hàng");
     }
   };
 
@@ -478,6 +510,41 @@ const OrderHistory = () => {
                             )}
                           </DialogContent>
                         </Dialog>
+
+                        {order.status === "pending" && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                className="flex-1 sm:flex-none"
+                              >
+                                <XCircle className="h-4 w-4 mr-1" />
+                                Hủy đơn
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Xác nhận hủy đơn hàng
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Bạn có chắc chắn muốn hủy đơn hàng #{order.id.slice(0, 8).toUpperCase()}? 
+                                  Hành động này không thể hoàn tác.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Không, giữ lại</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleCancelOrder(order.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Xác nhận hủy
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
 
                         <Button
                           size="sm"
