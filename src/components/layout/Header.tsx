@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Menu, X, User, Search, ChevronDown } from 'lucide-react';
+import { ShoppingBag, Menu, X, User, Search, ChevronDown, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
@@ -80,6 +80,16 @@ export function Header() {
                   </Button>
                 </Link>
               )}
+              <Link to="/orders" className="hidden sm:block">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="hover:bg-accent/10 hover:text-accent transition-colors"
+                  title="Đơn hàng của tôi"
+                >
+                  <Package className="h-5 w-5" />
+                </Button>
+              </Link>
               <Link to="/profile">
                 <Button 
                   variant="ghost" 
@@ -141,6 +151,13 @@ export function Header() {
           ))}
           {user && (
             <>
+              <Link
+                to="/orders"
+                onClick={() => setIsOpen(false)}
+                className="px-4 py-3 text-sm font-medium hover:bg-accent/10 hover:text-accent rounded-lg transition-all duration-200"
+              >
+                Đơn hàng của tôi
+              </Link>
               <Link
                 to="/profile"
                 onClick={() => setIsOpen(false)}
