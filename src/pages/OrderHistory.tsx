@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +38,9 @@ import {
   Clock,
   XCircle,
   ShoppingBag,
+  Search,
+  Filter,
+  X,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -42,7 +53,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { format, addDays } from "date-fns";
+import { format, addDays, isWithinInterval, startOfDay, endOfDay } from "date-fns";
 import { vi } from "date-fns/locale";
 import { toast } from "sonner";
 
@@ -53,6 +64,12 @@ const OrderHistory = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -202,6 +219,49 @@ const OrderHistory = () => {
     }
   };
 
+  // Filter orders based on search, status, and date
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      // Search by order ID or product names
+      const searchLower = searchQuery.toLowerCase();
+      const matchesSearch =
+        searchQuery === "" ||
+        order.id.toLowerCase().includes(searchLower) ||
+        order.items.some((item) => item.name.toLowerCase().includes(searchLower)) ||
+        order.customer_name.toLowerCase().includes(searchLower);
+
+      // Filter by status
+      const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+
+      // Filter by date range
+      let matchesDate = true;
+      if (dateFrom || dateTo) {
+        const orderDate = new Date(order.created_at);
+        if (dateFrom && dateTo) {
+          matchesDate = isWithinInterval(orderDate, {
+            start: startOfDay(new Date(dateFrom)),
+            end: endOfDay(new Date(dateTo)),
+          });
+        } else if (dateFrom) {
+          matchesDate = orderDate >= startOfDay(new Date(dateFrom));
+        } else if (dateTo) {
+          matchesDate = orderDate <= endOfDay(new Date(dateTo));
+        }
+      }
+
+      return matchesSearch && matchesStatus && matchesDate;
+    });
+  }, [orders, searchQuery, statusFilter, dateFrom, dateTo]);
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setDateFrom("");
+    setDateTo("");
+  };
+
+  const hasActiveFilters = searchQuery || statusFilter !== "all" || dateFrom || dateTo;
+
   if (authLoading || loading) {
     return (
       <Layout>
@@ -231,9 +291,76 @@ const OrderHistory = () => {
             </p>
           </div>
           <Badge variant="outline" className="w-fit text-sm">
-            {orders.length} đơn hàng
+            {filteredOrders.length}/{orders.length} đơn hàng
           </Badge>
         </div>
+
+        {/* Filters Section */}
+        <Card className="mb-6">
+          <CardContent className="p-4">
+            <div className="flex flex-col gap-4">
+              {/* Search and Status Filter Row */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Tìm kiếm theo mã đơn, tên sản phẩm..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Trạng thái" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                    <SelectItem value="pending">Chờ xử lý</SelectItem>
+                    <SelectItem value="confirmed">Đã xác nhận</SelectItem>
+                    <SelectItem value="shipping">Đang giao</SelectItem>
+                    <SelectItem value="delivered">Đã giao</SelectItem>
+                    <SelectItem value="cancelled">Đã hủy</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Date Range Filter Row */}
+              <div className="flex flex-col sm:flex-row gap-3 items-end">
+                <div className="flex-1 sm:flex-initial">
+                  <label className="text-sm text-muted-foreground mb-1 block">Từ ngày</label>
+                  <Input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    className="w-full sm:w-[160px]"
+                  />
+                </div>
+                <div className="flex-1 sm:flex-initial">
+                  <label className="text-sm text-muted-foreground mb-1 block">Đến ngày</label>
+                  <Input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    className="w-full sm:w-[160px]"
+                  />
+                </div>
+                {hasActiveFilters && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearFilters}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Xóa bộ lọc
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {orders.length === 0 ? (
           <Card className="text-center py-12 md:py-16">
@@ -250,9 +377,24 @@ const OrderHistory = () => {
               </Button>
             </CardContent>
           </Card>
+        ) : filteredOrders.length === 0 ? (
+          <Card className="text-center py-12 md:py-16">
+            <CardContent>
+              <Search className="mx-auto h-12 w-12 md:h-16 md:w-16 text-muted-foreground mb-4" />
+              <h3 className="text-lg md:text-xl font-semibold mb-2">
+                Không tìm thấy đơn hàng
+              </h3>
+              <p className="text-muted-foreground mb-6 text-sm md:text-base">
+                Không có đơn hàng nào phù hợp với bộ lọc của bạn
+              </p>
+              <Button variant="outline" onClick={clearFilters}>
+                Xóa bộ lọc
+              </Button>
+            </CardContent>
+          </Card>
         ) : (
           <div className="space-y-4 md:space-y-6">
-            {orders.map((order) => {
+            {filteredOrders.map((order) => {
               const statusConfig = getStatusConfig(order.status);
               const StatusIcon = statusConfig.icon;
               const estimatedDelivery = getEstimatedDelivery(
