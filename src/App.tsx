@@ -15,6 +15,7 @@ import BlogDetail from "./pages/BlogDetail";
 import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import OrderHistory from "./pages/OrderHistory";
 
 import Profile from "./pages/Profile";
 
@@ -49,6 +50,7 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/orders" element={<OrderHistory />} />
               
               {/* Admin Routes */}
               <Route path="/admin" element={<Dashboard />} />
