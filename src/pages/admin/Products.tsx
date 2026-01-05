@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { AdminLayout } from './AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { Product, Category } from '@/lib/types';
@@ -8,13 +8,51 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Pencil, Trash2, Star, Flame, Eye, EyeOff } from 'lucide-react';
+import { Plus, Pencil, Trash2, Star, Flame, Eye, EyeOff, Link } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { MultiImageUpload } from '@/components/admin/MultiImageUpload';
 import { TagInput } from '@/components/admin/TagInput';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+// Utility function to generate slug from Vietnamese text (client-side preview)
+const generateSlug = (text: string): string => {
+  const vietnameseMap: Record<string, string> = {
+    'à': 'a', 'á': 'a', 'ả': 'a', 'ã': 'a', 'ạ': 'a',
+    'ă': 'a', 'ắ': 'a', 'ằ': 'a', 'ẳ': 'a', 'ẵ': 'a', 'ặ': 'a',
+    'â': 'a', 'ấ': 'a', 'ầ': 'a', 'ẩ': 'a', 'ẫ': 'a', 'ậ': 'a',
+    'è': 'e', 'é': 'e', 'ẻ': 'e', 'ẽ': 'e', 'ẹ': 'e',
+    'ê': 'e', 'ế': 'e', 'ề': 'e', 'ể': 'e', 'ễ': 'e', 'ệ': 'e',
+    'ì': 'i', 'í': 'i', 'ỉ': 'i', 'ĩ': 'i', 'ị': 'i',
+    'ò': 'o', 'ó': 'o', 'ỏ': 'o', 'õ': 'o', 'ọ': 'o',
+    'ô': 'o', 'ố': 'o', 'ồ': 'o', 'ổ': 'o', 'ỗ': 'o', 'ộ': 'o',
+    'ơ': 'o', 'ớ': 'o', 'ờ': 'o', 'ở': 'o', 'ỡ': 'o', 'ợ': 'o',
+    'ù': 'u', 'ú': 'u', 'ủ': 'u', 'ũ': 'u', 'ụ': 'u',
+    'ư': 'u', 'ứ': 'u', 'ừ': 'u', 'ử': 'u', 'ữ': 'u', 'ự': 'u',
+    'ỳ': 'y', 'ý': 'y', 'ỷ': 'y', 'ỹ': 'y', 'ỵ': 'y',
+    'đ': 'd',
+    'À': 'A', 'Á': 'A', 'Ả': 'A', 'Ã': 'A', 'Ạ': 'A',
+    'Ă': 'A', 'Ắ': 'A', 'Ằ': 'A', 'Ẳ': 'A', 'Ẵ': 'A', 'Ặ': 'A',
+    'Â': 'A', 'Ấ': 'A', 'Ầ': 'A', 'Ẩ': 'A', 'Ẫ': 'A', 'Ậ': 'A',
+    'È': 'E', 'É': 'E', 'Ẻ': 'E', 'Ẽ': 'E', 'Ẹ': 'E',
+    'Ê': 'E', 'Ế': 'E', 'Ề': 'E', 'Ể': 'E', 'Ễ': 'E', 'Ệ': 'E',
+    'Ì': 'I', 'Í': 'I', 'Ỉ': 'I', 'Ĩ': 'I', 'Ị': 'I',
+    'Ò': 'O', 'Ó': 'O', 'Ỏ': 'O', 'Õ': 'O', 'Ọ': 'O',
+    'Ô': 'O', 'Ố': 'O', 'Ồ': 'O', 'Ổ': 'O', 'Ỗ': 'O', 'Ộ': 'O',
+    'Ơ': 'O', 'Ớ': 'O', 'Ờ': 'O', 'Ở': 'O', 'Ỡ': 'O', 'Ợ': 'O',
+    'Ù': 'U', 'Ú': 'U', 'Ủ': 'U', 'Ũ': 'U', 'Ụ': 'U',
+    'Ư': 'U', 'Ứ': 'U', 'Ừ': 'U', 'Ử': 'U', 'Ữ': 'U', 'Ự': 'U',
+    'Ỳ': 'Y', 'Ý': 'Y', 'Ỷ': 'Y', 'Ỹ': 'Y', 'Ỵ': 'Y',
+    'Đ': 'D'
+  };
+  
+  let result = text.split('').map(char => vietnameseMap[char] || char).join('');
+  result = result.toLowerCase();
+  result = result.replace(/[^a-z0-9]+/g, '-');
+  result = result.replace(/^-+|-+$/g, '');
+  return result || 'san-pham';
+};
 
 interface ProductForm {
   name: string;
@@ -184,11 +222,33 @@ export default function AdminProducts() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium">Tên sản phẩm *</label>
-                      <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+                      <Input 
+                        value={form.name} 
+                        onChange={(e) => {
+                          const newName = e.target.value;
+                          setForm({ 
+                            ...form, 
+                            name: newName,
+                            // Auto-generate slug preview if slug is empty
+                            slug: form.slug || '' 
+                          });
+                        }} 
+                        required 
+                      />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">Slug</label>
-                      <Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="Tự động tạo" />
+                      <label className="text-sm font-medium">Slug (URL)</label>
+                      <Input 
+                        value={form.slug} 
+                        onChange={(e) => setForm({ ...form, slug: e.target.value })} 
+                        placeholder="Tự động tạo từ tên" 
+                      />
+                      {form.name && !form.slug && (
+                        <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                          <Link className="h-3 w-3" />
+                          <span>Preview: <code className="bg-muted px-1 rounded">{generateSlug(form.name)}</code></span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
