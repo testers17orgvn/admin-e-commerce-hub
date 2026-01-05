@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,10 +6,10 @@ import { Product } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/hooks/useCart';
-import { ShoppingBag, Heart, Share2, Minus, Plus, ChevronRight, ChevronLeft, ZoomIn, Flame, Check } from 'lucide-react';
+import { ShoppingBag, Heart, Share2, Minus, Plus, ChevronRight, ChevronLeft, ZoomIn, Flame, Check, Eye, Sparkles, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-
+import { ProductCard } from '@/components/products/ProductCard';
 const colorMap: Record<string, string> = {
   'Đỏ': 'bg-red-500',
   'Xanh dương': 'bg-blue-500',
@@ -28,6 +28,9 @@ const colorMap: Record<string, string> = {
 const ProductDetail = () => {
   const { slug } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [hotProducts, setHotProducts] = useState<Product[]>([]);
+  const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -57,9 +60,48 @@ const ProductDetail = () => {
         setSelectedSize(productData.sizes[0]);
       }
       
+      // Fetch related products (same category)
+      if (productData?.category_id) {
+        const { data: related } = await supabase
+          .from('products')
+          .select('*')
+          .eq('category_id', productData.category_id)
+          .eq('is_active', true)
+          .neq('id', productData.id)
+          .limit(4);
+        setRelatedProducts((related as Product[]) || []);
+      }
+      
+      // Fetch hot/trending products
+      const { data: hot } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .eq('is_hot', true)
+        .neq('slug', slug)
+        .limit(4);
+      setHotProducts((hot as Product[]) || []);
+      
+      // Save to recently viewed (localStorage)
+      if (productData) {
+        const viewedKey = 'recently_viewed';
+        const viewed = JSON.parse(localStorage.getItem(viewedKey) || '[]');
+        const filtered = viewed.filter((p: Product) => p.id !== productData.id);
+        const updated = [productData, ...filtered].slice(0, 10);
+        localStorage.setItem(viewedKey, JSON.stringify(updated));
+      }
+      
       setLoading(false);
     }
     fetchProduct();
+  }, [slug]);
+
+  // Load recently viewed products
+  useEffect(() => {
+    const viewedKey = 'recently_viewed';
+    const viewed = JSON.parse(localStorage.getItem(viewedKey) || '[]');
+    const filtered = viewed.filter((p: Product) => p.slug !== slug);
+    setRecentlyViewed(filtered.slice(0, 4));
   }, [slug]);
 
   const formatPrice = (price: number) => {
@@ -450,6 +492,90 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Related Products */}
+      {relatedProducts.length > 0 && (
+        <section className="border-t py-16">
+          <div className="container">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-accent/10 rounded-lg">
+                  <Sparkles className="h-5 w-5 text-accent" />
+                </div>
+                <div>
+                  <h2 className="font-display text-2xl font-bold">Sản phẩm tương tự</h2>
+                  <p className="text-muted-foreground text-sm">Có thể bạn cũng thích</p>
+                </div>
+              </div>
+              <Link to="/products">
+                <Button variant="ghost" className="gap-2">
+                  Xem tất cả
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {relatedProducts.map((item) => (
+                <ProductCard key={item.id} product={item} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Hot Products */}
+      {hotProducts.length > 0 && (
+        <section className="bg-muted/50 py-16">
+          <div className="container">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-500/10 rounded-lg">
+                  <TrendingUp className="h-5 w-5 text-orange-500" />
+                </div>
+                <div>
+                  <h2 className="font-display text-2xl font-bold">Đang thịnh hành</h2>
+                  <p className="text-muted-foreground text-sm">Sản phẩm được yêu thích nhất</p>
+                </div>
+              </div>
+              <Link to="/products?hot=true">
+                <Button variant="ghost" className="gap-2">
+                  Xem tất cả
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {hotProducts.map((item) => (
+                <ProductCard key={item.id} product={item} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Recently Viewed */}
+      {recentlyViewed.length > 0 && (
+        <section className="border-t py-16">
+          <div className="container">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Eye className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h2 className="font-display text-2xl font-bold">Đã xem gần đây</h2>
+                  <p className="text-muted-foreground text-sm">Sản phẩm bạn đã xem trước đó</p>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {recentlyViewed.map((item) => (
+                <ProductCard key={item.id} product={item} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </Layout>
   );
 };
