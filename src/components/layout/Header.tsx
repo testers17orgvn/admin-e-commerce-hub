@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Menu, X, User, Search, ChevronDown, Package } from 'lucide-react';
+import { ShoppingBag, Menu, X, User, Search, ChevronDown, Package, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
+import { useWishlist } from '@/hooks/useWishlist';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import defaultLogo from '@/assets/logo.png';
@@ -19,6 +20,7 @@ export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const { totalItems } = useCart();
   const { user, isAdmin, signOut } = useAuth();
+  const { items: wishlistItems } = useWishlist();
   const [logo, setLogo] = useState(defaultLogo);
 
   useEffect(() => {
@@ -80,6 +82,21 @@ export function Header() {
                   </Button>
                 </Link>
               )}
+              <Link to="/wishlist" className="hidden sm:block relative">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="hover:bg-accent/10 hover:text-accent transition-colors"
+                  title="Sản phẩm yêu thích"
+                >
+                  <Heart className="h-5 w-5" />
+                  {wishlistItems.length > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-xs font-bold flex items-center justify-center text-destructive-foreground shadow-md">
+                      {wishlistItems.length}
+                    </span>
+                  )}
+                </Button>
+              </Link>
               <Link to="/orders" className="hidden sm:block">
                 <Button 
                   variant="ghost" 
@@ -151,6 +168,13 @@ export function Header() {
           ))}
           {user && (
             <>
+              <Link
+                to="/wishlist"
+                onClick={() => setIsOpen(false)}
+                className="px-4 py-3 text-sm font-medium hover:bg-accent/10 hover:text-accent rounded-lg transition-all duration-200"
+              >
+                Sản phẩm yêu thích
+              </Link>
               <Link
                 to="/orders"
                 onClick={() => setIsOpen(false)}
