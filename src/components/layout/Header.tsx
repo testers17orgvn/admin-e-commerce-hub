@@ -22,20 +22,34 @@ export function Header() {
   const { user, isAdmin, signOut } = useAuth();
   const { items: wishlistItems } = useWishlist();
   const [logo, setLogo] = useState(defaultLogo);
+  const [shopName, setShopName] = useState({ first: 'Hibiki', second: 'Shop' });
 
   useEffect(() => {
-    const fetchLogo = async () => {
+    const fetchBranding = async () => {
       const { data } = await supabase
         .from('settings')
-        .select('value')
-        .eq('key', 'logo_url')
-        .maybeSingle();
+        .select('key, value')
+        .in('key', ['logo_url', 'site_name']);
       
-      if (data?.value && typeof data.value === 'string') {
-        setLogo(data.value);
+      if (data) {
+        data.forEach((item) => {
+          if (item.key === 'logo_url' && item.value && typeof item.value === 'string') {
+            setLogo(item.value);
+          }
+          if (item.key === 'site_name' && item.value && typeof item.value === 'string') {
+            // Split shop name - take first word as "first", rest as "second"
+            const name = item.value.trim();
+            const parts = name.split(' ');
+            if (parts.length >= 2) {
+              setShopName({ first: parts[0], second: parts.slice(1).join(' ') });
+            } else {
+              setShopName({ first: name, second: '' });
+            }
+          }
+        });
       }
     };
-    fetchLogo();
+    fetchBranding();
   }, []);
 
   return (
@@ -49,8 +63,8 @@ export function Header() {
             className="h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105" 
           />
           <span className="font-display text-2xl font-bold tracking-tight hidden sm:block">
-            <span className="text-foreground">Hibiki</span>
-            <span className="text-accent">Shop</span>
+            <span className="text-foreground">{shopName.first}</span>
+            {shopName.second && <span className="text-accent">{shopName.second}</span>}
           </span>
         </Link>
 
