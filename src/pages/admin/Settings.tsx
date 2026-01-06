@@ -149,11 +149,45 @@ export default function AdminSettings() {
         </TabsList>
 
         <TabsContent value="general" className="space-y-6">
+          {/* Header Preview */}
+          <Card className="border-dashed">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Xem trước Header</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-background border rounded-lg p-4 flex items-center gap-3">
+                {settings.logo_url ? (
+                  <img src={settings.logo_url} alt="Logo preview" className="h-10 w-auto object-contain" />
+                ) : (
+                  <div className="h-10 w-10 bg-muted rounded flex items-center justify-center">
+                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                )}
+                <span className="font-display text-xl font-bold tracking-tight">
+                  {(() => {
+                    const name = (settings.site_name || 'Hibiki Shop').trim();
+                    const parts = name.split(' ');
+                    if (parts.length >= 2) {
+                      return (
+                        <>
+                          <span className="text-foreground">{parts[0]}</span>
+                          <span className="text-accent">{parts.slice(1).join(' ')}</span>
+                        </>
+                      );
+                    }
+                    return <span className="text-foreground">{name}</span>;
+                  })()}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="bg-card rounded-lg border p-6 space-y-4">
             <h3 className="font-semibold flex items-center gap-2"><Store className="h-4 w-4" /> Thông tin cửa hàng</h3>
             <div>
               <label className="text-sm font-medium">Tên cửa hàng</label>
-              <Input value={settings.site_name || ''} onChange={(e) => updateSetting('site_name', e.target.value)} placeholder="Tên website" />
+              <Input value={settings.site_name || ''} onChange={(e) => updateSetting('site_name', e.target.value)} placeholder="Tên website (vd: Hibiki Shop)" />
+              <p className="text-xs text-muted-foreground mt-1">Từ đầu tiên sẽ có màu chính, các từ còn lại sẽ có màu accent</p>
             </div>
             <div>
               <label className="text-sm font-medium">Mô tả</label>
@@ -167,6 +201,39 @@ export default function AdminSettings() {
         </TabsContent>
 
         <TabsContent value="branding" className="space-y-6">
+          {/* Header Preview */}
+          <Card className="border-dashed">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Xem trước Header</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-background border rounded-lg p-4 flex items-center gap-3">
+                {settings.logo_url ? (
+                  <img src={settings.logo_url} alt="Logo preview" className="h-10 w-auto object-contain" />
+                ) : (
+                  <div className="h-10 w-10 bg-muted rounded flex items-center justify-center">
+                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                )}
+                <span className="font-display text-xl font-bold tracking-tight">
+                  {(() => {
+                    const name = (settings.site_name || 'Hibiki Shop').trim();
+                    const parts = name.split(' ');
+                    if (parts.length >= 2) {
+                      return (
+                        <>
+                          <span className="text-foreground">{parts[0]}</span>
+                          <span className="text-accent">{parts.slice(1).join(' ')}</span>
+                        </>
+                      );
+                    }
+                    return <span className="text-foreground">{name}</span>;
+                  })()}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="grid md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
@@ -185,12 +252,6 @@ export default function AdminSettings() {
                   folder="branding"
                   label="Tải lên logo"
                 />
-                {settings.logo_url && (
-                  <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-2">Xem trước:</p>
-                    <img src={settings.logo_url} alt="Logo" className="h-12 object-contain" />
-                  </div>
-                )}
               </CardContent>
             </Card>
 
@@ -213,7 +274,7 @@ export default function AdminSettings() {
                 />
                 {settings.favicon_url && (
                   <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-2">Xem trước:</p>
+                    <p className="text-xs text-muted-foreground mb-2">Xem trước favicon:</p>
                     <img src={settings.favicon_url} alt="Favicon" className="h-8 w-8 object-contain" />
                   </div>
                 )}
@@ -224,8 +285,7 @@ export default function AdminSettings() {
           <Card className="bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
             <CardContent className="pt-6">
               <p className="text-sm text-amber-800 dark:text-amber-200">
-                <strong>Lưu ý:</strong> Sau khi thay đổi logo hoặc favicon, vui lòng reload lại trang để xem thay đổi. 
-                Logo sẽ tự động cập nhật trên header, favicon sẽ cập nhật trên tab trình duyệt.
+                <strong>Lưu ý:</strong> Sau khi lưu thay đổi, reload lại trang chủ để xem cập nhật trên header thực tế.
               </p>
             </CardContent>
           </Card>
