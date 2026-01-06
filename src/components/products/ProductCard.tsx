@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Product } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/useCart';
+import { useWishlist } from '@/hooks/useWishlist';
 import { ShoppingBag, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +13,9 @@ interface ProductCardProps {
 
 export function ProductCard({ product, className }: ProductCardProps) {
   const { addItem } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  
+  const inWishlist = isInWishlist(product.id);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -23,6 +27,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
   const discount = product.original_price
     ? Math.round((1 - product.price / product.original_price) * 100)
     : 0;
+
+  const handleWishlistClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product.id);
+  };
 
   return (
     <div className={cn('group card-hover', className)}>
@@ -56,8 +66,16 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
         {/* Actions */}
         <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button variant="secondary" size="icon" className="h-9 w-9 rounded-full shadow-md">
-            <Heart className="h-4 w-4" />
+          <Button 
+            variant="secondary" 
+            size="icon" 
+            className={cn(
+              "h-9 w-9 rounded-full shadow-md transition-colors",
+              inWishlist && "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            )}
+            onClick={handleWishlistClick}
+          >
+            <Heart className={cn("h-4 w-4", inWishlist && "fill-current")} />
           </Button>
         </div>
 
