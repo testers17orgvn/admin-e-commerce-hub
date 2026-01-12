@@ -143,6 +143,30 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          key: string
+          updated_at: string | null
+          value: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          key: string
+          updated_at?: string | null
+          value?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          key?: string
+          updated_at?: string | null
+          value?: string | null
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           created_at: string | null
@@ -385,6 +409,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_addresses: {
+        Row: {
+          address_detail: string
+          created_at: string | null
+          district: string
+          full_name: string
+          id: string
+          is_default: boolean | null
+          phone: string
+          province: string
+          updated_at: string | null
+          user_id: string
+          ward: string | null
+        }
+        Insert: {
+          address_detail: string
+          created_at?: string | null
+          district: string
+          full_name: string
+          id?: string
+          is_default?: boolean | null
+          phone: string
+          province: string
+          updated_at?: string | null
+          user_id: string
+          ward?: string | null
+        }
+        Update: {
+          address_detail?: string
+          created_at?: string | null
+          district?: string
+          full_name?: string
+          id?: string
+          is_default?: boolean | null
+          phone?: string
+          province?: string
+          updated_at?: string | null
+          user_id?: string
+          ward?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -400,6 +466,95 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_vouchers: {
+        Row: {
+          claimed_at: string | null
+          id: string
+          is_used: boolean | null
+          used_at: string | null
+          user_id: string
+          voucher_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          id?: string
+          is_used?: boolean | null
+          used_at?: string | null
+          user_id: string
+          voucher_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          id?: string
+          is_used?: boolean | null
+          used_at?: string | null
+          user_id?: string
+          voucher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_vouchers_voucher_id_fkey"
+            columns: ["voucher_id"]
+            isOneToOne: false
+            referencedRelation: "vouchers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vouchers: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string | null
+          discount_type: string
+          discount_value: number
+          end_date: string
+          id: string
+          is_active: boolean | null
+          max_discount: number | null
+          min_order_value: number | null
+          name: string
+          start_date: string
+          updated_at: string | null
+          usage_limit: number | null
+          used_count: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description?: string | null
+          discount_type: string
+          discount_value: number
+          end_date: string
+          id?: string
+          is_active?: boolean | null
+          max_discount?: number | null
+          min_order_value?: number | null
+          name: string
+          start_date: string
+          updated_at?: string | null
+          usage_limit?: number | null
+          used_count?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          end_date?: string
+          id?: string
+          is_active?: boolean | null
+          max_discount?: number | null
+          min_order_value?: number | null
+          name?: string
+          start_date?: string
+          updated_at?: string | null
+          usage_limit?: number | null
+          used_count?: number | null
         }
         Relationships: []
       }
