@@ -96,13 +96,38 @@ export function useHomepageSettings() {
           data.forEach((item) => {
             const value = item.value as Record<string, unknown>;
             if (item.key === 'homepage_hero' && value) {
-              newSettings.hero = { ...defaultSettings.hero, ...value };
+              // Only merge non-empty values
+              const heroValue: Record<string, unknown> = {};
+              Object.entries(value).forEach(([k, v]) => {
+                if (v !== '' && v !== null && v !== undefined && !(Array.isArray(v) && v.length === 0)) {
+                  heroValue[k] = v;
+                }
+              });
+              newSettings.hero = { ...defaultSettings.hero, ...heroValue };
             } else if (item.key === 'homepage_featured' && value) {
-              newSettings.featured = { ...defaultSettings.featured, ...value };
+              const featuredValue: Record<string, unknown> = {};
+              Object.entries(value).forEach(([k, v]) => {
+                if (v !== '' && v !== null && v !== undefined) {
+                  featuredValue[k] = v;
+                }
+              });
+              newSettings.featured = { ...defaultSettings.featured, ...featuredValue };
             } else if (item.key === 'homepage_categories' && value) {
-              newSettings.categories = { ...defaultSettings.categories, ...value };
+              const categoriesValue: Record<string, unknown> = {};
+              Object.entries(value).forEach(([k, v]) => {
+                if (v !== '' && v !== null && v !== undefined) {
+                  categoriesValue[k] = v;
+                }
+              });
+              newSettings.categories = { ...defaultSettings.categories, ...categoriesValue };
             } else if (item.key === 'homepage_newsletter' && value) {
-              newSettings.newsletter = { ...defaultSettings.newsletter, ...value };
+              const newsletterValue: Record<string, unknown> = {};
+              Object.entries(value).forEach(([k, v]) => {
+                if (v !== '' && v !== null && v !== undefined) {
+                  newsletterValue[k] = v;
+                }
+              });
+              newSettings.newsletter = { ...defaultSettings.newsletter, ...newsletterValue };
             }
           });
           
