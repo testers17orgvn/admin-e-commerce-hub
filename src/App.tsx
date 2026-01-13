@@ -31,6 +31,8 @@ import AdminUsers from "./pages/admin/Users";
 import AdminHomepage from "./pages/admin/Homepage";
 import AdminContacts from "./pages/admin/Contacts";
 import AdminSettings from "./pages/admin/Settings";
+import AdminVouchers from "./pages/admin/Vouchers";
+import AdminContactSettings from "./pages/admin/ContactSettings";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +69,8 @@ const App = () => (
                 <Route path="/admin/homepage" element={<AdminHomepage />} />
                 <Route path="/admin/contacts" element={<AdminContacts />} />
                 <Route path="/admin/settings" element={<AdminSettings />} />
+                <Route path="/admin/vouchers" element={<AdminVouchers />} />
+                <Route path="/admin/contact-settings" element={<AdminContactSettings />} />
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
