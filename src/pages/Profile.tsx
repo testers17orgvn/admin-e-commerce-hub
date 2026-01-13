@@ -19,6 +19,8 @@ import { useCart } from '@/hooks/useCart';
 import { Order } from '@/lib/types';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { AddressBook } from '@/components/profile/AddressBook';
+import { UserVouchers } from '@/components/profile/UserVouchers';
 
 interface ProfileData {
   full_name: string;
@@ -40,10 +42,10 @@ const menuItems = [
   { icon: Package, label: 'Đơn hàng của tôi', value: 'orders' },
   { icon: Heart, label: 'Yêu thích', value: 'wishlist', href: '/wishlist' },
   { icon: ShoppingCart, label: 'Giỏ hàng', value: 'cart' },
+  { icon: MapPin, label: 'Sổ địa chỉ', value: 'addresses' },
+  { icon: Gift, label: 'Voucher của tôi', value: 'vouchers' },
   { icon: CreditCard, label: 'Phương thức thanh toán', value: 'payment', disabled: true },
-  { icon: MapPin, label: 'Sổ địa chỉ', value: 'addresses', disabled: true },
   { icon: Bell, label: 'Thông báo', value: 'notifications', disabled: true },
-  { icon: Gift, label: 'Voucher của tôi', value: 'vouchers', disabled: true },
 ];
 
 export default function Profile() {
@@ -555,6 +557,42 @@ export default function Profile() {
                     ))
                   )}
                 </div>
+              )}
+
+              {/* Addresses Tab */}
+              {activeTab === 'addresses' && (
+                <Card className="border-0 shadow-lg overflow-hidden animate-fade-in">
+                  <div className="bg-gradient-to-r from-accent/5 to-transparent p-6 border-b">
+                    <h2 className="font-display text-xl font-bold flex items-center gap-2">
+                      <MapPin className="h-5 w-5 text-accent" />
+                      Sổ địa chỉ
+                    </h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Quản lý địa chỉ giao hàng của bạn
+                    </p>
+                  </div>
+                  <CardContent className="p-6">
+                    <AddressBook />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Vouchers Tab */}
+              {activeTab === 'vouchers' && (
+                <Card className="border-0 shadow-lg overflow-hidden animate-fade-in">
+                  <div className="bg-gradient-to-r from-accent/5 to-transparent p-6 border-b">
+                    <h2 className="font-display text-xl font-bold flex items-center gap-2">
+                      <Gift className="h-5 w-5 text-accent" />
+                      Voucher của tôi
+                    </h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Nhận và sử dụng voucher giảm giá
+                    </p>
+                  </div>
+                  <CardContent className="p-6">
+                    <UserVouchers />
+                  </CardContent>
+                </Card>
               )}
 
               {/* Cart Tab */}

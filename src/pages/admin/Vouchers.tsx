@@ -77,8 +77,11 @@ export default function AdminVouchers() {
       console.error('Error fetching vouchers:', error);
       toast.error('Lỗi tải danh sách voucher');
     } else if (data) {
-      setVouchers(data as Voucher[]);
-      setVouchers(data || []);
+      const typedData = data.map(v => ({
+        ...v,
+        discount_type: v.discount_type as 'percentage' | 'fixed'
+      }));
+      setVouchers(typedData);
     }
     setLoading(false);
   };
