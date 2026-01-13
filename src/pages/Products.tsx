@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Product, Category } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Grid3X3, List } from 'lucide-react';
+import { Grid3X3, List, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FilterState {
@@ -28,6 +28,7 @@ const Products = () => {
 
   const categorySlug = searchParams.get('category');
   const sortBy = searchParams.get('sort') || 'newest';
+  const searchQuery = searchParams.get('search') || '';
 
   // Extract all available filter options from products
   const { availableColors, availableSizes, availableTags, maxPrice } = useMemo(() => {
@@ -81,6 +82,11 @@ const Products = () => {
       // Build product query
       let query = supabase.from('products').select('*').eq('is_active', true);
 
+      // Apply search filter
+      if (searchQuery) {
+        query = query.ilike('name', `%${searchQuery}%`);
+      }
+
       if (categorySlug) {
         const category = catData?.find(c => c.slug === categorySlug);
         if (category) {
@@ -107,7 +113,12 @@ const Products = () => {
       setLoading(false);
     }
     fetchData();
-  }, [categorySlug, sortBy]);
+  }, [categorySlug, sortBy, searchQuery]);
+
+  const clearSearch = () => {
+    searchParams.delete('search');
+    setSearchParams(searchParams);
+  };
 
   // Apply client-side filters
   const filteredProducts = useMemo(() => {
@@ -183,11 +194,24 @@ const Products = () => {
         {/* Header */}
         <div className="text-center mb-10">
           <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">
-            Bộ sưu tập
+            {searchQuery ? `Kết quả tìm kiếm: "${searchQuery}"` : 'Bộ sưu tập'}
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Khám phá các sản phẩm cao cấp được tuyển chọn kỹ lưỡng
+            {searchQuery 
+              ? `Tìm thấy ${filteredProducts.length} sản phẩm phù hợp`
+              : 'Khám phá các sản phẩm cao cấp được tuyển chọn kỹ lưỡng'
+            }
           </p>
+          {searchQuery && (
+            <Button 
+              variant="outline" 
+              className="mt-4" 
+              onClick={clearSearch}
+            >
+              <X className="h-4 w-4 mr-2" />
+              Xóa tìm kiếm
+            </Button>
+          )}
         </div>
 
         {/* Filters Bar */}
