@@ -10,6 +10,7 @@ import { ShoppingBag, Heart, Share2, Minus, Plus, ChevronRight, ChevronLeft, Zoo
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { ProductCard } from '@/components/products/ProductCard';
+import { ProductReviews } from '@/components/products/ProductReviews';
 const colorMap: Record<string, string> = {
   'Đỏ': 'bg-red-500',
   'Xanh dương': 'bg-blue-500',
@@ -492,6 +493,13 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Product Reviews Section */}
+      <section className="border-t py-16">
+        <div className="container">
+          <ProductReviews productId={product.id} productName={product.name} />
+        </div>
+      </section>
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (
