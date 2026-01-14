@@ -200,6 +200,72 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_settings: {
+        Row: {
+          created_at: string
+          email_notifications: boolean | null
+          id: string
+          new_products: boolean | null
+          order_updates: boolean | null
+          promotions: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_notifications?: boolean | null
+          id?: string
+          new_products?: boolean | null
+          order_updates?: boolean | null
+          promotions?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_notifications?: boolean | null
+          id?: string
+          new_products?: boolean | null
+          order_updates?: boolean | null
+          promotions?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean | null
+          link: string | null
+          message: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          message: string
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          message?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           created_at: string | null

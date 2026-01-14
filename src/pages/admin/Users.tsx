@@ -73,13 +73,21 @@ export default function AdminUsers() {
     setIsOpen(true);
   };
 
-  const toggleAdminRole = async (user: UserProfile) => {
-    if (user.isAdmin) {
+  const toggleAdminRole = async (targetUser: UserProfile) => {
+    // Get current user to prevent self-removal
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    
+    if (targetUser.isAdmin && targetUser.id === currentUser?.id) {
+      toast.error('Bạn không thể xóa quyền admin của chính mình!');
+      return;
+    }
+
+    if (targetUser.isAdmin) {
       // Remove admin role
       const { error } = await supabase
         .from('user_roles')
         .delete()
-        .eq('user_id', user.id)
+        .eq('user_id', targetUser.id)
         .eq('role', 'admin');
       
       if (error) {
@@ -91,7 +99,7 @@ export default function AdminUsers() {
       // Add admin role
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: user.id, role: 'admin' });
+        .insert({ user_id: targetUser.id, role: 'admin' });
       
       if (error) {
         toast.error('Lỗi khi thêm quyền admin');

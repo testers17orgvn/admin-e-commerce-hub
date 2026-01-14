@@ -55,15 +55,28 @@ export function Footer() {
             <Link to="/" className="inline-flex items-center gap-3 mb-6 group">
               <img 
                 src={logo} 
-                alt={settings.site_name || 'Hibiki'} 
+                alt={settings.site_name || 'Shop'} 
                 className="h-14 w-auto object-contain filter brightness-0 invert transition-transform duration-300 group-hover:scale-105" 
               />
-              <span className="font-display text-2xl font-bold">
-                {settings.site_name || 'Hibiki'}<span className="text-accent">Shop</span>
-              </span>
+              {settings.site_name && (
+                <span className="font-display text-2xl font-bold">
+                  {(() => {
+                    const parts = settings.site_name.split(' ');
+                    if (parts.length >= 2) {
+                      return (
+                        <>
+                          <span>{parts[0]}</span>
+                          <span className="text-accent">{parts.slice(1).join(' ')}</span>
+                        </>
+                      );
+                    }
+                    return settings.site_name;
+                  })()}
+                </span>
+              )}
             </Link>
             <p className="text-cream/60 text-sm leading-relaxed mb-6 max-w-xs">
-              {settings.site_description || 'Cửa hàng thời trang cao cấp với những sản phẩm được tuyển chọn kỹ lưỡng từ các thương hiệu hàng đầu.'}
+              {settings.site_description || ''}
             </p>
             <div className="flex gap-3">
               {socialLinks.length > 0 ? (
@@ -118,33 +131,41 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Contact */}
-          <div>
-            <h4 className="font-display font-semibold mb-6 text-lg relative inline-block">
-              Liên hệ
-              <span className="absolute -bottom-2 left-0 w-8 h-0.5 bg-accent" />
-            </h4>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3 text-sm group">
-                <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/30 transition-colors">
-                  <MapPin className="h-4 w-4 text-accent" />
-                </div>
-                <span className="text-cream/60 pt-1">{settings.contact_address || '123 Nguyễn Huệ, Quận 1, TP.HCM'}</span>
-              </li>
-              <li className="flex items-center gap-3 text-sm group">
-                <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/30 transition-colors">
-                  <Phone className="h-4 w-4 text-accent" />
-                </div>
-                <span className="text-cream/60">{settings.contact_phone || '0909 123 456'}</span>
-              </li>
-              <li className="flex items-center gap-3 text-sm group">
-                <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/30 transition-colors">
-                  <Mail className="h-4 w-4 text-accent" />
-                </div>
-                <span className="text-cream/60">{settings.contact_email || 'contact@hibiki.vn'}</span>
-              </li>
-            </ul>
-          </div>
+          {/* Contact - only show if we have settings */}
+          {(settings.contact_address || settings.contact_phone || settings.contact_email) && (
+            <div>
+              <h4 className="font-display font-semibold mb-6 text-lg relative inline-block">
+                Liên hệ
+                <span className="absolute -bottom-2 left-0 w-8 h-0.5 bg-accent" />
+              </h4>
+              <ul className="space-y-4">
+                {settings.contact_address && (
+                  <li className="flex items-start gap-3 text-sm group">
+                    <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/30 transition-colors">
+                      <MapPin className="h-4 w-4 text-accent" />
+                    </div>
+                    <span className="text-cream/60 pt-1">{settings.contact_address}</span>
+                  </li>
+                )}
+                {settings.contact_phone && (
+                  <li className="flex items-center gap-3 text-sm group">
+                    <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/30 transition-colors">
+                      <Phone className="h-4 w-4 text-accent" />
+                    </div>
+                    <span className="text-cream/60">{settings.contact_phone}</span>
+                  </li>
+                )}
+                {settings.contact_email && (
+                  <li className="flex items-center gap-3 text-sm group">
+                    <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/30 transition-colors">
+                      <Mail className="h-4 w-4 text-accent" />
+                    </div>
+                    <span className="text-cream/60">{settings.contact_email}</span>
+                  </li>
+                )}
+              </ul>
+            </div>
+          )}
 
           {/* Newsletter */}
           <div>
@@ -168,7 +189,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-cream/10 mt-12 lg:mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-cream/40">
-          <p>{settings.footer_text || `© ${new Date().getFullYear()} HibikiShop. All rights reserved.`}</p>
+          <p>{settings.footer_text || `© ${new Date().getFullYear()} All rights reserved.`}</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-accent transition-colors">Điều khoản</a>
             <a href="#" className="hover:text-accent transition-colors">Bảo mật</a>
