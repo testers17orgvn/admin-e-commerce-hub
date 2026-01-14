@@ -17,6 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { ExportExcel } from '@/components/admin/ExportExcel';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({ products: 0, orders: 0, blogs: 0, contacts: 0, revenue: 0 });
@@ -135,7 +136,10 @@ export default function Dashboard() {
 
   return (
     <AdminLayout>
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <ExportExcel />
+      </div>
       
       {/* Tổng quan */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">

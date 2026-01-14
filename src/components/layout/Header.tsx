@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import defaultLogo from '@/assets/logo.png';
 import { SearchBar } from './SearchBar';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 const navLinks = [
   { href: '/', label: 'Trang chủ' },
@@ -131,6 +132,7 @@ export function Header() {
                     </Button>
                   </Link>
                 )}
+                <NotificationBell />
                 <Link to="/wishlist" className="hidden sm:block relative">
                   <Button 
                     variant="ghost" 

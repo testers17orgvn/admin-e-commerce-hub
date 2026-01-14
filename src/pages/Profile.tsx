@@ -21,6 +21,7 @@ import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { AddressBook } from '@/components/profile/AddressBook';
 import { UserVouchers } from '@/components/profile/UserVouchers';
+import { NotificationSettings } from '@/components/profile/NotificationSettings';
 
 interface ProfileData {
   full_name: string;
@@ -44,8 +45,7 @@ const menuItems = [
   { icon: ShoppingCart, label: 'Giỏ hàng', value: 'cart' },
   { icon: MapPin, label: 'Sổ địa chỉ', value: 'addresses' },
   { icon: Gift, label: 'Voucher của tôi', value: 'vouchers' },
-  { icon: CreditCard, label: 'Phương thức thanh toán', value: 'payment', disabled: true },
-  { icon: Bell, label: 'Thông báo', value: 'notifications', disabled: true },
+  { icon: Bell, label: 'Thông báo', value: 'notifications' },
 ];
 
 export default function Profile() {
@@ -319,14 +319,11 @@ export default function Profile() {
                     {menuItems.map((item) => (
                       <button
                         key={item.value}
-                        onClick={() => item.href ? navigate(item.href) : !item.disabled && setActiveTab(item.value)}
-                        disabled={item.disabled}
+                        onClick={() => item.href ? navigate(item.href) : setActiveTab(item.value)}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
                           activeTab === item.value 
                             ? 'bg-accent/10 text-accent font-medium' 
-                            : item.disabled
-                              ? 'opacity-50 cursor-not-allowed'
-                              : 'hover:bg-muted text-foreground'
+                            : 'hover:bg-muted text-foreground'
                         }`}
                       >
                         <item.icon className="h-5 w-5" />
@@ -676,6 +673,13 @@ export default function Profile() {
                       )}
                     </CardContent>
                   </Card>
+                </div>
+              )}
+
+              {/* Notifications Tab */}
+              {activeTab === 'notifications' && (
+                <div className="animate-fade-in">
+                  <NotificationSettings />
                 </div>
               )}
             </div>
