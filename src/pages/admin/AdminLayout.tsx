@@ -2,7 +2,7 @@ import { ReactNode, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Package, FolderOpen, Image, FileText, Mail, ShoppingCart, Settings, LogOut, Users, Ticket, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Package, FolderOpen, Image, FileText, Mail, ShoppingCart, Settings, LogOut, Users, Ticket, MessageSquare, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const menuItems = [
@@ -12,6 +12,7 @@ const menuItems = [
   { href: '/admin/banners', icon: Image, label: 'Banner' },
   { href: '/admin/blogs', icon: FileText, label: 'Blog' },
   { href: '/admin/orders', icon: ShoppingCart, label: 'Đơn hàng' },
+  { href: '/admin/reviews', icon: Star, label: 'Đánh giá' },
   { href: '/admin/users', icon: Users, label: 'Người dùng' },
   { href: '/admin/vouchers', icon: Ticket, label: 'Voucher' },
   { href: '/admin/homepage', icon: Image, label: 'Trang chủ' },
