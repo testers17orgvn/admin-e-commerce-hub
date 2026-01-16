@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { LayoutDashboard, Package, FolderOpen, Image, FileText, Mail, ShoppingCart, Settings, LogOut, Users, Ticket, MessageSquare, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { AdminNotificationBell } from '@/components/notifications/AdminNotificationBell';
 
 const menuItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
@@ -45,9 +46,12 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 h-full w-64 bg-card border-r z-40">
         <div className="p-6 border-b">
-          <Link to="/" className="font-display text-xl font-bold">
-            Luxe<span className="text-accent">Shop</span>
-          </Link>
+          <div className="flex items-center justify-between">
+            <Link to="/" className="font-display text-xl font-bold">
+              Luxe<span className="text-accent">Shop</span>
+            </Link>
+            <AdminNotificationBell />
+          </div>
           <p className="text-xs text-muted-foreground mt-1">Admin Panel</p>
         </div>
         <nav className="p-4 space-y-1">
