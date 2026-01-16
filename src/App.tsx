@@ -33,6 +33,7 @@ import AdminContacts from "./pages/admin/Contacts";
 import AdminSettings from "./pages/admin/Settings";
 import AdminVouchers from "./pages/admin/Vouchers";
 import AdminContactSettings from "./pages/admin/ContactSettings";
+import AdminReviews from "./pages/admin/Reviews";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,7 @@ const App = () => (
                 <Route path="/admin/settings" element={<AdminSettings />} />
                 <Route path="/admin/vouchers" element={<AdminVouchers />} />
                 <Route path="/admin/contact-settings" element={<AdminContactSettings />} />
+                <Route path="/admin/reviews" element={<AdminReviews />} />
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
