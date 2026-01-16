@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Eye, Package, Truck, CheckCircle, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { OrderReportExport } from '@/components/admin/OrderReportExport';
 
 const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   pending: { label: 'Chờ xử lý', color: 'bg-yellow-500/20 text-yellow-500', icon: <Package className="h-4 w-4" /> },
@@ -45,19 +46,22 @@ export default function AdminOrders() {
 
   return (
     <AdminLayout>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold">Đơn hàng</h1>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả</SelectItem>
-            <SelectItem value="pending">Chờ xử lý</SelectItem>
-            <SelectItem value="processing">Đang xử lý</SelectItem>
-            <SelectItem value="shipping">Đang giao</SelectItem>
-            <SelectItem value="completed">Hoàn thành</SelectItem>
-            <SelectItem value="cancelled">Đã hủy</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex flex-wrap items-center gap-3">
+          <OrderReportExport />
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả</SelectItem>
+              <SelectItem value="pending">Chờ xử lý</SelectItem>
+              <SelectItem value="processing">Đang xử lý</SelectItem>
+              <SelectItem value="shipping">Đang giao</SelectItem>
+              <SelectItem value="completed">Hoàn thành</SelectItem>
+              <SelectItem value="cancelled">Đã hủy</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="bg-card rounded-lg border overflow-hidden">
