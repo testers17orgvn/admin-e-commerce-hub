@@ -17,6 +17,7 @@ import { vi } from 'date-fns/locale';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { TagInput } from '@/components/admin/TagInput';
 import { Badge } from '@/components/ui/badge';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 
 interface Blog {
   id: string;
@@ -292,12 +293,9 @@ export default function AdminBlogs() {
                         ~{form.reading_time} phút đọc
                       </span>
                     </div>
-                    <Textarea 
+                    <RichTextEditor 
                       value={form.content} 
-                      onChange={(e) => handleContentChange(e.target.value)} 
-                      rows={15}
-                      placeholder="Nội dung chi tiết của bài viết. Hỗ trợ markdown."
-                      className="font-mono text-sm"
+                      onChange={handleContentChange}
                     />
                   </div>
 

@@ -35,24 +35,29 @@ const BlogDetail = () => {
           .update({ view_count: (data.view_count || 0) + 1 })
           .eq('id', data.id);
         
-        // Fetch related blogs (same category or tags)
-        const { data: related } = await supabase
-          .from('blogs')
-          .select('*')
-          .eq('is_published', true)
-          .neq('id', data.id)
-          .limit(3);
-        
-        // Filter by category or tags if available
-        let filteredRelated = related || [];
+        // Fetch related blogs (same category first, then by tags)
         if (data.category) {
-          const categoryMatches = filteredRelated.filter(b => b.category === data.category);
-          if (categoryMatches.length > 0) {
-            filteredRelated = categoryMatches;
-          }
+          const { data: related } = await supabase
+            .from('blogs')
+            .select('*')
+            .eq('is_published', true)
+            .eq('category', data.category)
+            .neq('id', data.id)
+            .order('published_at', { ascending: false })
+            .limit(6);
+          
+          setRelatedBlogs((related || []).slice(0, 3) as Blog[]);
+        } else {
+          const { data: related } = await supabase
+            .from('blogs')
+            .select('*')
+            .eq('is_published', true)
+            .neq('id', data.id)
+            .order('published_at', { ascending: false })
+            .limit(3);
+          
+          setRelatedBlogs((related || []) as Blog[]);
         }
-        
-        setRelatedBlogs(filteredRelated.slice(0, 3) as Blog[]);
       }
       
       setLoading(false);
@@ -186,13 +191,10 @@ const BlogDetail = () => {
         )}
 
         {/* Content */}
-        <div className="prose prose-lg max-w-none prose-headings:font-display prose-headings:font-bold prose-a:text-primary prose-img:rounded-lg">
-          {blog.content ? (
-            <div dangerouslySetInnerHTML={{ __html: blog.content }} />
-          ) : (
-            <p className="text-muted-foreground">Chưa có nội dung.</p>
-          )}
-        </div>
+        <div 
+          className="prose prose-lg max-w-none prose-headings:font-display prose-headings:font-bold prose-a:text-primary prose-img:rounded-lg prose-p:leading-relaxed prose-li:leading-relaxed prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-1 prose-blockquote:not-italic [&_iframe]:rounded-lg [&_iframe]:my-4 [&_mark]:px-1 [&_mark]:rounded"
+          dangerouslySetInnerHTML={{ __html: blog.content || '<p class="text-muted-foreground">Chưa có nội dung.</p>' }}
+        />
 
         {/* Tags */}
         {blog.tags && blog.tags.length > 0 && (
@@ -239,13 +241,18 @@ const BlogDetail = () => {
         </div>
       </article>
 
-      {/* Related Posts */}
+      {/* Related Posts - Same Category */}
       {relatedBlogs.length > 0 && (
         <section className="bg-muted/30 py-12">
           <div className="container">
-            <h2 className="font-display text-2xl md:text-3xl font-bold mb-8 text-center">
-              Bài viết liên quan
+            <h2 className="font-display text-2xl md:text-3xl font-bold mb-2 text-center">
+              Bài viết cùng danh mục
             </h2>
+            {blog.category && (
+              <p className="text-center text-muted-foreground mb-8">
+                <Badge variant="secondary" className="text-sm">{blog.category}</Badge>
+              </p>
+            )}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {relatedBlogs.map((relatedBlog) => (
                 <Link
