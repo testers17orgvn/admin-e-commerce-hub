@@ -6,10 +6,20 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Tag, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PaymentQR } from '@/components/checkout/PaymentQR';
+
+interface AppliedVoucher {
+  id: string;
+  code: string;
+  name: string;
+  discount_type: string;
+  discount_value: number;
+  max_discount: number | null;
+  min_order_value: number | null;
+}
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, clearCart, totalPrice } = useCart();
@@ -26,6 +36,115 @@ const Cart = () => {
     address: '',
     notes: '',
   });
+  
+  // Voucher states
+  const [voucherCode, setVoucherCode] = useState('');
+  const [appliedVoucher, setAppliedVoucher] = useState<AppliedVoucher | null>(null);
+  const [voucherLoading, setVoucherLoading] = useState(false);
+
+  // Calculate discount amount
+  const calculateDiscount = () => {
+    if (!appliedVoucher) return 0;
+    
+    let discount = 0;
+    if (appliedVoucher.discount_type === 'percentage') {
+      discount = (totalPrice * appliedVoucher.discount_value) / 100;
+      if (appliedVoucher.max_discount && discount > appliedVoucher.max_discount) {
+        discount = appliedVoucher.max_discount;
+      }
+    } else {
+      discount = appliedVoucher.discount_value;
+    }
+    
+    return Math.min(discount, totalPrice);
+  };
+
+  const discountAmount = calculateDiscount();
+  const finalPrice = totalPrice - discountAmount;
+
+  // Apply voucher
+  const handleApplyVoucher = async () => {
+    if (!voucherCode.trim()) {
+      toast.error('Vui lòng nhập mã giảm giá');
+      return;
+    }
+
+    setVoucherLoading(true);
+    try {
+      // Check if voucher exists and is valid
+      const { data: voucher, error } = await supabase
+        .from('vouchers')
+        .select('*')
+        .eq('code', voucherCode.trim().toUpperCase())
+        .eq('is_active', true)
+        .single();
+
+      if (error || !voucher) {
+        toast.error('Mã giảm giá không hợp lệ hoặc không tồn tại');
+        return;
+      }
+
+      // Check date validity
+      const now = new Date();
+      const startDate = new Date(voucher.start_date);
+      const endDate = new Date(voucher.end_date);
+      
+      if (now < startDate || now > endDate) {
+        toast.error('Mã giảm giá đã hết hạn hoặc chưa được kích hoạt');
+        return;
+      }
+
+      // Check usage limit
+      if (voucher.usage_limit && voucher.used_count >= voucher.usage_limit) {
+        toast.error('Mã giảm giá đã hết lượt sử dụng');
+        return;
+      }
+
+      // Check minimum order value
+      if (voucher.min_order_value && totalPrice < voucher.min_order_value) {
+        toast.error(`Đơn hàng tối thiểu ${formatPrice(voucher.min_order_value)} để áp dụng mã này`);
+        return;
+      }
+
+      // Check if user already used this voucher (if logged in)
+      if (user) {
+        const { data: userVoucher } = await supabase
+          .from('user_vouchers')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('voucher_id', voucher.id)
+          .eq('is_used', true)
+          .single();
+
+        if (userVoucher) {
+          toast.error('Bạn đã sử dụng mã giảm giá này rồi');
+          return;
+        }
+      }
+
+      setAppliedVoucher({
+        id: voucher.id,
+        code: voucher.code,
+        name: voucher.name,
+        discount_type: voucher.discount_type,
+        discount_value: voucher.discount_value,
+        max_discount: voucher.max_discount,
+        min_order_value: voucher.min_order_value,
+      });
+      setVoucherCode('');
+      toast.success(`Áp dụng mã "${voucher.code}" thành công!`);
+    } catch (error) {
+      toast.error('Đã có lỗi xảy ra. Vui lòng thử lại.');
+    } finally {
+      setVoucherLoading(false);
+    }
+  };
+
+  // Remove voucher
+  const handleRemoveVoucher = () => {
+    setAppliedVoucher(null);
+    toast.info('Đã hủy mã giảm giá');
+  };
 
   // Auto-fill từ profile khi user đăng nhập
   useEffect(() => {
@@ -82,20 +201,51 @@ const Cart = () => {
       selectedSize: item.selectedSize,
     }));
 
+    const orderNotes = appliedVoucher 
+      ? `${formData.notes ? formData.notes + '\n' : ''}Mã giảm giá: ${appliedVoucher.code} (-${formatPrice(discountAmount)})`
+      : formData.notes;
+
     const { data, error } = await supabase.from('orders').insert({
       customer_name: formData.name,
       customer_email: formData.email,
       customer_phone: formData.phone,
       customer_address: formData.address,
       items: orderItems,
-      total_amount: totalPrice,
-      notes: formData.notes,
+      total_amount: finalPrice,
+      notes: orderNotes,
     }).select('id').single();
 
     if (error) {
       toast.error('Đã có lỗi xảy ra. Vui lòng thử lại.');
       setLoading(false);
       return;
+    }
+
+    // Update voucher usage
+    if (appliedVoucher) {
+      // First get current used_count
+      const { data: voucherData } = await supabase
+        .from('vouchers')
+        .select('used_count')
+        .eq('id', appliedVoucher.id)
+        .single();
+
+      if (voucherData) {
+        await supabase
+          .from('vouchers')
+          .update({ used_count: (voucherData.used_count || 0) + 1 })
+          .eq('id', appliedVoucher.id);
+      }
+
+      // Track user voucher usage if logged in
+      if (user) {
+        await supabase.from('user_vouchers').upsert({
+          user_id: user.id,
+          voucher_id: appliedVoucher.id,
+          is_used: true,
+          used_at: new Date().toISOString(),
+        });
+      }
     }
 
     setOrderId(data.id);
@@ -275,11 +425,63 @@ const Cart = () => {
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-card rounded-lg border p-6 space-y-4">
               <h2 className="font-display text-xl font-bold">Tóm tắt đơn hàng</h2>
+              
+              {/* Voucher Input */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-1">
+                  <Tag className="h-4 w-4" />
+                  Mã giảm giá
+                </label>
+                {appliedVoucher ? (
+                  <div className="flex items-center justify-between p-3 bg-accent/10 rounded-lg border border-accent/20">
+                    <div>
+                      <p className="font-medium text-accent">{appliedVoucher.code}</p>
+                      <p className="text-xs text-muted-foreground">{appliedVoucher.name}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={handleRemoveVoucher}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Input
+                      value={voucherCode}
+                      onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                      placeholder="Nhập mã giảm giá"
+                      className="flex-1"
+                      onKeyDown={(e) => e.key === 'Enter' && handleApplyVoucher()}
+                    />
+                    <Button 
+                      variant="outline" 
+                      onClick={handleApplyVoucher}
+                      disabled={voucherLoading}
+                    >
+                      {voucherLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        'Áp dụng'
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Tạm tính</span>
                   <span>{formatPrice(totalPrice)}</span>
                 </div>
+                {appliedVoucher && (
+                  <div className="flex justify-between text-accent">
+                    <span>Giảm giá ({appliedVoucher.code})</span>
+                    <span>-{formatPrice(discountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Phí vận chuyển</span>
                   <span>Miễn phí</span>
@@ -288,7 +490,7 @@ const Cart = () => {
               <div className="border-t pt-4">
                 <div className="flex justify-between text-lg font-bold">
                   <span>Tổng cộng</span>
-                  <span className="text-accent">{formatPrice(totalPrice)}</span>
+                  <span className="text-accent">{formatPrice(finalPrice)}</span>
                 </div>
               </div>
               {!isCheckout ? (
@@ -332,7 +534,7 @@ const Cart = () => {
             {/* Payment QR */}
             {showPaymentQR && (
               <PaymentQR 
-                amount={totalPrice} 
+                amount={finalPrice} 
                 orderDescription={`DH${orderId?.slice(0, 8).toUpperCase()}`} 
               />
             )}
