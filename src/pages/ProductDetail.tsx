@@ -112,6 +112,16 @@ const ProductDetail = () => {
     }).format(price);
   };
 
+  const getYouTubeId = (url: string) => {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : '';
+  };
+
+  const getVimeoId = (url: string) => {
+    const match = url.match(/vimeo\.com\/(\d+)/);
+    return match ? match[1] : '';
+  };
+
   const nextImage = () => {
     if (!product) return;
     const images = getAllImages();
@@ -493,6 +503,53 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Product Video Section */}
+      {(product as any).video_url && (
+        <section className="border-t py-16">
+          <div className="container">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-2 bg-accent/10 rounded-lg">
+                <Eye className="h-5 w-5 text-accent" />
+              </div>
+              <div>
+                <h2 className="font-display text-2xl font-bold">Video Review</h2>
+                <p className="text-muted-foreground text-sm">Xem video chi tiết sản phẩm</p>
+              </div>
+            </div>
+            <div className="max-w-4xl mx-auto">
+              {(product as any).video_url.includes('youtube.com') || (product as any).video_url.includes('youtu.be') ? (
+                <div className="aspect-video rounded-xl overflow-hidden shadow-lg">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${getYouTubeId((product as any).video_url)}`}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (product as any).video_url.includes('vimeo.com') ? (
+                <div className="aspect-video rounded-xl overflow-hidden shadow-lg">
+                  <iframe
+                    src={`https://player.vimeo.com/video/${getVimeoId((product as any).video_url)}`}
+                    className="w-full h-full"
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <video
+                  controls
+                  className="w-full rounded-xl shadow-lg"
+                  poster={product.image_url || undefined}
+                >
+                  <source src={(product as any).video_url} type="video/mp4" />
+                  Trình duyệt không hỗ trợ video.
+                </video>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Product Reviews Section */}
       <section className="border-t py-16">

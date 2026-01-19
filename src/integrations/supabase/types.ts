@@ -417,6 +417,7 @@ export type Database = {
           stock: number | null
           tags: string[] | null
           updated_at: string | null
+          video_url: string | null
         }
         Insert: {
           category_id?: string | null
@@ -437,6 +438,7 @@ export type Database = {
           stock?: number | null
           tags?: string[] | null
           updated_at?: string | null
+          video_url?: string | null
         }
         Update: {
           category_id?: string | null
@@ -457,6 +459,7 @@ export type Database = {
           stock?: number | null
           tags?: string[] | null
           updated_at?: string | null
+          video_url?: string | null
         }
         Relationships: [
           {
@@ -717,9 +720,12 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      is_dealer: { Args: { _user_id?: string }; Returns: boolean }
+      is_seller: { Args: { _user_id?: string }; Returns: boolean }
+      is_tester: { Args: { _user_id?: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "staff"
+      app_role: "admin" | "staff" | "seller" | "dealer" | "tester"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -847,7 +853,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "staff"],
+      app_role: ["admin", "staff", "seller", "dealer", "tester"],
     },
   },
 } as const

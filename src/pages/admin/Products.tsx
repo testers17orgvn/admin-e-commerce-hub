@@ -62,6 +62,7 @@ interface ProductForm {
   original_price: string;
   image_url: string;
   images: string[];
+  video_url: string;
   category_id: string;
   stock: string;
   is_featured: boolean;
@@ -80,6 +81,7 @@ const defaultForm: ProductForm = {
   original_price: '',
   image_url: '',
   images: [],
+  video_url: '',
   category_id: '',
   stock: '0',
   is_featured: false,
@@ -121,6 +123,7 @@ export default function AdminProducts() {
       original_price: form.original_price ? Number(form.original_price) : null,
       image_url: form.image_url || (form.images.length > 0 ? form.images[0] : null),
       images: form.images,
+      video_url: form.video_url || null,
       category_id: form.category_id || null,
       stock: Number(form.stock),
       is_featured: form.is_featured,
@@ -156,6 +159,7 @@ export default function AdminProducts() {
       original_price: product.original_price ? String(product.original_price) : '',
       image_url: product.image_url || '',
       images: product.images || [],
+      video_url: (product as any).video_url || '',
       category_id: product.category_id || '',
       stock: String(product.stock),
       is_featured: product.is_featured,
@@ -341,6 +345,18 @@ export default function AdminProducts() {
                     label="Bộ sưu tập ảnh (hiển thị trong chi tiết sản phẩm)"
                     maxImages={10}
                   />
+
+                  <div>
+                    <label className="text-sm font-medium">Video review sản phẩm (URL YouTube hoặc video)</label>
+                    <Input
+                      value={form.video_url}
+                      onChange={(e) => setForm({ ...form, video_url: e.target.value })}
+                      placeholder="https://www.youtube.com/watch?v=... hoặc URL video trực tiếp"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Hỗ trợ YouTube, Vimeo hoặc link video trực tiếp (.mp4)
+                    </p>
+                  </div>
                 </TabsContent>
               </Tabs>
 
