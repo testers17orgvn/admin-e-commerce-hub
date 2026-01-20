@@ -15,6 +15,8 @@ import { MultiImageUpload } from '@/components/admin/MultiImageUpload';
 import { TagInput } from '@/components/admin/TagInput';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { VariantStockManager } from '@/components/admin/VariantStockManager';
+import { VideoUpload } from '@/components/admin/VideoUpload';
 
 // Utility function to generate slug from Vietnamese text (client-side preview)
 const generateSlug = (text: string): string => {
@@ -313,7 +315,7 @@ export default function AdminProducts() {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="variants" className="space-y-4 pt-4">
+                <TabsContent value="variants" className="space-y-6 pt-4">
                   <TagInput
                     value={form.colors}
                     onChange={(colors) => setForm({ ...form, colors })}
@@ -328,6 +330,17 @@ export default function AdminProducts() {
                     label="Kích thước"
                     placeholder="VD: S, M, L, XL, 38, 39, 40..."
                   />
+
+                  {/* Variant Stock Manager */}
+                  {editingProduct && (form.colors.length > 0 || form.sizes.length > 0) && (
+                    <VariantStockManager
+                      productId={editingProduct.id}
+                      colors={form.colors}
+                      sizes={form.sizes}
+                      totalStock={Number(form.stock)}
+                      onTotalStockChange={(newTotal) => setForm({ ...form, stock: String(newTotal) })}
+                    />
+                  )}
                 </TabsContent>
 
                 <TabsContent value="images" className="space-y-4 pt-4">
@@ -346,17 +359,12 @@ export default function AdminProducts() {
                     maxImages={10}
                   />
 
-                  <div>
-                    <label className="text-sm font-medium">Video review sản phẩm (URL YouTube hoặc video)</label>
-                    <Input
-                      value={form.video_url}
-                      onChange={(e) => setForm({ ...form, video_url: e.target.value })}
-                      placeholder="https://www.youtube.com/watch?v=... hoặc URL video trực tiếp"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Hỗ trợ YouTube, Vimeo hoặc link video trực tiếp (.mp4)
-                    </p>
-                  </div>
+                  <VideoUpload
+                    value={form.video_url}
+                    onChange={(url) => setForm({ ...form, video_url: url })}
+                    folder="products"
+                    label="Video review sản phẩm"
+                  />
                 </TabsContent>
               </Tabs>
 
