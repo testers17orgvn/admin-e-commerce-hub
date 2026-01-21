@@ -2,24 +2,68 @@ import { ReactNode, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Package, FolderOpen, Image, FileText, Mail, ShoppingCart, Settings, LogOut, Users, Ticket, MessageSquare, Star } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Package, 
+  FolderOpen, 
+  Image, 
+  FileText, 
+  Mail, 
+  ShoppingCart, 
+  Settings, 
+  LogOut, 
+  Users, 
+  Ticket, 
+  MessageSquare, 
+  Star,
+  PackageCheck,
+  ChevronRight
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AdminNotificationBell } from '@/components/notifications/AdminNotificationBell';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 
-const menuItems = [
-  { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/admin/products', icon: Package, label: 'Sản phẩm' },
-  { href: '/admin/categories', icon: FolderOpen, label: 'Danh mục' },
-  { href: '/admin/banners', icon: Image, label: 'Banner' },
-  { href: '/admin/blogs', icon: FileText, label: 'Blog' },
-  { href: '/admin/orders', icon: ShoppingCart, label: 'Đơn hàng' },
-  { href: '/admin/reviews', icon: Star, label: 'Đánh giá' },
-  { href: '/admin/users', icon: Users, label: 'Người dùng' },
-  { href: '/admin/vouchers', icon: Ticket, label: 'Voucher' },
-  { href: '/admin/homepage', icon: Image, label: 'Trang chủ' },
-  { href: '/admin/contacts', icon: Mail, label: 'Liên hệ' },
-  { href: '/admin/contact-settings', icon: MessageSquare, label: 'Cài đặt liên hệ' },
-  { href: '/admin/settings', icon: Settings, label: 'Cài đặt' },
+const menuGroups = [
+  {
+    label: 'Tổng quan',
+    items: [
+      { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
+    ]
+  },
+  {
+    label: 'Quản lý sản phẩm',
+    items: [
+      { href: '/admin/products', icon: Package, label: 'Sản phẩm' },
+      { href: '/admin/categories', icon: FolderOpen, label: 'Danh mục' },
+      { href: '/admin/seller-products', icon: PackageCheck, label: 'Duyệt SP Seller' },
+    ]
+  },
+  {
+    label: 'Bán hàng',
+    items: [
+      { href: '/admin/orders', icon: ShoppingCart, label: 'Đơn hàng' },
+      { href: '/admin/vouchers', icon: Ticket, label: 'Voucher' },
+      { href: '/admin/reviews', icon: Star, label: 'Đánh giá' },
+    ]
+  },
+  {
+    label: 'Nội dung',
+    items: [
+      { href: '/admin/banners', icon: Image, label: 'Banner' },
+      { href: '/admin/blogs', icon: FileText, label: 'Blog' },
+      { href: '/admin/homepage', icon: Image, label: 'Trang chủ' },
+    ]
+  },
+  {
+    label: 'Hệ thống',
+    items: [
+      { href: '/admin/users', icon: Users, label: 'Người dùng' },
+      { href: '/admin/contacts', icon: Mail, label: 'Liên hệ' },
+      { href: '/admin/contact-settings', icon: MessageSquare, label: 'Cài đặt liên hệ' },
+      { href: '/admin/settings', icon: Settings, label: 'Cài đặt' },
+    ]
+  },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {
@@ -34,7 +78,11 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   }, [user, isAdmin, loading, navigate]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin h-8 w-8 border-4 border-accent border-t-transparent rounded-full" />
+      </div>
+    );
   }
 
   if (!user || !isAdmin) {
@@ -44,35 +92,78 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-muted/30">
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-card border-r z-40">
-        <div className="p-6 border-b">
+      <aside className="fixed left-0 top-0 h-full w-64 bg-card border-r z-40 flex flex-col">
+        {/* Header */}
+        <div className="p-4 border-b flex-shrink-0">
           <div className="flex items-center justify-between">
-            <Link to="/" className="font-display text-xl font-bold">
-              Luxe<span className="text-accent">Shop</span>
+            <Link to="/" className="font-display text-xl font-bold flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
+                <span className="text-accent-foreground font-bold text-sm">L</span>
+              </div>
+              <span>Luxe<span className="text-accent">Shop</span></span>
             </Link>
             <AdminNotificationBell />
           </div>
-          <p className="text-xs text-muted-foreground mt-1">Admin Panel</p>
+          <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            Admin Panel
+          </p>
         </div>
-        <nav className="p-4 space-y-1">
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
-                location.pathname === item.href
-                  ? 'bg-accent text-accent-foreground'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-              )}
-            >
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t">
-          <Button variant="ghost" className="w-full justify-start" onClick={signOut}>
+        
+        {/* Navigation */}
+        <ScrollArea className="flex-1 py-4">
+          <nav className="px-3 space-y-6">
+            {menuGroups.map((group, index) => (
+              <div key={index}>
+                <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  {group.label}
+                </p>
+                <div className="space-y-1">
+                  {group.items.map((item) => {
+                    const isActive = location.pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        className={cn(
+                          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200',
+                          isActive
+                            ? 'bg-accent text-accent-foreground shadow-sm'
+                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                        )}
+                      >
+                        <item.icon className={cn("h-4 w-4", isActive && "text-accent-foreground")} />
+                        <span className="flex-1">{item.label}</span>
+                        {isActive && <ChevronRight className="h-4 w-4" />}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </nav>
+        </ScrollArea>
+
+        {/* Footer */}
+        <div className="p-3 border-t flex-shrink-0 bg-card">
+          <div className="p-3 rounded-lg bg-muted/50 mb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
+                <span className="text-accent font-semibold text-sm">
+                  {user.email?.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">Admin</p>
+                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+              </div>
+            </div>
+          </div>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10" 
+            onClick={signOut}
+          >
             <LogOut className="h-4 w-4 mr-2" />
             Đăng xuất
           </Button>
