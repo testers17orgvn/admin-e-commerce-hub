@@ -1,21 +1,71 @@
 import { useEffect, useState } from 'react';
 import { AdminLayout } from './AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
-import { Banner } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Pencil, Trash2, GripVertical } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, Pencil, Trash2, GripVertical, Image as ImageIcon, Monitor, Play } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
+
+interface Banner {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  image_url: string;
+  link_url: string | null;
+  position: number;
+  is_active: boolean;
+  page_location: string;
+  display_type: string;
+  autoplay_interval: number;
+  show_navigation: boolean;
+  show_indicators: boolean;
+}
+
+const PAGE_LOCATIONS = [
+  { value: 'home', label: 'Trang chủ', icon: '🏠' },
+  { value: 'products', label: 'Sản phẩm', icon: '📦' },
+  { value: 'blog', label: 'Blog', icon: '📝' },
+  { value: 'contact', label: 'Liên hệ', icon: '📞' },
+  { value: 'all', label: 'Tất cả trang', icon: '🌐' },
+];
+
+const DISPLAY_TYPES = [
+  { value: 'hero', label: 'Hero Banner', desc: 'Banner lớn toàn trang' },
+  { value: 'carousel', label: 'Carousel', desc: 'Slideshow xoay vòng' },
+  { value: 'sidebar', label: 'Sidebar', desc: 'Banner bên cạnh' },
+  { value: 'popup', label: 'Popup', desc: 'Hiển thị dạng popup' },
+];
+
+const defaultForm = {
+  title: '',
+  subtitle: '',
+  image_url: '',
+  link_url: '',
+  position: '0',
+  is_active: true,
+  page_location: 'home',
+  display_type: 'carousel',
+  autoplay_interval: '5000',
+  show_navigation: true,
+  show_indicators: true,
+};
 
 export default function AdminBanners() {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [editing, setEditing] = useState<Banner | null>(null);
-  const [form, setForm] = useState({ title: '', subtitle: '', image_url: '', link_url: '', position: '0', is_active: true });
+  const [form, setForm] = useState(defaultForm);
+  const [activeTab, setActiveTab] = useState('all');
 
   const fetchData = async () => {
     const { data } = await supabase.from('banners').select('*').order('position');
@@ -27,7 +77,11 @@ export default function AdminBanners() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const data = { ...form, position: Number(form.position) };
+    const data = { 
+      ...form, 
+      position: Number(form.position),
+      autoplay_interval: Number(form.autoplay_interval)
+    };
     
     if (editing) {
       const { error } = await supabase.from('banners').update(data).eq('id', editing.id);
@@ -40,13 +94,25 @@ export default function AdminBanners() {
     }
     setIsOpen(false);
     setEditing(null);
-    setForm({ title: '', subtitle: '', image_url: '', link_url: '', position: '0', is_active: true });
+    setForm(defaultForm);
     fetchData();
   };
 
   const handleEdit = (banner: Banner) => {
     setEditing(banner);
-    setForm({ title: banner.title, subtitle: banner.subtitle || '', image_url: banner.image_url, link_url: banner.link_url || '', position: String(banner.position), is_active: banner.is_active });
+    setForm({
+      title: banner.title,
+      subtitle: banner.subtitle || '',
+      image_url: banner.image_url,
+      link_url: banner.link_url || '',
+      position: String(banner.position),
+      is_active: banner.is_active,
+      page_location: banner.page_location || 'home',
+      display_type: banner.display_type || 'carousel',
+      autoplay_interval: String(banner.autoplay_interval || 5000),
+      show_navigation: banner.show_navigation ?? true,
+      show_indicators: banner.show_indicators ?? true,
+    });
     setIsOpen(true);
   };
 
@@ -62,48 +128,332 @@ export default function AdminBanners() {
     fetchData();
   };
 
+  const filteredBanners = activeTab === 'all' 
+    ? banners 
+    : banners.filter(b => b.page_location === activeTab);
+
+  const getPageLabel = (value: string) => PAGE_LOCATIONS.find(p => p.value === value)?.label || value;
+  const getDisplayLabel = (value: string) => DISPLAY_TYPES.find(d => d.value === value)?.label || value;
+
   return (
     <AdminLayout>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Banner</h1>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-bold font-display">Quản lý Banner</h1>
+          <p className="text-muted-foreground mt-1">Tạo và quản lý banner hiển thị trên các trang</p>
+        </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <Button variant="hero" onClick={() => { setEditing(null); setForm({ title: '', subtitle: '', image_url: '', link_url: '', position: '0', is_active: true }); }}>
+            <Button variant="hero" onClick={() => { setEditing(null); setForm(defaultForm); }}>
               <Plus className="h-4 w-4" /> Thêm banner
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>{editing ? 'Sửa banner' : 'Thêm banner'}</DialogTitle></DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div><label className="text-sm font-medium">Tiêu đề *</label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></div>
-              <div><label className="text-sm font-medium">Phụ đề</label><Input value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} /></div>
-              <ImageUpload value={form.image_url} onChange={(url) => setForm({ ...form, image_url: url })} folder="banners" label="Hình ảnh banner *" />
-              <div><label className="text-sm font-medium">URL liên kết</label><Input value={form.link_url} onChange={(e) => setForm({ ...form, link_url: e.target.value })} /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="text-sm font-medium">Vị trí</label><Input type="number" value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} /></div>
-                <div className="flex items-center gap-2 pt-6"><Switch checked={form.is_active} onCheckedChange={(c) => setForm({ ...form, is_active: c })} /><span className="text-sm">Hiển thị</span></div>
-              </div>
-              <Button type="submit" variant="hero" className="w-full">{editing ? 'Cập nhật' : 'Tạo mới'}</Button>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-xl">{editing ? 'Sửa banner' : 'Thêm banner mới'}</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Basic Info */}
+              <Card>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-base">Thông tin cơ bản</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Tiêu đề *</Label>
+                      <Input 
+                        value={form.title} 
+                        onChange={(e) => setForm({ ...form, title: e.target.value })} 
+                        placeholder="Nhập tiêu đề banner"
+                        required 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Phụ đề</Label>
+                      <Input 
+                        value={form.subtitle} 
+                        onChange={(e) => setForm({ ...form, subtitle: e.target.value })} 
+                        placeholder="Mô tả ngắn"
+                      />
+                    </div>
+                  </div>
+                  <ImageUpload 
+                    value={form.image_url} 
+                    onChange={(url) => setForm({ ...form, image_url: url })} 
+                    folder="banners" 
+                    label="Hình ảnh banner *" 
+                  />
+                  <div className="space-y-2">
+                    <Label>URL liên kết</Label>
+                    <Input 
+                      value={form.link_url} 
+                      onChange={(e) => setForm({ ...form, link_url: e.target.value })} 
+                      placeholder="VD: /products hoặc https://..."
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Display Settings */}
+              <Card>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Monitor className="h-4 w-4" />
+                    Cài đặt hiển thị
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Vị trí trang</Label>
+                      <Select 
+                        value={form.page_location} 
+                        onValueChange={(v) => setForm({ ...form, page_location: v })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PAGE_LOCATIONS.map(p => (
+                            <SelectItem key={p.value} value={p.value}>
+                              <span className="flex items-center gap-2">
+                                <span>{p.icon}</span>
+                                <span>{p.label}</span>
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Kiểu hiển thị</Label>
+                      <Select 
+                        value={form.display_type} 
+                        onValueChange={(v) => setForm({ ...form, display_type: v })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {DISPLAY_TYPES.map(d => (
+                            <SelectItem key={d.value} value={d.value}>
+                              <div>
+                                <div className="font-medium">{d.label}</div>
+                                <div className="text-xs text-muted-foreground">{d.desc}</div>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Thứ tự hiển thị</Label>
+                      <Input 
+                        type="number" 
+                        value={form.position} 
+                        onChange={(e) => setForm({ ...form, position: e.target.value })} 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Thời gian chuyển (ms)</Label>
+                      <Input 
+                        type="number" 
+                        value={form.autoplay_interval} 
+                        onChange={(e) => setForm({ ...form, autoplay_interval: e.target.value })} 
+                        min="1000"
+                        step="500"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Carousel Options */}
+              <Card>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Play className="h-4 w-4" />
+                    Tùy chọn Carousel
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div>
+                        <Label className="cursor-pointer">Hiển thị</Label>
+                        <p className="text-xs text-muted-foreground">Bật/tắt banner</p>
+                      </div>
+                      <Switch 
+                        checked={form.is_active} 
+                        onCheckedChange={(c) => setForm({ ...form, is_active: c })} 
+                      />
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div>
+                        <Label className="cursor-pointer">Mũi tên điều hướng</Label>
+                        <p className="text-xs text-muted-foreground">Prev/Next</p>
+                      </div>
+                      <Switch 
+                        checked={form.show_navigation} 
+                        onCheckedChange={(c) => setForm({ ...form, show_navigation: c })} 
+                      />
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div>
+                        <Label className="cursor-pointer">Chấm chỉ mục</Label>
+                        <p className="text-xs text-muted-foreground">Dots indicator</p>
+                      </div>
+                      <Switch 
+                        checked={form.show_indicators} 
+                        onCheckedChange={(c) => setForm({ ...form, show_indicators: c })} 
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Button type="submit" variant="hero" className="w-full" size="lg">
+                {editing ? 'Cập nhật banner' : 'Tạo banner mới'}
+              </Button>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="grid gap-4">
-        {banners.map((b) => (
-          <div key={b.id} className="bg-card rounded-lg border p-4 flex items-center gap-4">
-            <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
-            {b.image_url && <img src={b.image_url} className="w-32 h-20 rounded object-cover" />}
-            <div className="flex-1">
-              <h3 className="font-medium">{b.title}</h3>
-              {b.subtitle && <p className="text-sm text-muted-foreground">{b.subtitle}</p>}
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <Card className="bg-gradient-to-br from-accent/10 to-accent/5">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-accent/20 rounded-lg">
+                <ImageIcon className="h-5 w-5 text-accent" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{banners.length}</p>
+                <p className="text-sm text-muted-foreground">Tổng banner</p>
+              </div>
             </div>
-            <Switch checked={b.is_active} onCheckedChange={() => toggleActive(b.id, b.is_active)} />
-            <Button variant="ghost" size="icon" onClick={() => handleEdit(b)}><Pencil className="h-4 w-4" /></Button>
-            <Button variant="ghost" size="icon" onClick={() => handleDelete(b.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-          </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                <Monitor className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{banners.filter(b => b.is_active).length}</p>
+                <p className="text-sm text-muted-foreground">Đang hiển thị</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <Play className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{banners.filter(b => b.display_type === 'carousel').length}</p>
+                <p className="text-sm text-muted-foreground">Carousel</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                <ImageIcon className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{banners.filter(b => b.display_type === 'hero').length}</p>
+                <p className="text-sm text-muted-foreground">Hero Banner</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filter Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <TabsList className="bg-muted/50 p-1">
+          <TabsTrigger value="all" className="data-[state=active]:bg-background">
+            Tất cả ({banners.length})
+          </TabsTrigger>
+          {PAGE_LOCATIONS.slice(0, 4).map(p => (
+            <TabsTrigger key={p.value} value={p.value} className="data-[state=active]:bg-background">
+              {p.icon} {p.label} ({banners.filter(b => b.page_location === p.value).length})
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+
+      {/* Banner List */}
+      <div className="grid gap-4">
+        {filteredBanners.map((b) => (
+          <Card key={b.id} className={cn(
+            "transition-all duration-200 hover:shadow-lg",
+            !b.is_active && "opacity-60"
+          )}>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab hidden md:block" />
+                {b.image_url && (
+                  <div className="relative w-40 h-24 rounded-lg overflow-hidden flex-shrink-0">
+                    <img src={b.image_url} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-charcoal/40 to-transparent" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-semibold truncate">{b.title}</h3>
+                    <Badge variant={b.is_active ? "default" : "secondary"} className="text-xs">
+                      {b.is_active ? 'Hiển thị' : 'Ẩn'}
+                    </Badge>
+                  </div>
+                  {b.subtitle && <p className="text-sm text-muted-foreground truncate mt-1">{b.subtitle}</p>}
+                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                    <Badge variant="outline" className="text-xs">
+                      {getPageLabel(b.page_location)}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {getDisplayLabel(b.display_type)}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {b.autoplay_interval / 1000}s
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch checked={b.is_active} onCheckedChange={() => toggleActive(b.id, b.is_active)} />
+                  <Button variant="ghost" size="icon" onClick={() => handleEdit(b)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(b.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         ))}
-        {banners.length === 0 && <div className="p-8 text-center text-muted-foreground bg-card rounded-lg border">Chưa có banner nào</div>}
+        {filteredBanners.length === 0 && (
+          <Card>
+            <CardContent className="p-12 text-center">
+              <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">Chưa có banner nào</p>
+              <Button variant="outline" className="mt-4" onClick={() => setIsOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" /> Thêm banner đầu tiên
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </AdminLayout>
   );

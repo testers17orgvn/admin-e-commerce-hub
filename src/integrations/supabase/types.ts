@@ -16,34 +16,49 @@ export type Database = {
     Tables: {
       banners: {
         Row: {
+          autoplay_interval: number | null
           created_at: string | null
+          display_type: string | null
           id: string
           image_url: string
           is_active: boolean | null
           link_url: string | null
+          page_location: string | null
           position: number | null
+          show_indicators: boolean | null
+          show_navigation: boolean | null
           subtitle: string | null
           title: string
           updated_at: string | null
         }
         Insert: {
+          autoplay_interval?: number | null
           created_at?: string | null
+          display_type?: string | null
           id?: string
           image_url: string
           is_active?: boolean | null
           link_url?: string | null
+          page_location?: string | null
           position?: number | null
+          show_indicators?: boolean | null
+          show_navigation?: boolean | null
           subtitle?: string | null
           title: string
           updated_at?: string | null
         }
         Update: {
+          autoplay_interval?: number | null
           created_at?: string | null
+          display_type?: string | null
           id?: string
           image_url?: string
           is_active?: boolean | null
           link_url?: string | null
+          page_location?: string | null
           position?: number | null
+          show_indicators?: boolean | null
+          show_navigation?: boolean | null
           subtitle?: string | null
           title?: string
           updated_at?: string | null
@@ -541,6 +556,86 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      seller_products: {
+        Row: {
+          category_id: string | null
+          colors: string[] | null
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          images: string[] | null
+          name: string
+          original_price: number | null
+          price: number
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          seller_id: string
+          sizes: string[] | null
+          slug: string
+          status: string | null
+          stock: number | null
+          tags: string[] | null
+          updated_at: string | null
+          video_url: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          colors?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          images?: string[] | null
+          name: string
+          original_price?: number | null
+          price?: number
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          seller_id: string
+          sizes?: string[] | null
+          slug: string
+          status?: string | null
+          stock?: number | null
+          tags?: string[] | null
+          updated_at?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          colors?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          images?: string[] | null
+          name?: string
+          original_price?: number | null
+          price?: number
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          seller_id?: string
+          sizes?: string[] | null
+          slug?: string
+          status?: string | null
+          stock?: number | null
+          tags?: string[] | null
+          updated_at?: string | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       settings: {
         Row: {
