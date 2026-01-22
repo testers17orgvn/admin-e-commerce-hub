@@ -191,9 +191,9 @@ export function Footer() {
         <div className="border-t border-cream/10 mt-12 lg:mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-cream/40">
           <p>{settings.footer_text || `© ${new Date().getFullYear()} All rights reserved.`}</p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-accent transition-colors">Điều khoản</a>
-            <a href="#" className="hover:text-accent transition-colors">Bảo mật</a>
-            <a href="#" className="hover:text-accent transition-colors">Cookie</a>
+            <Link to="/terms" className="hover:text-accent transition-colors">Điều khoản</Link>
+            <Link to="/privacy" className="hover:text-accent transition-colors">Bảo mật</Link>
+            <Link to="/cookie" className="hover:text-accent transition-colors">Cookie</Link>
           </div>
         </div>
       </div>
