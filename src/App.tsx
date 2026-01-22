@@ -18,6 +18,9 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import OrderHistory from "./pages/OrderHistory";
 import Wishlist from "./pages/Wishlist";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Cookie from "./pages/Cookie";
 
 import Profile from "./pages/Profile";
 
@@ -60,6 +63,9 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/orders" element={<OrderHistory />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/cookie" element={<Cookie />} />
                 
                 {/* Admin Routes */}
                 <Route path="/admin" element={<Dashboard />} />
