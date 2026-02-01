@@ -165,7 +165,7 @@ export default function AdminSettings() {
                 )}
                 <span className="font-display text-xl font-bold tracking-tight">
                   {(() => {
-                    const name = (settings.site_name || 'Hibiki Shop').trim();
+                    const name = (settings.site_name || 'VSM Shop').trim();
                     const parts = name.split(' ');
                     if (parts.length >= 2) {
                       return (
@@ -186,7 +186,7 @@ export default function AdminSettings() {
             <h3 className="font-semibold flex items-center gap-2"><Store className="h-4 w-4" /> Thông tin cửa hàng</h3>
             <div>
               <label className="text-sm font-medium">Tên cửa hàng</label>
-              <Input value={settings.site_name || ''} onChange={(e) => updateSetting('site_name', e.target.value)} placeholder="Tên website (vd: Hibiki Shop)" />
+              <Input value={settings.site_name || ''} onChange={(e) => updateSetting('site_name', e.target.value)} placeholder="Tên website (vd: VSM Shop)" />
               <p className="text-xs text-muted-foreground mt-1">Từ đầu tiên sẽ có màu chính, các từ còn lại sẽ có màu accent</p>
             </div>
             <div>
@@ -217,7 +217,7 @@ export default function AdminSettings() {
                 )}
                 <span className="font-display text-xl font-bold tracking-tight">
                   {(() => {
-                    const name = (settings.site_name || 'Hibiki Shop').trim();
+                    const name = (settings.site_name || 'VSM Shop').trim();
                     const parts = name.split(' ');
                     if (parts.length >= 2) {
                       return (

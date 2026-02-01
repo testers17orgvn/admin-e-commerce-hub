@@ -100,7 +100,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
                 <span className="text-accent-foreground font-bold text-sm">L</span>
               </div>
-              <span>Luxe<span className="text-accent">Shop</span></span>
+              <span>VSM<span className="text-accent"> Shop </span></span>
             </Link>
             <AdminNotificationBell />
           </div>
