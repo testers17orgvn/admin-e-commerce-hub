@@ -6,14 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Pencil, Trash2, GripVertical, Image as ImageIcon, Monitor, Play } from 'lucide-react';
+import { Plus, Image as ImageIcon, Monitor, Play, ArrowUpDown, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
+import { DraggableBannerList } from '@/components/admin/DraggableBannerList';
 
 interface Banner {
   id: string;
@@ -126,6 +126,18 @@ export default function AdminBanners() {
   const toggleActive = async (id: string, current: boolean) => {
     await supabase.from('banners').update({ is_active: !current }).eq('id', id);
     fetchData();
+  };
+
+  const handleReorder = async (reorderedBanners: Banner[]) => {
+    setBanners(reorderedBanners);
+    
+    // Update positions in database
+    const updates = reorderedBanners.map((banner, index) => 
+      supabase.from('banners').update({ position: index }).eq('id', banner.id)
+    );
+    
+    await Promise.all(updates);
+    toast.success('Đã cập nhật thứ tự banner');
   };
 
   const filteredBanners = activeTab === 'all' 
@@ -394,67 +406,31 @@ export default function AdminBanners() {
         </TabsList>
       </Tabs>
 
-      {/* Banner List */}
-      <div className="grid gap-4">
-        {filteredBanners.map((b) => (
-          <Card key={b.id} className={cn(
-            "transition-all duration-200 hover:shadow-lg",
-            !b.is_active && "opacity-60"
-          )}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-4">
-                <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab hidden md:block" />
-                {b.image_url && (
-                  <div className="relative w-40 h-24 rounded-lg overflow-hidden flex-shrink-0">
-                    <img src={b.image_url} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-charcoal/40 to-transparent" />
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold truncate">{b.title}</h3>
-                    <Badge variant={b.is_active ? "default" : "secondary"} className="text-xs">
-                      {b.is_active ? 'Hiển thị' : 'Ẩn'}
-                    </Badge>
-                  </div>
-                  {b.subtitle && <p className="text-sm text-muted-foreground truncate mt-1">{b.subtitle}</p>}
-                  <div className="flex items-center gap-2 mt-2 flex-wrap">
-                    <Badge variant="outline" className="text-xs">
-                      {getPageLabel(b.page_location)}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs">
-                      {getDisplayLabel(b.display_type)}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {b.autoplay_interval / 1000}s
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Switch checked={b.is_active} onCheckedChange={() => toggleActive(b.id, b.is_active)} />
-                  <Button variant="ghost" size="icon" onClick={() => handleEdit(b)}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(b.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-        {filteredBanners.length === 0 && (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">Chưa có banner nào</p>
-              <Button variant="outline" className="mt-4" onClick={() => setIsOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" /> Thêm banner đầu tiên
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      {/* Drag & Drop Info */}
+      <Card className="mb-6 bg-accent/5 border-accent/20">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <ArrowUpDown className="h-5 w-5 text-accent" />
+            <div>
+              <p className="font-medium">Kéo thả để sắp xếp</p>
+              <p className="text-sm text-muted-foreground">
+                Giữ và kéo biểu tượng ⠿ để thay đổi thứ tự hiển thị của banner
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Banner List with Drag & Drop */}
+      <DraggableBannerList
+        banners={filteredBanners}
+        onReorder={handleReorder}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onToggleActive={toggleActive}
+        getPageLabel={getPageLabel}
+        getDisplayLabel={getDisplayLabel}
+      />
     </AdminLayout>
   );
 }
