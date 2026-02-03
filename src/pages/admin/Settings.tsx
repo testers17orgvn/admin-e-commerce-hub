@@ -9,9 +9,10 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Save, Store, Phone, Mail, MapPin, Facebook, Instagram, CreditCard, Building2, Smartphone, Image as ImageIcon } from 'lucide-react';
+import { Save, Store, Phone, Mail, MapPin, Facebook, Instagram, CreditCard, Building2, Smartphone, Image as ImageIcon, Palette } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { ThemeSelector } from '@/components/admin/ThemeSelector';
 
 interface Settings {
   site_name?: string;
@@ -140,9 +141,12 @@ export default function AdminSettings() {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="general">Tổng quan</TabsTrigger>
           <TabsTrigger value="branding">Logo & Favicon</TabsTrigger>
+          <TabsTrigger value="theme">
+            <Palette className="h-4 w-4 mr-1" /> Theme
+          </TabsTrigger>
           <TabsTrigger value="contact">Liên hệ</TabsTrigger>
           <TabsTrigger value="social">Mạng xã hội</TabsTrigger>
           <TabsTrigger value="payment">Thanh toán</TabsTrigger>
@@ -289,6 +293,10 @@ export default function AdminSettings() {
               </p>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="theme" className="space-y-6">
+          <ThemeSelector />
         </TabsContent>
 
         <TabsContent value="contact" className="space-y-6">
