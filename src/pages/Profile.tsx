@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,7 +12,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { 
   User, Package, ShoppingCart, Save, Loader2, Camera, 
   Mail, Phone, MapPin, Calendar, Shield, ChevronRight,
-  CreditCard, Gift, Bell, Settings, LogOut, Heart, Star
+  CreditCard, Gift, Bell, Settings, LogOut, Heart, Star, Store
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCart } from '@/hooks/useCart';
@@ -22,6 +22,7 @@ import { vi } from 'date-fns/locale';
 import { AddressBook } from '@/components/profile/AddressBook';
 import { UserVouchers } from '@/components/profile/UserVouchers';
 import { NotificationSettings } from '@/components/profile/NotificationSettings';
+import { SellerRequestForm } from '@/components/profile/SellerRequestForm';
 
 interface ProfileData {
   full_name: string;
@@ -46,6 +47,7 @@ const menuItems = [
   { icon: MapPin, label: 'Sổ địa chỉ', value: 'addresses' },
   { icon: Gift, label: 'Voucher của tôi', value: 'vouchers' },
   { icon: Bell, label: 'Thông báo', value: 'notifications' },
+  { icon: Store, label: 'Đăng ký bán hàng', value: 'seller' },
 ];
 
 export default function Profile() {
@@ -680,6 +682,13 @@ export default function Profile() {
               {activeTab === 'notifications' && (
                 <div className="animate-fade-in">
                   <NotificationSettings />
+                </div>
+              )}
+
+              {/* Seller Registration Tab */}
+              {activeTab === 'seller' && (
+                <div className="animate-fade-in">
+                  <SellerRequestForm />
                 </div>
               )}
             </div>

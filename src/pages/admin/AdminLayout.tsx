@@ -17,7 +17,8 @@ import {
   MessageSquare, 
   Star,
   PackageCheck,
-  ChevronRight
+  ChevronRight,
+  UserCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AdminNotificationBell } from '@/components/notifications/AdminNotificationBell';
@@ -37,6 +38,7 @@ const menuGroups = [
       { href: '/admin/products', icon: Package, label: 'Sản phẩm' },
       { href: '/admin/categories', icon: FolderOpen, label: 'Danh mục' },
       { href: '/admin/seller-products', icon: PackageCheck, label: 'Duyệt SP Seller' },
+      { href: '/admin/seller-requests', icon: UserCheck, label: 'Duyệt đăng ký Seller' },
     ]
   },
   {

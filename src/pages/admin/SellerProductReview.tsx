@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package, Clock, CheckCircle, XCircle, AlertCircle, Eye, User, Calendar, DollarSign } from 'lucide-react';
+import { Package, Clock, CheckCircle, XCircle, AlertCircle, Eye, User, Calendar, DollarSign, Shield, Building, FileText, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -38,6 +38,10 @@ interface SellerProduct {
 interface SellerProfile {
   full_name: string | null;
   email: string | null;
+  business_type: string | null;
+  business_model: string | null;
+  business_license_url: string | null;
+  is_verified_seller: boolean | null;
 }
 
 const STATUS_CONFIG = {
@@ -77,10 +81,10 @@ export default function SellerProductReview() {
     setSelectedProduct(product);
     setRejectReason(product.rejection_reason || '');
     
-    // Fetch seller profile
+    // Fetch seller profile with business info
     const { data } = await supabase
       .from('profiles')
-      .select('full_name, email')
+      .select('full_name, email, business_type, business_model, business_license_url, is_verified_seller')
       .eq('id', product.seller_id)
       .single();
     
@@ -322,15 +326,68 @@ export default function SellerProductReview() {
                   {sellerProfile && (
                     <Card>
                       <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 mb-4">
                           <div className="p-2 bg-accent/10 rounded-full">
                             <User className="h-5 w-5 text-accent" />
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className="font-medium">{sellerProfile.full_name || 'Người bán'}</p>
                             <p className="text-sm text-muted-foreground">{sellerProfile.email}</p>
                           </div>
+                          {sellerProfile.is_verified_seller && (
+                            <Badge className="bg-green-100 text-green-700">
+                              <Shield className="h-3 w-3 mr-1" />
+                              Đã xác thực
+                            </Badge>
+                          )}
                         </div>
+                        
+                        {/* Business Info */}
+                        {sellerProfile.business_type && (
+                          <div className="space-y-2 pt-3 border-t">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Building className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-muted-foreground">Loại hình:</span>
+                              <span className="font-medium">{sellerProfile.business_type}</span>
+                            </div>
+                            {sellerProfile.business_model && (
+                              <div className="flex items-center gap-2 text-sm">
+                                <Package className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-muted-foreground">Mô hình:</span>
+                                <span className="font-medium">{sellerProfile.business_model}</span>
+                              </div>
+                            )}
+                            {sellerProfile.business_license_url && (
+                              <a 
+                                href={sellerProfile.business_license_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-sm text-accent hover:underline"
+                              >
+                                <FileText className="h-4 w-4" />
+                                Xem giấy phép kinh doanh
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Warning if not verified */}
+                        {!sellerProfile.is_verified_seller && (
+                          <div className="mt-3 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                            <div className="flex items-start gap-2">
+                              <AlertCircle className="h-4 w-4 text-orange-500 mt-0.5" />
+                              <div className="text-sm">
+                                <p className="font-medium text-orange-700 dark:text-orange-400">
+                                  Người bán chưa xác thực
+                                </p>
+                                <p className="text-orange-600/80 dark:text-orange-500">
+                                  Seller này chưa hoàn tất quy trình xác thực doanh nghiệp.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   )}

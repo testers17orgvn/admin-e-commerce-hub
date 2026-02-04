@@ -528,31 +528,49 @@ export type Database = {
         Row: {
           address: string | null
           avatar_url: string | null
+          business_description: string | null
+          business_license_url: string | null
+          business_model: string | null
+          business_type: string | null
           created_at: string | null
           email: string | null
           full_name: string | null
           id: string
+          is_verified_seller: boolean | null
           phone: string | null
+          tax_code: string | null
           updated_at: string | null
         }
         Insert: {
           address?: string | null
           avatar_url?: string | null
+          business_description?: string | null
+          business_license_url?: string | null
+          business_model?: string | null
+          business_type?: string | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
           id: string
+          is_verified_seller?: boolean | null
           phone?: string | null
+          tax_code?: string | null
           updated_at?: string | null
         }
         Update: {
           address?: string | null
           avatar_url?: string | null
+          business_description?: string | null
+          business_license_url?: string | null
+          business_model?: string | null
+          business_type?: string | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
+          is_verified_seller?: boolean | null
           phone?: string | null
+          tax_code?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -636,6 +654,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      seller_requests: {
+        Row: {
+          address: string
+          business_description: string | null
+          business_license_url: string | null
+          business_model: string
+          business_type: string
+          created_at: string | null
+          id: string
+          phone: string
+          product_categories: string[] | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          tax_code: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          address: string
+          business_description?: string | null
+          business_license_url?: string | null
+          business_model: string
+          business_type: string
+          created_at?: string | null
+          id?: string
+          phone: string
+          product_categories?: string[] | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          tax_code?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          address?: string
+          business_description?: string | null
+          business_license_url?: string | null
+          business_model?: string
+          business_type?: string
+          created_at?: string | null
+          id?: string
+          phone?: string
+          product_categories?: string[] | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          tax_code?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       settings: {
         Row: {
