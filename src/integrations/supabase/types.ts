@@ -281,44 +281,103 @@ export type Database = {
         }
         Relationships: []
       }
+      order_tracking: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          location_lat: number | null
+          location_lng: number | null
+          note: string | null
+          order_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          note?: string | null
+          order_id: string
+          status: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          note?: string | null
+          order_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_tracking_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
+          actual_delivery: string | null
           created_at: string | null
           customer_address: string | null
           customer_email: string
           customer_name: string
           customer_phone: string | null
+          delivery_address_lat: number | null
+          delivery_address_lng: number | null
+          estimated_delivery: string | null
           id: string
           items: Json
           notes: string | null
+          shipper_id: string | null
+          shipper_status: string | null
           status: string | null
           total_amount: number
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
+          actual_delivery?: string | null
           created_at?: string | null
           customer_address?: string | null
           customer_email: string
           customer_name: string
           customer_phone?: string | null
+          delivery_address_lat?: number | null
+          delivery_address_lng?: number | null
+          estimated_delivery?: string | null
           id?: string
           items?: Json
           notes?: string | null
+          shipper_id?: string | null
+          shipper_status?: string | null
           status?: string | null
           total_amount?: number
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
+          actual_delivery?: string | null
           created_at?: string | null
           customer_address?: string | null
           customer_email?: string
           customer_name?: string
           customer_phone?: string | null
+          delivery_address_lat?: number | null
+          delivery_address_lng?: number | null
+          estimated_delivery?: string | null
           id?: string
           items?: Json
           notes?: string | null
+          shipper_id?: string | null
+          shipper_status?: string | null
           status?: string | null
           total_amount?: number
           updated_at?: string | null
@@ -736,6 +795,56 @@ export type Database = {
         }
         Relationships: []
       }
+      shipper_locations: {
+        Row: {
+          accuracy: number | null
+          created_at: string | null
+          heading: number | null
+          id: string
+          is_online: boolean | null
+          last_updated: string | null
+          latitude: number
+          longitude: number
+          order_id: string | null
+          shipper_id: string
+          speed: number | null
+        }
+        Insert: {
+          accuracy?: number | null
+          created_at?: string | null
+          heading?: number | null
+          id?: string
+          is_online?: boolean | null
+          last_updated?: string | null
+          latitude: number
+          longitude: number
+          order_id?: string | null
+          shipper_id: string
+          speed?: number | null
+        }
+        Update: {
+          accuracy?: number | null
+          created_at?: string | null
+          heading?: number | null
+          id?: string
+          is_online?: boolean | null
+          last_updated?: string | null
+          latitude?: number
+          longitude?: number
+          order_id?: string | null
+          shipper_id?: string
+          speed?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipper_locations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_addresses: {
         Row: {
           address_detail: string
@@ -930,10 +1039,11 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_dealer: { Args: { _user_id?: string }; Returns: boolean }
       is_seller: { Args: { _user_id?: string }; Returns: boolean }
+      is_shipper: { Args: { _user_id?: string }; Returns: boolean }
       is_tester: { Args: { _user_id?: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "staff" | "seller" | "dealer" | "tester"
+      app_role: "admin" | "staff" | "seller" | "dealer" | "tester" | "shipper"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1061,7 +1171,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "staff", "seller", "dealer", "tester"],
+      app_role: ["admin", "staff", "seller", "dealer", "tester", "shipper"],
     },
   },
 } as const
