@@ -96,6 +96,12 @@ export interface Order {
   notes: string | null;
   created_at: string;
   updated_at: string;
+   shipper_id?: string | null;
+   shipper_status?: string | null;
+   delivery_address_lat?: number | null;
+   delivery_address_lng?: number | null;
+   estimated_delivery?: string | null;
+   actual_delivery?: string | null;
 }
 
 export interface CartItem extends Product {
@@ -113,3 +119,28 @@ export interface Profile {
   created_at: string;
   updated_at: string;
 }
+ 
+ export interface ShipperLocation {
+   id: string;
+   shipper_id: string;
+   order_id: string | null;
+   latitude: number;
+   longitude: number;
+   accuracy?: number | null;
+   heading?: number | null;
+   speed?: number | null;
+   is_online: boolean;
+   last_updated: string;
+   created_at: string;
+ }
+ 
+ export interface OrderTracking {
+   id: string;
+   order_id: string;
+   status: string;
+   note?: string | null;
+   location_lat?: number | null;
+   location_lng?: number | null;
+   created_by?: string | null;
+   created_at: string;
+ }

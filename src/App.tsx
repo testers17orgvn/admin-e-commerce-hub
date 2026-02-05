@@ -43,6 +43,9 @@ import SellerProductReview from "./pages/admin/SellerProductReview";
 import SellerRequests from "./pages/admin/SellerRequests";
 import SellerProducts from "./pages/seller/SellerProducts";
 import SellerDashboard from "./pages/seller/SellerDashboard";
+ import ShipperDashboard from "./pages/shipper/ShipperDashboard";
+ import ShipperManagement from "./pages/admin/ShipperManagement";
+ import OrderDetail from "./pages/OrderDetail";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +72,7 @@ const App = () => (
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/orders" element={<OrderHistory />} />
+                   <Route path="/orders/:id" element={<OrderDetail />} />
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/cookie" element={<Cookie />} />
@@ -89,10 +93,15 @@ const App = () => (
                   <Route path="/admin/reviews" element={<AdminReviews />} />
                   <Route path="/admin/seller-products" element={<SellerProductReview />} />
                   <Route path="/admin/seller-requests" element={<SellerRequests />} />
+                   <Route path="/admin/shipper" element={<ShipperManagement />} />
                   
                   {/* Seller Routes */}
                   <Route path="/seller/products" element={<SellerProducts />} />
                   <Route path="/seller/dashboard" element={<SellerDashboard />} />
+                   
+                   {/* Shipper Routes */}
+                   <Route path="/shipper" element={<ShipperDashboard />} />
+                   <Route path="/shipper/orders" element={<ShipperDashboard />} />
                   
                   <Route path="*" element={<NotFound />} />
                 </Routes>

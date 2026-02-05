@@ -18,7 +18,8 @@ import {
   Star,
   PackageCheck,
   ChevronRight,
-  UserCheck
+   UserCheck,
+   Truck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AdminNotificationBell } from '@/components/notifications/AdminNotificationBell';
@@ -45,6 +46,7 @@ const menuGroups = [
     label: 'Bán hàng',
     items: [
       { href: '/admin/orders', icon: ShoppingCart, label: 'Đơn hàng' },
+       { href: '/admin/shipper', icon: Truck, label: 'Quản lý giao hàng' },
       { href: '/admin/vouchers', icon: Ticket, label: 'Voucher' },
       { href: '/admin/reviews', icon: Star, label: 'Đánh giá' },
     ]
