@@ -63,7 +63,7 @@ const defaultSettings: HomepageSettings = {
   featured: {
     badge_text: 'Nổi bật',
     title: 'Sản phẩm nổi bật',
-    description: 'Những sản phẩm được yêu thích nhất tại LuxeShop',
+    description: 'Những sản phẩm được yêu thích nhất',
     button_text: 'Xem tất cả sản phẩm',
   },
   categories: {
@@ -72,7 +72,7 @@ const defaultSettings: HomepageSettings = {
   },
   newsletter: {
     title: 'Đăng ký nhận tin',
-    description: 'Nhận thông tin về sản phẩm mới và ưu đãi độc quyền từ LuxeShop',
+    description: 'Nhận thông tin về sản phẩm mới và ưu đãi độc quyền',
     button_text: 'Đăng ký',
     placeholder: 'Email của bạn',
   },

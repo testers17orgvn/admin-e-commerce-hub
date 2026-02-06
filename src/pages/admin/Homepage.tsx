@@ -8,9 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Save, Layout, Sparkles, Grid, Mail, Plus, Trash2 } from 'lucide-react';
+import { Save, Layout, Sparkles, Grid, Mail, Plus, Trash2, Layers } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { HomepageSectionManager } from '@/components/admin/HomepageSectionManager';
 import type { HomepageSettings } from '@/hooks/useHomepageSettings';
 
 interface StatItem {
@@ -175,8 +176,12 @@ export default function AdminHomepage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="hero" className="space-y-6">
-        <TabsList className="grid grid-cols-4 w-full max-w-2xl">
+      <Tabs defaultValue="layout" className="space-y-6">
+        <TabsList className="grid grid-cols-5 w-full max-w-3xl">
+          <TabsTrigger value="layout" className="flex items-center gap-2">
+            <Layers className="h-4 w-4" />
+            Bố cục
+          </TabsTrigger>
           <TabsTrigger value="hero" className="flex items-center gap-2">
             <Layout className="h-4 w-4" />
             Hero
@@ -194,6 +199,11 @@ export default function AdminHomepage() {
             Newsletter
           </TabsTrigger>
         </TabsList>
+
+        {/* Layout Section - NEW */}
+        <TabsContent value="layout">
+          <HomepageSectionManager />
+        </TabsContent>
 
         {/* Hero Section */}
         <TabsContent value="hero">
