@@ -14,9 +14,9 @@ export interface ContactSettings {
 }
 
 const defaultSettings: ContactSettings = {
-  address: '123 Nguyễn Huệ, Quận 1, TP.HCM',
-  phone: '0909 123 456',
-  email: 'contact@luxeshop.vn',
+  address: '',
+  phone: '',
+  email: '',
   working_hours: 'Thứ 2 - Thứ 7: 9:00 - 21:00\nChủ nhật: 10:00 - 18:00',
   map_embed: '',
   facebook: '',
