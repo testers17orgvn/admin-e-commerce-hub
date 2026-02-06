@@ -19,39 +19,46 @@ interface StatItem {
   label: string;
 }
 
+// Default values for forms
+const defaultSettings: HomepageSettings = {
+  hero: {
+    badge_text: 'Bộ sưu tập mới 2024',
+    title_line1: 'Phong cách',
+    title_line2: 'Đẳng cấp',
+    description: 'Khám phá những thiết kế độc quyền, tinh tế được tuyển chọn từ các thương hiệu hàng đầu thế giới.',
+    button_primary_text: 'Khám phá ngay',
+    button_secondary_text: 'Liên hệ tư vấn',
+    stats: [
+      { value: '500+', label: 'Sản phẩm' },
+      { value: '10K+', label: 'Khách hàng' },
+      { value: '5★', label: 'Đánh giá' },
+    ],
+    background_image: '',
+    show_badge: true,
+    show_description: true,
+    show_buttons: true,
+    show_stats: true,
+  },
+  featured: {
+    badge_text: 'Nổi bật',
+    title: 'Sản phẩm nổi bật',
+    description: 'Những sản phẩm được yêu thích nhất',
+    button_text: 'Xem tất cả sản phẩm',
+  },
+  categories: {
+    title: 'Danh mục sản phẩm',
+    description: 'Khám phá các danh mục sản phẩm đa dạng',
+  },
+  newsletter: {
+    title: 'Đăng ký nhận tin',
+    description: 'Nhận thông tin về sản phẩm mới và ưu đãi độc quyền',
+    button_text: 'Đăng ký',
+    placeholder: 'Email của bạn',
+  },
+};
+
 export default function AdminHomepage() {
-  const [settings, setSettings] = useState<HomepageSettings>({
-    hero: {
-      badge_text: '',
-      title_line1: '',
-      title_line2: '',
-      description: '',
-      button_primary_text: '',
-      button_secondary_text: '',
-      stats: [],
-      background_image: '',
-      show_badge: true,
-      show_description: true,
-      show_buttons: true,
-      show_stats: true,
-    },
-    featured: {
-      badge_text: '',
-      title: '',
-      description: '',
-      button_text: '',
-    },
-    categories: {
-      title: '',
-      description: '',
-    },
-    newsletter: {
-      title: '',
-      description: '',
-      button_text: '',
-      placeholder: '',
-    },
-  });
+  const [settings, setSettings] = useState<HomepageSettings>(defaultSettings);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -63,18 +70,43 @@ export default function AdminHomepage() {
         .in('key', ['homepage_hero', 'homepage_featured', 'homepage_categories', 'homepage_newsletter']);
 
       if (data && data.length > 0) {
-        const newSettings = { ...settings };
+        const newSettings = { ...defaultSettings };
         
         data.forEach((item) => {
           const value = item.value as Record<string, unknown>;
           if (item.key === 'homepage_hero' && value) {
-            newSettings.hero = { ...newSettings.hero, ...value } as typeof newSettings.hero;
+            // Only merge non-empty values
+            const heroValue: Record<string, unknown> = {};
+            Object.entries(value).forEach(([k, v]) => {
+              if (v !== '' && v !== null && v !== undefined && !(Array.isArray(v) && v.length === 0)) {
+                heroValue[k] = v;
+              }
+            });
+            newSettings.hero = { ...defaultSettings.hero, ...heroValue };
           } else if (item.key === 'homepage_featured' && value) {
-            newSettings.featured = { ...newSettings.featured, ...value } as typeof newSettings.featured;
+            const featuredValue: Record<string, unknown> = {};
+            Object.entries(value).forEach(([k, v]) => {
+              if (v !== '' && v !== null && v !== undefined) {
+                featuredValue[k] = v;
+              }
+            });
+            newSettings.featured = { ...defaultSettings.featured, ...featuredValue };
           } else if (item.key === 'homepage_categories' && value) {
-            newSettings.categories = { ...newSettings.categories, ...value } as typeof newSettings.categories;
+            const categoriesValue: Record<string, unknown> = {};
+            Object.entries(value).forEach(([k, v]) => {
+              if (v !== '' && v !== null && v !== undefined) {
+                categoriesValue[k] = v;
+              }
+            });
+            newSettings.categories = { ...defaultSettings.categories, ...categoriesValue };
           } else if (item.key === 'homepage_newsletter' && value) {
-            newSettings.newsletter = { ...newSettings.newsletter, ...value } as typeof newSettings.newsletter;
+            const newsletterValue: Record<string, unknown> = {};
+            Object.entries(value).forEach(([k, v]) => {
+              if (v !== '' && v !== null && v !== undefined) {
+                newsletterValue[k] = v;
+              }
+            });
+            newSettings.newsletter = { ...defaultSettings.newsletter, ...newsletterValue };
           }
         });
         
