@@ -86,15 +86,10 @@ function SortableSection({ section, onToggle }: SortableSectionProps) {
 }
 
 export function HomepageSectionManager() {
-  const { sections, saveSections, updateSections } = useHomepageSections();
+  const { sections, saveSections } = useHomepageSections();
   const [localSections, setLocalSections] = useState<HomepageSection[]>(sections);
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-
-  // Sync local state when sections change
-  useState(() => {
-    setLocalSections(sections);
-  });
 
   const sensors = useSensors(
     useSensor(PointerSensor),
