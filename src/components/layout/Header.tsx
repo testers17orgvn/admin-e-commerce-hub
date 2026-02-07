@@ -53,10 +53,10 @@ export function Header() {
       if (!data) return;
 
       data.forEach(item => {
-        if (item.key === 'logo_url' && typeof item.value === 'string') {
+        if (item.key === 'logo_url' && typeof item.value === 'string' && item.value.trim()) {
           setLogo(item.value);
         }
-        if (item.key === 'site_name' && typeof item.value === 'string') {
+        if (item.key === 'site_name' && typeof item.value === 'string' && item.value.trim()) {
           const parts = item.value.trim().split(' ');
           setBrand({
             first: parts[0],

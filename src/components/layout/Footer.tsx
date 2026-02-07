@@ -69,9 +69,9 @@ export function Footer() {
                 alt={settings.site_name || 'Logo'}
                 className="h-12 w-auto brightness-0 invert"
               />
-              {settings.site_name && (
+            {settings.site_name?.trim() && (
                 <span className="font-display text-2xl font-bold">
-                  {settings.site_name}
+                  {settings.site_name.trim()}
                 </span>
               )}
             </Link>
