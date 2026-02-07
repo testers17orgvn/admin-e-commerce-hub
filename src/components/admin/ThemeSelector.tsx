@@ -182,14 +182,19 @@ export function ThemeSelector() {
                   </div>
                   <h4 className="font-semibold text-sm mb-1">{theme.name}</h4>
                   <p className="text-xs text-muted-foreground line-clamp-2">{theme.description}</p>
-                  <div className="flex gap-1 mt-2">
-                    {Object.values(theme.colors).slice(0, 3).map((color, i) => (
-                      <div
-                        key={i}
-                        className="w-4 h-4 rounded-full border border-background shadow-sm"
-                        style={{ backgroundColor: `hsl(${color})` }}
-                      />
-                    ))}
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex gap-1">
+                      {Object.values(theme.colors).slice(0, 3).map((color, i) => (
+                        <div
+                          key={i}
+                          className="w-4 h-4 rounded-full border border-background shadow-sm"
+                          style={{ backgroundColor: `hsl(${color})` }}
+                        />
+                      ))}
+                    </div>
+                    {theme.mascots && (
+                      <span className="text-xs">{theme.mascots.slice(0, 2).join('')}</span>
+                    )}
                   </div>
                 </button>
               );
@@ -243,6 +248,11 @@ export function ThemeSelector() {
                   {theme.effects.particles && (
                     <p className="text-xs text-center text-muted-foreground mt-1">
                       ✨ {theme.effects.particles}
+                    </p>
+                  )}
+                  {theme.mascots && theme.mascots.length > 0 && (
+                    <p className="text-xs text-center mt-0.5">
+                      {theme.mascots.slice(0, 3).join(' ')}
                     </p>
                   )}
                 </button>
