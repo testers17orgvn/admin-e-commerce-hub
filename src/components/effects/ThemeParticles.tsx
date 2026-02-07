@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 
 interface Particle {
@@ -58,6 +58,75 @@ const PARTICLE_CONFIGS = {
   },
 };
 
+interface MascotData {
+  emoji: string;
+  x: number;
+  y: number;
+  baseY: number;
+  bobSpeed: number;
+  bobAmount: number;
+  size: number;
+  side: 'left' | 'right';
+}
+
+function FloatingMascots({ mascots }: { mascots: string[] }) {
+  const [mascotData, setMascotData] = useState<MascotData[]>([]);
+  const animationRef = useRef<number>();
+  const timeRef = useRef(0);
+
+  useEffect(() => {
+    const data: MascotData[] = mascots.slice(0, 4).map((emoji, i) => ({
+      emoji,
+      x: i % 2 === 0 ? 10 + Math.random() * 60 : window.innerWidth - 70 - Math.random() * 60,
+      y: window.innerHeight * 0.6 + Math.random() * (window.innerHeight * 0.25),
+      baseY: window.innerHeight * 0.6 + Math.random() * (window.innerHeight * 0.25),
+      bobSpeed: 0.5 + Math.random() * 0.5,
+      bobAmount: 8 + Math.random() * 12,
+      size: 32 + Math.random() * 16,
+      side: i % 2 === 0 ? 'left' : 'right',
+    }));
+    setMascotData(data);
+
+    const animate = () => {
+      timeRef.current += 0.016;
+      setMascotData(prev =>
+        prev.map(m => ({
+          ...m,
+          y: m.baseY + Math.sin(timeRef.current * m.bobSpeed * Math.PI * 2) * m.bobAmount,
+        }))
+      );
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, [mascots]);
+
+  return (
+    <>
+      {mascotData.map((m, i) => (
+        <div
+          key={i}
+          className="fixed pointer-events-none z-40 transition-opacity duration-1000"
+          style={{
+            left: m.side === 'left' ? `${m.x}px` : 'auto',
+            right: m.side === 'right' ? `${window.innerWidth - m.x - m.size}px` : 'auto',
+            top: `${m.y}px`,
+            fontSize: `${m.size}px`,
+            opacity: 0.7,
+            filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+            transform: m.side === 'left' ? 'scaleX(1)' : 'scaleX(-1)',
+          }}
+        >
+          {m.emoji}
+        </div>
+      ))}
+    </>
+  );
+}
+
 export function ThemeParticles() {
   const { themeConfig } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -65,6 +134,7 @@ export function ThemeParticles() {
   const animationRef = useRef<number>();
 
   const particleType = themeConfig.effects.particles;
+  const mascots = themeConfig.mascots;
 
   useEffect(() => {
     if (!particleType || !canvasRef.current) return;
@@ -148,13 +218,20 @@ export function ThemeParticles() {
     };
   }, [particleType]);
 
-  if (!particleType) return null;
+  if (!particleType && !mascots?.length) return null;
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-50"
-      style={{ mixBlendMode: 'normal' }}
-    />
+    <>
+      {particleType && (
+        <canvas
+          ref={canvasRef}
+          className="fixed inset-0 pointer-events-none z-50"
+          style={{ mixBlendMode: 'normal' }}
+        />
+      )}
+      {mascots && mascots.length > 0 && (
+        <FloatingMascots mascots={mascots} />
+      )}
+    </>
   );
 }

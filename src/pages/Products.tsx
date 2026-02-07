@@ -17,6 +17,7 @@ interface FilterState {
   priceRange: [number, number];
   isHot: boolean;
   hasDiscount: boolean;
+  categoryId: string;
 }
 
 const Products = () => {
@@ -59,6 +60,7 @@ const Products = () => {
     priceRange: [0, 10000000],
     isHot: false,
     hasDiscount: false,
+    categoryId: '',
   });
 
   // Update price range when maxPrice changes
@@ -123,6 +125,11 @@ const Products = () => {
   // Apply client-side filters
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
+      // Category filter (from sidebar)
+      if (filters.categoryId && product.category_id !== filters.categoryId) {
+        return false;
+      }
+
       // Price filter
       if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) {
         return false;
@@ -185,6 +192,7 @@ const Products = () => {
       priceRange: [0, maxPrice],
       isHot: false,
       hasDiscount: false,
+      categoryId: '',
     });
   };
 
@@ -223,6 +231,7 @@ const Products = () => {
                 availableColors={availableColors}
                 availableSizes={availableSizes}
                 availableTags={availableTags}
+                categories={categories}
                 maxPrice={maxPrice}
                 filters={filters}
                 onFiltersChange={setFilters}
@@ -289,6 +298,7 @@ const Products = () => {
               availableColors={availableColors}
               availableSizes={availableSizes}
               availableTags={availableTags}
+              categories={categories}
               maxPrice={maxPrice}
               filters={filters}
               onFiltersChange={setFilters}

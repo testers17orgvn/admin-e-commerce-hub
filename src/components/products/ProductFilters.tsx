@@ -16,12 +16,20 @@ interface FilterState {
   priceRange: [number, number];
   isHot: boolean;
   hasDiscount: boolean;
+  categoryId: string;
+}
+
+interface CategoryOption {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 interface ProductFiltersProps {
   availableColors: string[];
   availableSizes: string[];
   availableTags: string[];
+  categories: CategoryOption[];
   maxPrice: number;
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
@@ -49,6 +57,7 @@ export function ProductFilters({
   availableColors,
   availableSizes,
   availableTags,
+  categories,
   maxPrice,
   filters,
   onFiltersChange,
@@ -94,7 +103,42 @@ export function ProductFilters({
 
   const FilterContent = () => (
     <div className="space-y-6">
-      <Accordion type="multiple" defaultValue={['price', 'colors', 'sizes', 'tags', 'special']} className="w-full">
+      <Accordion type="multiple" defaultValue={['categories', 'price', 'colors', 'sizes', 'tags', 'special']} className="w-full">
+        {/* Categories */}
+        {categories.length > 0 && (
+          <AccordionItem value="categories">
+            <AccordionTrigger className="text-sm font-semibold">Danh mục</AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col gap-1 py-2">
+                <button
+                  onClick={() => onFiltersChange({ ...filters, categoryId: '' })}
+                  className={cn(
+                    "text-left px-3 py-2 rounded-lg text-sm transition-all",
+                    !filters.categoryId
+                      ? "bg-accent/10 text-accent font-medium"
+                      : "hover:bg-muted text-muted-foreground"
+                  )}
+                >
+                  Tất cả
+                </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => onFiltersChange({ ...filters, categoryId: cat.id })}
+                    className={cn(
+                      "text-left px-3 py-2 rounded-lg text-sm transition-all",
+                      filters.categoryId === cat.id
+                        ? "bg-accent/10 text-accent font-medium"
+                        : "hover:bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
         {/* Price Range */}
         <AccordionItem value="price">
           <AccordionTrigger className="text-sm font-semibold">Khoảng giá</AccordionTrigger>

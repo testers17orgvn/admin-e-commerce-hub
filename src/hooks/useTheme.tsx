@@ -30,6 +30,7 @@ export interface ThemeConfig {
     gradient?: string;
     overlay?: string;
   };
+  mascots?: string[]; // Array of mascot emojis for floating decoration
 }
 
 export const THEMES: ThemeConfig[] = [
@@ -63,6 +64,7 @@ export const THEMES: ThemeConfig[] = [
       particles: 'petals',
       gradient: 'linear-gradient(135deg, hsl(330, 80%, 65%), hsl(340, 70%, 80%))',
     },
+    mascots: ['🦋', '🐝', '🐞'],
   },
   {
     id: 'summer',
@@ -80,6 +82,7 @@ export const THEMES: ThemeConfig[] = [
       particles: 'stars',
       gradient: 'linear-gradient(135deg, hsl(45, 100%, 55%), hsl(30, 100%, 60%))',
     },
+    mascots: ['🌴', '🏖️', '🐚'],
   },
   {
     id: 'autumn',
@@ -97,6 +100,7 @@ export const THEMES: ThemeConfig[] = [
       particles: 'leaves',
       gradient: 'linear-gradient(135deg, hsl(25, 90%, 50%), hsl(15, 85%, 45%))',
     },
+    mascots: ['🦊', '🍄', '🌰'],
   },
   {
     id: 'winter',
@@ -114,6 +118,7 @@ export const THEMES: ThemeConfig[] = [
       particles: 'snow',
       gradient: 'linear-gradient(135deg, hsl(200, 80%, 60%), hsl(210, 75%, 70%))',
     },
+    mascots: ['⛄', '🐧', '🦌'],
   },
   {
     id: 'tet',
@@ -131,6 +136,7 @@ export const THEMES: ThemeConfig[] = [
       particles: 'lanterns',
       gradient: 'linear-gradient(135deg, hsl(0, 85%, 50%), hsl(45, 100%, 50%))',
     },
+    mascots: ['🐉', '🧨', '🎏'],
   },
   {
     id: 'valentine',
@@ -148,6 +154,7 @@ export const THEMES: ThemeConfig[] = [
       particles: 'hearts',
       gradient: 'linear-gradient(135deg, hsl(340, 80%, 55%), hsl(350, 75%, 65%))',
     },
+    mascots: ['🧸', '💘', '🕊️'],
   },
   {
     id: 'mid_autumn',
@@ -165,6 +172,7 @@ export const THEMES: ThemeConfig[] = [
       particles: 'lanterns',
       gradient: 'linear-gradient(135deg, hsl(30, 90%, 55%), hsl(45, 85%, 60%))',
     },
+    mascots: ['🐇', '🌕', '🥮'],
   },
   {
     id: 'halloween',
@@ -183,6 +191,7 @@ export const THEMES: ThemeConfig[] = [
       gradient: 'linear-gradient(135deg, hsl(25, 95%, 50%), hsl(0, 0%, 10%))',
       overlay: 'hsl(0, 0%, 5%)',
     },
+    mascots: ['🎃', '👻', '🧙‍♀️', '🦇', '💀'],
   },
   {
     id: 'christmas',
@@ -200,6 +209,7 @@ export const THEMES: ThemeConfig[] = [
       particles: 'snow',
       gradient: 'linear-gradient(135deg, hsl(0, 75%, 50%), hsl(120, 60%, 35%))',
     },
+    mascots: ['🎅', '🤶', '🦌', '⛄', '🎁'],
   },
 ];
 
