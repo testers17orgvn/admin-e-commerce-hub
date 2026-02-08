@@ -13,6 +13,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import {
   Bold,
   Italic,
@@ -38,8 +40,11 @@ import {
   Redo,
   Type,
   Minus,
+  Upload,
+  Video,
+  Loader2,
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface RichTextEditorProps {
   value: string;
@@ -65,39 +70,31 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   const [linkUrl, setLinkUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3],
-        },
+        heading: { levels: [1, 2, 3] },
       }),
       Underline,
       Link.configure({
         openOnClick: false,
-        HTMLAttributes: {
-          class: 'text-primary underline',
-        },
+        HTMLAttributes: { class: 'text-primary underline' },
       }),
       Image.configure({
-        HTMLAttributes: {
-          class: 'rounded-lg max-w-full',
-        },
+        HTMLAttributes: { class: 'rounded-lg max-w-full' },
       }),
       Youtube.configure({
         width: 640,
         height: 360,
-        HTMLAttributes: {
-          class: 'rounded-lg overflow-hidden my-4',
-        },
+        HTMLAttributes: { class: 'rounded-lg overflow-hidden my-4' },
       }),
-      TextAlign.configure({
-        types: ['heading', 'paragraph'],
-      }),
-      Highlight.configure({
-        multicolor: true,
-      }),
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      Highlight.configure({ multicolor: true }),
       TextStyle,
       Color,
     ],
@@ -112,7 +109,6 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     },
   });
 
-  // Update editor content when value changes externally
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
       editor.commands.setContent(value);
@@ -142,224 +138,171 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { toast.error('Chỉ chấp nhận file ảnh'); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error('Ảnh tối đa 10MB'); return; }
+
+    setUploadingImage(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `blogs/content/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+      const { error } = await supabase.storage.from('images').upload(path, file);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(path);
+      editor.chain().focus().setImage({ src: publicUrl }).run();
+      toast.success('Đã chèn ảnh');
+    } catch (err: any) {
+      toast.error(err.message || 'Lỗi upload ảnh');
+    } finally {
+      setUploadingImage(false);
+      if (imageInputRef.current) imageInputRef.current.value = '';
+    }
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('video/')) { toast.error('Chỉ chấp nhận file video'); return; }
+    if (file.size > 100 * 1024 * 1024) { toast.error('Video tối đa 100MB'); return; }
+
+    setUploadingVideo(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `blogs/videos/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+      const { error } = await supabase.storage.from('images').upload(path, file);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(path);
+      // Insert as HTML video tag
+      editor.chain().focus().insertContent(
+        `<div class="my-4"><video controls class="rounded-lg w-full max-w-2xl mx-auto" src="${publicUrl}"></video></div>`
+      ).run();
+      toast.success('Đã chèn video');
+    } catch (err: any) {
+      toast.error(err.message || 'Lỗi upload video');
+    } finally {
+      setUploadingVideo(false);
+      if (videoInputRef.current) videoInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="border rounded-lg overflow-hidden bg-background">
+      {/* Hidden file inputs */}
+      <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+      <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
+
       {/* Toolbar */}
       <div className="border-b p-2 bg-muted/30 flex flex-wrap gap-1 items-center">
         {/* Undo/Redo */}
-        <Toggle
-          size="sm"
-          pressed={false}
-          onPressedChange={() => editor.chain().focus().undo().run()}
-          disabled={!editor.can().undo()}
-        >
+        <Toggle size="sm" pressed={false} onPressedChange={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}>
           <Undo className="h-4 w-4" />
         </Toggle>
-        <Toggle
-          size="sm"
-          pressed={false}
-          onPressedChange={() => editor.chain().focus().redo().run()}
-          disabled={!editor.can().redo()}
-        >
+        <Toggle size="sm" pressed={false} onPressedChange={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()}>
           <Redo className="h-4 w-4" />
         </Toggle>
 
         <Separator orientation="vertical" className="h-6 mx-1" />
 
         {/* Headings */}
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('heading', { level: 1 })}
-          onPressedChange={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive('heading', { level: 1 })} onPressedChange={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}>
           <Heading1 className="h-4 w-4" />
         </Toggle>
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('heading', { level: 2 })}
-          onPressedChange={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive('heading', { level: 2 })} onPressedChange={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
           <Heading2 className="h-4 w-4" />
         </Toggle>
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('heading', { level: 3 })}
-          onPressedChange={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive('heading', { level: 3 })} onPressedChange={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
           <Heading3 className="h-4 w-4" />
         </Toggle>
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('paragraph')}
-          onPressedChange={() => editor.chain().focus().setParagraph().run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive('paragraph')} onPressedChange={() => editor.chain().focus().setParagraph().run()}>
           <Type className="h-4 w-4" />
         </Toggle>
 
         <Separator orientation="vertical" className="h-6 mx-1" />
 
         {/* Text formatting */}
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('bold')}
-          onPressedChange={() => editor.chain().focus().toggleBold().run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive('bold')} onPressedChange={() => editor.chain().focus().toggleBold().run()}>
           <Bold className="h-4 w-4" />
         </Toggle>
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('italic')}
-          onPressedChange={() => editor.chain().focus().toggleItalic().run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive('italic')} onPressedChange={() => editor.chain().focus().toggleItalic().run()}>
           <Italic className="h-4 w-4" />
         </Toggle>
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('underline')}
-          onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive('underline')} onPressedChange={() => editor.chain().focus().toggleUnderline().run()}>
           <UnderlineIcon className="h-4 w-4" />
         </Toggle>
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('strike')}
-          onPressedChange={() => editor.chain().focus().toggleStrike().run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive('strike')} onPressedChange={() => editor.chain().focus().toggleStrike().run()}>
           <Strikethrough className="h-4 w-4" />
         </Toggle>
 
         {/* Text Color */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <Palette className="h-4 w-4" />
-            </Button>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0"><Palette className="h-4 w-4" /></Button>
           </PopoverTrigger>
           <PopoverContent className="w-64 p-2">
             <p className="text-xs font-medium mb-2">Màu chữ</p>
             <div className="grid grid-cols-10 gap-1">
               {COLORS.map((color) => (
-                <button
-                  key={color}
-                  className="w-5 h-5 rounded border border-muted-foreground/20 hover:scale-110 transition-transform"
-                  style={{ backgroundColor: color }}
-                  onClick={() => editor.chain().focus().setColor(color).run()}
-                />
+                <button key={color} className="w-5 h-5 rounded border border-muted-foreground/20 hover:scale-110 transition-transform" style={{ backgroundColor: color }} onClick={() => editor.chain().focus().setColor(color).run()} />
               ))}
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full mt-2"
-              onClick={() => editor.chain().focus().unsetColor().run()}
-            >
-              Xóa màu
-            </Button>
+            <Button variant="ghost" size="sm" className="w-full mt-2" onClick={() => editor.chain().focus().unsetColor().run()}>Xóa màu</Button>
           </PopoverContent>
         </Popover>
 
         {/* Highlight */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <Highlighter className="h-4 w-4" />
-            </Button>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0"><Highlighter className="h-4 w-4" /></Button>
           </PopoverTrigger>
           <PopoverContent className="w-48 p-2">
             <p className="text-xs font-medium mb-2">Highlight</p>
             <div className="grid grid-cols-6 gap-1">
               {HIGHLIGHT_COLORS.map((color) => (
-                <button
-                  key={color}
-                  className="w-6 h-6 rounded border border-muted-foreground/20 hover:scale-110 transition-transform"
-                  style={{ backgroundColor: color }}
-                  onClick={() => editor.chain().focus().toggleHighlight({ color }).run()}
-                />
+                <button key={color} className="w-6 h-6 rounded border border-muted-foreground/20 hover:scale-110 transition-transform" style={{ backgroundColor: color }} onClick={() => editor.chain().focus().toggleHighlight({ color }).run()} />
               ))}
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full mt-2"
-              onClick={() => editor.chain().focus().unsetHighlight().run()}
-            >
-              Xóa highlight
-            </Button>
+            <Button variant="ghost" size="sm" className="w-full mt-2" onClick={() => editor.chain().focus().unsetHighlight().run()}>Xóa highlight</Button>
           </PopoverContent>
         </Popover>
 
         <Separator orientation="vertical" className="h-6 mx-1" />
 
         {/* Alignment */}
-        <Toggle
-          size="sm"
-          pressed={editor.isActive({ textAlign: 'left' })}
-          onPressedChange={() => editor.chain().focus().setTextAlign('left').run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive({ textAlign: 'left' })} onPressedChange={() => editor.chain().focus().setTextAlign('left').run()}>
           <AlignLeft className="h-4 w-4" />
         </Toggle>
-        <Toggle
-          size="sm"
-          pressed={editor.isActive({ textAlign: 'center' })}
-          onPressedChange={() => editor.chain().focus().setTextAlign('center').run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive({ textAlign: 'center' })} onPressedChange={() => editor.chain().focus().setTextAlign('center').run()}>
           <AlignCenter className="h-4 w-4" />
         </Toggle>
-        <Toggle
-          size="sm"
-          pressed={editor.isActive({ textAlign: 'right' })}
-          onPressedChange={() => editor.chain().focus().setTextAlign('right').run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive({ textAlign: 'right' })} onPressedChange={() => editor.chain().focus().setTextAlign('right').run()}>
           <AlignRight className="h-4 w-4" />
         </Toggle>
-        <Toggle
-          size="sm"
-          pressed={editor.isActive({ textAlign: 'justify' })}
-          onPressedChange={() => editor.chain().focus().setTextAlign('justify').run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive({ textAlign: 'justify' })} onPressedChange={() => editor.chain().focus().setTextAlign('justify').run()}>
           <AlignJustify className="h-4 w-4" />
         </Toggle>
 
         <Separator orientation="vertical" className="h-6 mx-1" />
 
         {/* Lists */}
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('bulletList')}
-          onPressedChange={() => editor.chain().focus().toggleBulletList().run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive('bulletList')} onPressedChange={() => editor.chain().focus().toggleBulletList().run()}>
           <List className="h-4 w-4" />
         </Toggle>
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('orderedList')}
-          onPressedChange={() => editor.chain().focus().toggleOrderedList().run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive('orderedList')} onPressedChange={() => editor.chain().focus().toggleOrderedList().run()}>
           <ListOrdered className="h-4 w-4" />
         </Toggle>
 
         <Separator orientation="vertical" className="h-6 mx-1" />
 
-        {/* Quote & Code */}
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('blockquote')}
-          onPressedChange={() => editor.chain().focus().toggleBlockquote().run()}
-        >
+        {/* Quote & Code & HR */}
+        <Toggle size="sm" pressed={editor.isActive('blockquote')} onPressedChange={() => editor.chain().focus().toggleBlockquote().run()}>
           <Quote className="h-4 w-4" />
         </Toggle>
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('codeBlock')}
-          onPressedChange={() => editor.chain().focus().toggleCodeBlock().run()}
-        >
+        <Toggle size="sm" pressed={editor.isActive('codeBlock')} onPressedChange={() => editor.chain().focus().toggleCodeBlock().run()}>
           <Code className="h-4 w-4" />
         </Toggle>
-        <Toggle
-          size="sm"
-          pressed={false}
-          onPressedChange={() => editor.chain().focus().setHorizontalRule().run()}
-        >
+        <Toggle size="sm" pressed={false} onPressedChange={() => editor.chain().focus().setHorizontalRule().run()}>
           <Minus className="h-4 w-4" />
         </Toggle>
 
@@ -368,55 +311,59 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
         {/* Link */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button
-              variant={editor.isActive('link') ? 'secondary' : 'ghost'}
-              size="sm"
-              className="h-8 w-8 p-0"
-            >
+            <Button variant={editor.isActive('link') ? 'secondary' : 'ghost'} size="sm" className="h-8 w-8 p-0">
               <LinkIcon className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80 p-3">
             <p className="text-sm font-medium mb-2">Chèn liên kết</p>
             <div className="flex gap-2">
-              <Input
-                placeholder="https://example.com"
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && addLink()}
-              />
+              <Input placeholder="https://example.com" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addLink()} />
               <Button size="sm" onClick={addLink}>Thêm</Button>
             </div>
             {editor.isActive('link') && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full mt-2"
-                onClick={() => editor.chain().focus().unsetLink().run()}
-              >
-                Xóa liên kết
-              </Button>
+              <Button variant="ghost" size="sm" className="w-full mt-2" onClick={() => editor.chain().focus().unsetLink().run()}>Xóa liên kết</Button>
             )}
           </PopoverContent>
         </Popover>
 
-        {/* Image */}
+        {/* Image - URL + Upload */}
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <ImageIcon className="h-4 w-4" />
+              {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80 p-3">
             <p className="text-sm font-medium mb-2">Chèn hình ảnh</p>
-            <div className="flex gap-2">
-              <Input
-                placeholder="URL hình ảnh"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && addImage()}
-              />
-              <Button size="sm" onClick={addImage}>Thêm</Button>
+            <div className="space-y-3">
+              <Button variant="outline" size="sm" className="w-full gap-2" onClick={() => imageInputRef.current?.click()} disabled={uploadingImage}>
+                <Upload className="h-4 w-4" />
+                {uploadingImage ? 'Đang upload...' : 'Upload từ máy'}
+              </Button>
+              <div className="flex gap-2">
+                <Input placeholder="Hoặc nhập URL ảnh" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addImage()} />
+                <Button size="sm" onClick={addImage}>Thêm</Button>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {/* Video Upload */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              {uploadingVideo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-3">
+            <p className="text-sm font-medium mb-2">Chèn video</p>
+            <div className="space-y-3">
+              <Button variant="outline" size="sm" className="w-full gap-2" onClick={() => videoInputRef.current?.click()} disabled={uploadingVideo}>
+                <Upload className="h-4 w-4" />
+                {uploadingVideo ? 'Đang upload...' : 'Upload video từ máy'}
+              </Button>
+              <p className="text-xs text-muted-foreground">MP4, WebM, MOV (tối đa 100MB)</p>
             </div>
           </PopoverContent>
         </Popover>
@@ -431,12 +378,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
           <PopoverContent className="w-80 p-3">
             <p className="text-sm font-medium mb-2">Chèn video YouTube</p>
             <div className="flex gap-2">
-              <Input
-                placeholder="https://youtube.com/watch?v=..."
-                value={youtubeUrl}
-                onChange={(e) => setYoutubeUrl(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && addYoutube()}
-              />
+              <Input placeholder="https://youtube.com/watch?v=..." value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addYoutube()} />
               <Button size="sm" onClick={addYoutube}>Thêm</Button>
             </div>
           </PopoverContent>
