@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { updatePageMeta, setJsonLd } from '@/lib/slugify';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { supabase } from '@/integrations/supabase/client';
@@ -113,6 +114,31 @@ const ProductDetail = () => {
         const filtered = viewed.filter((p: Product) => p.id !== productData.id);
         const updated = [productData, ...filtered].slice(0, 10);
         localStorage.setItem(viewedKey, JSON.stringify(updated));
+      }
+
+      // SEO meta tags
+      if (productData) {
+        updatePageMeta({
+          title: `${productData.name} | VSM Shop`,
+          description: productData.description?.slice(0, 155) || `Mua ${productData.name} giá tốt tại VSM Shop`,
+          image: productData.image_url || undefined,
+          url: `${window.location.origin}/products/${productData.slug}`,
+          type: 'product',
+        });
+        setJsonLd({
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: productData.name,
+          description: productData.description,
+          image: productData.image_url,
+          url: `${window.location.origin}/products/${productData.slug}`,
+          offers: {
+            '@type': 'Offer',
+            price: productData.price,
+            priceCurrency: 'VND',
+            availability: productData.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          },
+        });
       }
       
       setLoading(false);

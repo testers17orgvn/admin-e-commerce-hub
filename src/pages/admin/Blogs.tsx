@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Pencil, Trash2, Eye, EyeOff, Clock, User, Tag, Search as SearchIcon, Globe, FileText, Image as ImageIcon } from 'lucide-react';
+import { generateSlug } from '@/lib/slugify';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -121,7 +122,7 @@ export default function AdminBlogs() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const slug = form.slug || form.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+    const slug = form.slug || generateSlug(form.title, 'bai-viet');
     const data = { 
       title: form.title,
       slug,

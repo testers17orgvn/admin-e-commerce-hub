@@ -8,6 +8,7 @@ import { CartProvider } from "@/hooks/useCart";
 import { WishlistProvider } from "@/hooks/useWishlist";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ThemeParticles } from "@/components/effects/ThemeParticles";
+import { CustomMascotRenderer } from "@/components/effects/CustomMascotRenderer";
 
 import Index from "./pages/Index";
 import Products from "./pages/Products";
@@ -60,6 +61,7 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <CustomMascotRenderer />
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/products" element={<Products />} />
