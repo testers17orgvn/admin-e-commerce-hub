@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { updatePageMeta, setJsonLd } from '@/lib/slugify';
 import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,6 +29,25 @@ const BlogDetail = () => {
       
       if (data) {
         setBlog(data as Blog);
+        
+        // SEO meta
+        updatePageMeta({
+          title: (data.meta_title || data.title) + ' | VSM Blog',
+          description: data.meta_description || data.excerpt || '',
+          image: data.image_url || undefined,
+          url: `${window.location.origin}/blog/${data.slug}`,
+          type: 'article',
+        });
+        setJsonLd({
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: data.title,
+          description: data.excerpt,
+          image: data.image_url,
+          author: { '@type': 'Person', name: data.author_name || 'VSM' },
+          datePublished: data.published_at,
+          url: `${window.location.origin}/blog/${data.slug}`,
+        });
         
         await supabase
           .from('blogs')
