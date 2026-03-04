@@ -48,7 +48,7 @@ const ANIMATION_CSS = `
 }
 `;
 
-const ANIM_MAP: Record<string, string> = {
+export const ANIM_MAP: Record<string, string> = {
   float: 'mascotFloat 3s ease-in-out infinite',
   bounce: 'mascotBounce 1.5s ease-in-out infinite',
   swing: 'mascotSwing 2s ease-in-out infinite',
@@ -107,9 +107,8 @@ export function CustomMascotRenderer() {
       <style>{ANIMATION_CSS}</style>
       {visibleMascots.map((mascot) => {
         const hasLink = !!mascot.link_url;
-        const pos: React.CSSProperties = { position: 'fixed', zIndex: 40 };
+        const pos: React.CSSProperties = { position: 'fixed', zIndex: 9999 };
 
-        // Position
         if (mascot.position.includes('left')) pos.left = `${mascot.offset_x}%`;
         if (mascot.position.includes('right')) pos.right = `${mascot.offset_x}%`;
         if (mascot.position.includes('top') && !mascot.position.includes('center')) pos.top = `${mascot.offset_y}%`;
@@ -126,7 +125,9 @@ export function CustomMascotRenderer() {
             className={hasLink ? 'cursor-pointer' : 'pointer-events-none'}
             style={{
               ...pos,
-              transition: 'transform 0.2s',
+              width: `${mascot.size}px`,
+              height: `${mascot.size}px`,
+              animation: mascot.animation !== 'none' ? (ANIM_MAP[mascot.animation] || undefined) : undefined,
             }}
             title={hasLink ? `Đi đến: ${mascot.link_url}` : undefined}
           >
@@ -135,11 +136,10 @@ export function CustomMascotRenderer() {
               alt="Theme mascot"
               className={hasLink ? 'hover:scale-110 transition-transform duration-200' : ''}
               style={{
-                width: `${mascot.size}px`,
-                height: `${mascot.size}px`,
+                width: '100%',
+                height: '100%',
                 objectFit: 'contain',
                 opacity: mascot.opacity / 100,
-                animation: ANIM_MAP[mascot.animation] || undefined,
                 filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.15))',
               }}
             />

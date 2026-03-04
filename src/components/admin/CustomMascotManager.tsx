@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { Plus, Trash2, Save, Sparkles, Eye, Link2, ExternalLink } from 'lucide-react';
+import { ANIM_MAP } from '@/components/effects/CustomMascotRenderer';
 import { toast } from 'sonner';
 import { Slider } from '@/components/ui/slider';
 import { useTheme } from '@/hooks/useTheme';
@@ -62,7 +63,7 @@ const PAGE_OPTIONS = [
 const defaultMascot: Omit<CustomMascot, 'id'> = {
   image_url: '',
   position: 'bottom-right',
-  size: 80,
+  size: 120,
   offset_x: 5,
   offset_y: 10,
   pages: ['all'],
@@ -84,23 +85,15 @@ function MascotPagePreview({ mascot }: { mascot: CustomMascot }) {
     const oy = `${mascot.offset_y}%`;
     if (mascot.position.includes('left')) pos.left = ox;
     if (mascot.position.includes('right')) pos.right = ox;
-    if (mascot.position.includes('top')) pos.top = oy;
+    if (mascot.position.includes('top') && !mascot.position.includes('center')) pos.top = oy;
     if (mascot.position.includes('bottom')) pos.bottom = oy;
     if (mascot.position.includes('center')) { pos.top = '50%'; pos.transform = 'translateY(-50%)'; }
     return pos;
   };
 
-  const animClass =
-    mascot.animation === 'bounce' ? 'animate-bounce' :
-    mascot.animation === 'pulse' ? 'animate-pulse' :
-    mascot.animation === 'spin' ? 'animate-spin' : '';
-
-  const animStyle: React.CSSProperties = {};
-  if (mascot.animation === 'float') animStyle.animation = 'mascotFloat 3s ease-in-out infinite';
-  if (mascot.animation === 'swing') animStyle.animation = 'mascotSwing 2s ease-in-out infinite';
-  if (mascot.animation === 'shake') animStyle.animation = 'mascotShake 0.6s ease-in-out infinite';
-  if (mascot.animation === 'tada') animStyle.animation = 'mascotTada 1.5s ease-in-out infinite';
-  if (mascot.animation === 'wiggle') animStyle.animation = 'mascotWiggle 1s ease-in-out infinite';
+  // Scale preview size proportionally (preview is ~220px tall, real page ~900px)
+  const previewScale = 220 / 900;
+  const previewSize = Math.max(mascot.size * previewScale, 20);
 
   return (
     <div className="border rounded-lg overflow-hidden bg-background">
@@ -109,11 +102,10 @@ function MascotPagePreview({ mascot }: { mascot: CustomMascot }) {
         <div className="w-2 h-2 rounded-full bg-accent/60" />
         <div className="w-2 h-2 rounded-full bg-primary/60" />
         <span className="text-[10px] text-muted-foreground ml-2 flex items-center gap-1">
-          <Eye className="h-3 w-3" /> Preview trực quan
+          <Eye className="h-3 w-3" /> Preview trực quan — Kích thước thực: {mascot.size}px
         </span>
       </div>
       <div className="relative" style={{ height: 220 }}>
-        {/* Fake page content */}
         <div className="absolute inset-0 p-3 space-y-2">
           <div className="h-3 w-1/3 bg-muted rounded" />
           <div className="h-10 w-full bg-muted/40 rounded" />
@@ -125,20 +117,18 @@ function MascotPagePreview({ mascot }: { mascot: CustomMascot }) {
           <div className="h-3 w-2/3 bg-muted/20 rounded mt-2" />
           <div className="h-3 w-1/2 bg-muted/20 rounded" />
         </div>
-        {/* Mascot */}
         <img
           src={mascot.image_url}
           alt="Preview"
-          className={animClass}
           style={{
             ...getPreviewPos(),
-            width: `${Math.min(mascot.size * 0.5, 60)}px`,
-            height: `${Math.min(mascot.size * 0.5, 60)}px`,
+            width: `${previewSize}px`,
+            height: `${previewSize}px`,
             objectFit: 'contain',
             opacity: mascot.opacity / 100,
             filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.2))',
             zIndex: 10,
-            ...animStyle,
+            animation: mascot.animation !== 'none' ? (ANIM_MAP[mascot.animation] || undefined) : undefined,
           }}
         />
       </div>
@@ -305,7 +295,7 @@ export function CustomMascotManager() {
                   <Label className="text-xs">Kích thước: {mascot.size}px</Label>
                   <Slider
                     className="mt-3"
-                    min={30} max={300} step={5}
+                    min={30} max={600} step={5}
                     value={[mascot.size]}
                     onValueChange={([v]) => updateMascot(mascot.id, { size: v })}
                   />
