@@ -1,44 +1,68 @@
 import { useEffect, useState, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/hooks/useTheme';
 import type { CustomMascot } from '@/components/admin/CustomMascotManager';
 
-const POSITION_STYLES: Record<string, React.CSSProperties> = {
-  'top-left': { top: 0, left: 0 },
-  'top-right': { top: 0, right: 0 },
-  'center-left': { top: '50%', left: 0, transform: 'translateY(-50%)' },
-  'center-right': { top: '50%', right: 0, transform: 'translateY(-50%)' },
-  'bottom-left': { bottom: 0, left: 0 },
-  'bottom-right': { bottom: 0, right: 0 },
-};
+const ANIMATION_CSS = `
+@keyframes mascotFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+@keyframes mascotBounce {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-25px); }
+  60% { transform: translateY(-10px); }
+}
+@keyframes mascotSwing {
+  0%, 100% { transform: rotate(0deg); transform-origin: top center; }
+  25% { transform: rotate(12deg); }
+  75% { transform: rotate(-12deg); }
+}
+@keyframes mascotShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+@keyframes mascotSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes mascotPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+@keyframes mascotTada {
+  0% { transform: scale(1) rotate(0deg); }
+  10%, 20% { transform: scale(0.9) rotate(-3deg); }
+  30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
+  40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes mascotWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg) translateX(-2px); }
+  75% { transform: rotate(5deg) translateX(2px); }
+}
+`;
 
-const ANIMATION_CSS: Record<string, string> = {
-  float: `
-    @keyframes mascotFloat {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-15px); }
-    }
-  `,
-  bounce: `
-    @keyframes mascotBounce {
-      0%, 100% { transform: translateY(0); }
-      40% { transform: translateY(-25px); }
-      60% { transform: translateY(-10px); }
-    }
-  `,
-  swing: `
-    @keyframes mascotSwing {
-      0%, 100% { transform: rotate(0deg); }
-      25% { transform: rotate(8deg); }
-      75% { transform: rotate(-8deg); }
-    }
-  `,
+const ANIM_MAP: Record<string, string> = {
+  float: 'mascotFloat 3s ease-in-out infinite',
+  bounce: 'mascotBounce 1.5s ease-in-out infinite',
+  swing: 'mascotSwing 2s ease-in-out infinite',
+  shake: 'mascotShake 0.6s ease-in-out infinite',
+  spin: 'mascotSpin 4s linear infinite',
+  pulse: 'mascotPulse 2s ease-in-out infinite',
+  tada: 'mascotTada 1.5s ease-in-out infinite',
+  wiggle: 'mascotWiggle 1s ease-in-out infinite',
 };
 
 export function CustomMascotRenderer() {
   const { currentTheme } = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
   const [mascots, setMascots] = useState<CustomMascot[]>([]);
   const prevThemeRef = useRef(currentTheme);
 
@@ -67,47 +91,55 @@ export function CustomMascotRenderer() {
     return m.pages.some(p => location.pathname === p || location.pathname.startsWith(p + '/'));
   });
 
+  const handleClick = (mascot: CustomMascot) => {
+    if (!mascot.link_url) return;
+    if (mascot.link_url.startsWith('http')) {
+      window.open(mascot.link_url, mascot.link_target || '_blank');
+    } else {
+      navigate(mascot.link_url);
+    }
+  };
+
   if (visibleMascots.length === 0) return null;
 
   return (
     <>
-      <style>{Object.values(ANIMATION_CSS).join('\n')}</style>
+      <style>{ANIMATION_CSS}</style>
       {visibleMascots.map((mascot) => {
-        const posStyle = POSITION_STYLES[mascot.position] || {};
-        const animName =
-          mascot.animation === 'float' ? 'mascotFloat' :
-          mascot.animation === 'bounce' ? 'mascotBounce' :
-          mascot.animation === 'swing' ? 'mascotSwing' : 'none';
+        const hasLink = !!mascot.link_url;
+        const pos: React.CSSProperties = { position: 'fixed', zIndex: 40 };
+
+        // Position
+        if (mascot.position.includes('left')) pos.left = `${mascot.offset_x}%`;
+        if (mascot.position.includes('right')) pos.right = `${mascot.offset_x}%`;
+        if (mascot.position.includes('top') && !mascot.position.includes('center')) pos.top = `${mascot.offset_y}%`;
+        if (mascot.position.includes('bottom')) pos.bottom = `${mascot.offset_y}%`;
+        if (mascot.position.includes('center')) {
+          pos.top = '50%';
+          pos.marginTop = `${mascot.offset_y}%`;
+        }
 
         return (
           <div
             key={mascot.id}
-            className="fixed pointer-events-none z-40"
+            onClick={() => handleClick(mascot)}
+            className={hasLink ? 'cursor-pointer' : 'pointer-events-none'}
             style={{
-              ...posStyle,
-              ...(posStyle.left !== undefined && typeof posStyle.left === 'number'
-                ? { left: `${mascot.offset_x}%` } : {}),
-              ...(posStyle.right !== undefined && typeof posStyle.right === 'number'
-                ? { right: `${mascot.offset_x}%` } : {}),
-              ...(posStyle.top !== undefined && typeof posStyle.top === 'number'
-                ? { top: `${mascot.offset_y}%` } : {}),
-              ...(posStyle.bottom !== undefined && typeof posStyle.bottom === 'number'
-                ? { bottom: `${mascot.offset_y}%` } : {}),
-              marginLeft: mascot.position.includes('left') ? `${mascot.offset_x}%` : undefined,
-              marginRight: mascot.position.includes('right') ? `${mascot.offset_x}%` : undefined,
-              marginTop: mascot.position.includes('top') ? `${mascot.offset_y}%` : undefined,
-              marginBottom: mascot.position.includes('bottom') ? `${mascot.offset_y}%` : undefined,
+              ...pos,
+              transition: 'transform 0.2s',
             }}
+            title={hasLink ? `Đi đến: ${mascot.link_url}` : undefined}
           >
             <img
               src={mascot.image_url}
               alt="Theme mascot"
+              className={hasLink ? 'hover:scale-110 transition-transform duration-200' : ''}
               style={{
                 width: `${mascot.size}px`,
                 height: `${mascot.size}px`,
                 objectFit: 'contain',
                 opacity: mascot.opacity / 100,
-                animation: animName !== 'none' ? `${animName} 3s ease-in-out infinite` : undefined,
+                animation: ANIM_MAP[mascot.animation] || undefined,
                 filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.15))',
               }}
             />
