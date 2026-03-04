@@ -8,23 +8,25 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ImageUpload } from '@/components/admin/ImageUpload';
-import { Plus, Trash2, Move, Save, Sparkles, Eye } from 'lucide-react';
+import { Plus, Trash2, Save, Sparkles, Eye, Link2, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { Slider } from '@/components/ui/slider';
-import { useTheme, ThemeEvent } from '@/hooks/useTheme';
+import { useTheme } from '@/hooks/useTheme';
 
 export interface CustomMascot {
   id: string;
   image_url: string;
   position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center-left' | 'center-right';
-  size: number; // px
-  offset_x: number; // %
-  offset_y: number; // %
-  pages: string[]; // ['all'] or ['/','products','/blog']
+  size: number;
+  offset_x: number;
+  offset_y: number;
+  pages: string[];
   persist_across_pages: boolean;
-  animation: 'float' | 'bounce' | 'swing' | 'none';
+  animation: 'float' | 'bounce' | 'swing' | 'shake' | 'spin' | 'pulse' | 'tada' | 'wiggle' | 'none';
   opacity: number;
   enabled: boolean;
+  link_url?: string;
+  link_target?: '_self' | '_blank';
 }
 
 const POSITIONS = [
@@ -40,6 +42,11 @@ const ANIMATIONS = [
   { value: 'float', label: '🪂 Bay lơ lửng' },
   { value: 'bounce', label: '⬆️ Nảy' },
   { value: 'swing', label: '🔄 Lắc lư' },
+  { value: 'shake', label: '📳 Rung lắc' },
+  { value: 'spin', label: '🌀 Xoay tròn' },
+  { value: 'pulse', label: '💓 Nhịp đập' },
+  { value: 'tada', label: '🎉 Tada' },
+  { value: 'wiggle', label: '🐛 Lúc lắc' },
   { value: 'none', label: '🚫 Không' },
 ];
 
@@ -63,7 +70,81 @@ const defaultMascot: Omit<CustomMascot, 'id'> = {
   animation: 'float',
   opacity: 85,
   enabled: true,
+  link_url: '',
+  link_target: '_self',
 };
+
+// Mini preview showing a page layout with the mascot positioned
+function MascotPagePreview({ mascot }: { mascot: CustomMascot }) {
+  if (!mascot.image_url) return null;
+
+  const getPreviewPos = (): React.CSSProperties => {
+    const pos: React.CSSProperties = { position: 'absolute' };
+    const ox = `${mascot.offset_x}%`;
+    const oy = `${mascot.offset_y}%`;
+    if (mascot.position.includes('left')) pos.left = ox;
+    if (mascot.position.includes('right')) pos.right = ox;
+    if (mascot.position.includes('top')) pos.top = oy;
+    if (mascot.position.includes('bottom')) pos.bottom = oy;
+    if (mascot.position.includes('center')) { pos.top = '50%'; pos.transform = 'translateY(-50%)'; }
+    return pos;
+  };
+
+  const animClass =
+    mascot.animation === 'bounce' ? 'animate-bounce' :
+    mascot.animation === 'pulse' ? 'animate-pulse' :
+    mascot.animation === 'spin' ? 'animate-spin' : '';
+
+  const animStyle: React.CSSProperties = {};
+  if (mascot.animation === 'float') animStyle.animation = 'mascotFloat 3s ease-in-out infinite';
+  if (mascot.animation === 'swing') animStyle.animation = 'mascotSwing 2s ease-in-out infinite';
+  if (mascot.animation === 'shake') animStyle.animation = 'mascotShake 0.6s ease-in-out infinite';
+  if (mascot.animation === 'tada') animStyle.animation = 'mascotTada 1.5s ease-in-out infinite';
+  if (mascot.animation === 'wiggle') animStyle.animation = 'mascotWiggle 1s ease-in-out infinite';
+
+  return (
+    <div className="border rounded-lg overflow-hidden bg-background">
+      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/60 border-b">
+        <div className="w-2 h-2 rounded-full bg-destructive/60" />
+        <div className="w-2 h-2 rounded-full bg-accent/60" />
+        <div className="w-2 h-2 rounded-full bg-primary/60" />
+        <span className="text-[10px] text-muted-foreground ml-2 flex items-center gap-1">
+          <Eye className="h-3 w-3" /> Preview trực quan
+        </span>
+      </div>
+      <div className="relative" style={{ height: 220 }}>
+        {/* Fake page content */}
+        <div className="absolute inset-0 p-3 space-y-2">
+          <div className="h-3 w-1/3 bg-muted rounded" />
+          <div className="h-10 w-full bg-muted/40 rounded" />
+          <div className="grid grid-cols-3 gap-2 mt-2">
+            <div className="h-12 bg-muted/30 rounded" />
+            <div className="h-12 bg-muted/30 rounded" />
+            <div className="h-12 bg-muted/30 rounded" />
+          </div>
+          <div className="h-3 w-2/3 bg-muted/20 rounded mt-2" />
+          <div className="h-3 w-1/2 bg-muted/20 rounded" />
+        </div>
+        {/* Mascot */}
+        <img
+          src={mascot.image_url}
+          alt="Preview"
+          className={animClass}
+          style={{
+            ...getPreviewPos(),
+            width: `${Math.min(mascot.size * 0.5, 60)}px`,
+            height: `${Math.min(mascot.size * 0.5, 60)}px`,
+            objectFit: 'contain',
+            opacity: mascot.opacity / 100,
+            filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.2))',
+            zIndex: 10,
+            ...animStyle,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
 
 export function CustomMascotManager() {
   const { currentTheme } = useTheme();
@@ -81,7 +162,7 @@ export function CustomMascotManager() {
       .select('value')
       .eq('key', `custom_mascots_${currentTheme}`)
       .maybeSingle();
-    
+
     if (data?.value && Array.isArray(data.value)) {
       setMascots(data.value as unknown as CustomMascot[]);
     } else {
@@ -152,7 +233,7 @@ export function CustomMascotManager() {
           </div>
         </div>
         <p className="text-sm text-muted-foreground">
-          Upload ảnh nhân vật theo mùa (ông già Noel, tuần lộc, bí ngô...) và tùy chỉnh vị trí, hiệu ứng
+          Upload ảnh nhân vật theo mùa và tùy chỉnh vị trí, hiệu ứng, liên kết
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -182,7 +263,6 @@ export function CustomMascotManager() {
                 </div>
               </div>
 
-              {/* Image Upload */}
               <ImageUpload
                 value={mascot.image_url}
                 onChange={(url) => updateMascot(mascot.id, { image_url: url })}
@@ -191,16 +271,13 @@ export function CustomMascotManager() {
               />
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {/* Position */}
                 <div>
                   <Label className="text-xs">Vị trí</Label>
                   <Select
                     value={mascot.position}
                     onValueChange={(v) => updateMascot(mascot.id, { position: v as CustomMascot['position'] })}
                   >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {POSITIONS.map(p => (
                         <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
@@ -209,16 +286,13 @@ export function CustomMascotManager() {
                   </Select>
                 </div>
 
-                {/* Animation */}
                 <div>
                   <Label className="text-xs">Hiệu ứng</Label>
                   <Select
                     value={mascot.animation}
                     onValueChange={(v) => updateMascot(mascot.id, { animation: v as CustomMascot['animation'] })}
                   >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {ANIMATIONS.map(a => (
                         <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>
@@ -227,52 +301,71 @@ export function CustomMascotManager() {
                   </Select>
                 </div>
 
-                {/* Size */}
                 <div>
                   <Label className="text-xs">Kích thước: {mascot.size}px</Label>
                   <Slider
                     className="mt-3"
-                    min={40}
-                    max={200}
-                    step={5}
+                    min={30} max={300} step={5}
                     value={[mascot.size]}
                     onValueChange={([v]) => updateMascot(mascot.id, { size: v })}
                   />
                 </div>
 
-                {/* Opacity */}
                 <div>
                   <Label className="text-xs">Độ trong suốt: {mascot.opacity}%</Label>
                   <Slider
                     className="mt-3"
-                    min={20}
-                    max={100}
-                    step={5}
+                    min={20} max={100} step={5}
                     value={[mascot.opacity]}
                     onValueChange={([v]) => updateMascot(mascot.id, { opacity: v })}
                   />
                 </div>
               </div>
 
-              {/* Offset */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-xs">Dịch ngang: {mascot.offset_x}%</Label>
-                  <Slider
-                    className="mt-2"
-                    min={0} max={40} step={1}
+                  <Slider className="mt-2" min={0} max={40} step={1}
                     value={[mascot.offset_x]}
                     onValueChange={([v]) => updateMascot(mascot.id, { offset_x: v })}
                   />
                 </div>
                 <div>
                   <Label className="text-xs">Dịch dọc: {mascot.offset_y}%</Label>
-                  <Slider
-                    className="mt-2"
-                    min={0} max={40} step={1}
+                  <Slider className="mt-2" min={0} max={40} step={1}
                     value={[mascot.offset_y]}
                     onValueChange={([v]) => updateMascot(mascot.id, { offset_y: v })}
                   />
+                </div>
+              </div>
+
+              {/* Link */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-muted/30 rounded-lg">
+                <div>
+                  <Label className="text-xs flex items-center gap-1">
+                    <Link2 className="h-3 w-3" /> Liên kết khi nhấn vào
+                  </Label>
+                  <Input
+                    className="mt-1"
+                    placeholder="/products hoặc https://example.com"
+                    value={mascot.link_url || ''}
+                    onChange={(e) => updateMascot(mascot.id, { link_url: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs flex items-center gap-1">
+                    <ExternalLink className="h-3 w-3" /> Mở liên kết
+                  </Label>
+                  <Select
+                    value={mascot.link_target || '_self'}
+                    onValueChange={(v) => updateMascot(mascot.id, { link_target: v as '_self' | '_blank' })}
+                  >
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="_self">Cùng trang</SelectItem>
+                      <SelectItem value="_blank">Tab mới</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -293,7 +386,6 @@ export function CustomMascotManager() {
                 </div>
               </div>
 
-              {/* Persist */}
               <div className="flex items-center gap-2">
                 <Switch
                   checked={mascot.persist_across_pages}
@@ -302,32 +394,8 @@ export function CustomMascotManager() {
                 <Label className="text-xs">Giữ nguyên khi chuyển trang (không reset animation)</Label>
               </div>
 
-              {/* Preview */}
-              {mascot.image_url && (
-                <div className="bg-muted/50 rounded-lg p-4 relative h-32 overflow-hidden">
-                  <p className="text-xs text-muted-foreground absolute top-2 left-2 flex items-center gap-1">
-                    <Eye className="h-3 w-3" /> Xem trước
-                  </p>
-                  <img
-                    src={mascot.image_url}
-                    alt="Mascot preview"
-                    className={`absolute ${
-                      mascot.animation === 'float' ? 'animate-bounce' :
-                      mascot.animation === 'bounce' ? 'animate-bounce' :
-                      mascot.animation === 'swing' ? 'animate-pulse' : ''
-                    }`}
-                    style={{
-                      width: `${Math.min(mascot.size, 80)}px`,
-                      height: `${Math.min(mascot.size, 80)}px`,
-                      objectFit: 'contain',
-                      opacity: mascot.opacity / 100,
-                      ...(mascot.position.includes('right') ? { right: '10%' } : { left: '10%' }),
-                      ...(mascot.position.includes('top') ? { top: '10%' } : 
-                          mascot.position.includes('bottom') ? { bottom: '10%' } : { top: '35%' }),
-                    }}
-                  />
-                </div>
-              )}
+              {/* Page-layout preview */}
+              <MascotPagePreview mascot={mascot} />
             </CardContent>
           </Card>
         ))}
