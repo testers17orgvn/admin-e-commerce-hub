@@ -141,6 +141,39 @@
     @apply relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-current after:transition-all after:duration-300 hover:after:w-full;
   }
 
+  /* Micro-interaction: Tap ripple effect */
+  .tap-ripple {
+    @apply relative overflow-hidden;
+  }
+  .tap-ripple::after {
+    content: '';
+    @apply absolute inset-0 bg-foreground/10 rounded-[inherit] opacity-0 transition-opacity duration-200;
+  }
+  .tap-ripple:active::after {
+    @apply opacity-100;
+  }
+
+  /* Micro-interaction: Press scale */
+  .press-scale {
+    @apply transition-transform duration-150 active:scale-[0.95];
+  }
+
+  /* Micro-interaction: Bounce on tap */
+  .tap-bounce {
+    @apply transition-transform duration-200;
+  }
+  .tap-bounce:active {
+    animation: tapBounce 0.3s ease-out;
+  }
+
+  /* Micro-interaction: Glow on press */
+  .press-glow {
+    @apply transition-shadow duration-200;
+  }
+  .press-glow:active {
+    box-shadow: 0 0 20px hsl(var(--accent) / 0.4);
+  }
+
   /* Mobile bottom nav spacing */
   @media (max-width: 1023px) {
     main {
@@ -219,6 +252,13 @@
   @keyframes scrollHint {
     0%, 100% { transform: translateY(0); opacity: 0.5; }
     50% { transform: translateY(4px); opacity: 1; }
+  }
+
+  @keyframes tapBounce {
+    0% { transform: scale(1); }
+    30% { transform: scale(0.92); }
+    60% { transform: scale(1.04); }
+    100% { transform: scale(1); }
   }
 
   .stagger-1 { animation-delay: 0.1s; }

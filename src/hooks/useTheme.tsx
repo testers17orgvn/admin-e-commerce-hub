@@ -218,6 +218,8 @@ interface ThemeContextType {
   setTheme: (theme: ThemeEvent) => Promise<void>;
   themeConfig: ThemeConfig;
   isLoading: boolean;
+  mobileThemeColor: string;
+  setMobileThemeColor: (color: string) => Promise<void>;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -225,6 +227,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [currentTheme, setCurrentTheme] = useState<ThemeEvent>('default');
   const [isLoading, setIsLoading] = useState(true);
+  const [mobileThemeColor, setMobileThemeColorState] = useState('#ffffff');
 
   const themeConfig = THEMES.find(t => t.id === currentTheme) || THEMES[0];
 
@@ -236,16 +239,33 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     applyThemeColors(themeConfig);
   }, [themeConfig]);
 
+  // Apply mobile theme-color meta tag
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement;
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      document.head.appendChild(meta);
+    }
+    meta.content = mobileThemeColor;
+  }, [mobileThemeColor]);
+
   const loadTheme = async () => {
     try {
       const { data } = await supabase
         .from('settings')
-        .select('value')
-        .eq('key', 'site_theme')
-        .maybeSingle();
+        .select('key,value')
+        .in('key', ['site_theme', 'mobile_theme_color']);
       
-      if (data?.value) {
-        setCurrentTheme(data.value as ThemeEvent);
+      if (data) {
+        data.forEach(item => {
+          if (item.key === 'site_theme' && item.value) {
+            setCurrentTheme(item.value as ThemeEvent);
+          }
+          if (item.key === 'mobile_theme_color' && typeof item.value === 'string') {
+            setMobileThemeColorState(item.value);
+          }
+        });
       }
     } catch (error) {
       console.error('Error loading theme:', error);
@@ -287,8 +307,19 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const setMobileThemeColor = async (color: string) => {
+    setMobileThemeColorState(color);
+    const { data: existing } = await supabase
+      .from('settings').select('id').eq('key', 'mobile_theme_color').maybeSingle();
+    if (existing) {
+      await supabase.from('settings').update({ value: color as never }).eq('key', 'mobile_theme_color');
+    } else {
+      await supabase.from('settings').insert([{ key: 'mobile_theme_color', value: color as never }]);
+    }
+  };
+
   return (
-    <ThemeContext.Provider value={{ currentTheme, setTheme, themeConfig, isLoading }}>
+    <ThemeContext.Provider value={{ currentTheme, setTheme, themeConfig, isLoading, mobileThemeColor, setMobileThemeColor }}>
       {children}
     </ThemeContext.Provider>
   );

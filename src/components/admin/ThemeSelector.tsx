@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useTheme, THEMES, ThemeEvent } from '@/hooks/useTheme';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Sparkles, Sun, Leaf, Snowflake, Heart, Moon, Gift, Palette } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Check, Sparkles, Sun, Leaf, Snowflake, Heart, Moon, Gift, Palette, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -31,7 +33,7 @@ const THEME_CATEGORIES = {
 };
 
 export function ThemeSelector() {
-  const { currentTheme, setTheme, themeConfig, isLoading } = useTheme();
+  const { currentTheme, setTheme, themeConfig, isLoading, mobileThemeColor, setMobileThemeColor } = useTheme();
 
   const handleSelectTheme = async (themeId: ThemeEvent) => {
     await setTheme(themeId);
@@ -285,6 +287,118 @@ export function ThemeSelector() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Mobile Theme Color */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Smartphone className="h-5 w-5" />
+            Màu Theme Mobile
+          </CardTitle>
+          <CardDescription>
+            Màu thanh trạng thái (status bar) và thanh địa chỉ trên trình duyệt mobile. 
+            Thay đổi sẽ hiển thị khi mở trang trên điện thoại.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Preview */}
+          <div className="relative w-48 mx-auto">
+            <div className="rounded-[2rem] border-4 border-foreground/20 overflow-hidden shadow-xl">
+              {/* Status bar */}
+              <div 
+                className="h-6 flex items-center justify-between px-4 text-[9px] font-semibold"
+                style={{ backgroundColor: mobileThemeColor, color: isLightColor(mobileThemeColor) ? '#000' : '#fff' }}
+              >
+                <span>9:41</span>
+                <span>●●●</span>
+              </div>
+              {/* Address bar */}
+              <div 
+                className="h-8 flex items-center px-3 text-[10px] border-b border-foreground/10"
+                style={{ backgroundColor: mobileThemeColor, color: isLightColor(mobileThemeColor) ? '#333' : '#ddd' }}
+              >
+                <div className="bg-foreground/10 rounded-full px-3 py-0.5 flex-1 text-center truncate">
+                  yourstore.com
+                </div>
+              </div>
+              {/* Content */}
+              <div className="h-32 bg-background flex items-center justify-center">
+                <span className="text-xs text-muted-foreground">Nội dung trang</span>
+              </div>
+              {/* Bottom nav mock */}
+              <div className="h-10 bg-background border-t border-border flex items-center justify-around px-4">
+                {['🏠', '🛍️', '🛒', '❤️', '👤'].map((e, i) => (
+                  <span key={i} className="text-xs">{e}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Color Picker */}
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <input 
+                type="color" 
+                value={mobileThemeColor}
+                onChange={(e) => setMobileThemeColor(e.target.value)}
+                className="w-12 h-12 rounded-xl border-2 border-border cursor-pointer"
+              />
+            </div>
+            <div className="flex-1">
+              <Input
+                value={mobileThemeColor}
+                onChange={(e) => {
+                  if (/^#[0-9a-fA-F]{0,6}$/.test(e.target.value)) {
+                    setMobileThemeColor(e.target.value);
+                  }
+                }}
+                placeholder="#ffffff"
+                className="font-mono"
+              />
+            </div>
+          </div>
+
+          {/* Preset Colors */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">Màu nhanh:</p>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { color: '#ffffff', label: 'Trắng' },
+                { color: '#000000', label: 'Đen' },
+                { color: '#1a1a1a', label: 'Tối' },
+                { color: '#f5f5f0', label: 'Kem' },
+                { color: '#d4a017', label: 'Vàng gold' },
+                { color: '#e63946', label: 'Đỏ' },
+                { color: '#2d6a4f', label: 'Xanh lá' },
+                { color: '#1d3557', label: 'Navy' },
+              ].map((preset) => (
+                <button
+                  key={preset.color}
+                  onClick={() => {
+                    setMobileThemeColor(preset.color);
+                    toast.success(`Đã chọn: ${preset.label}`);
+                  }}
+                  className={cn(
+                    "w-8 h-8 rounded-lg border-2 transition-all duration-200 hover:scale-110",
+                    mobileThemeColor === preset.color ? "border-accent ring-2 ring-accent/30 scale-110" : "border-border"
+                  )}
+                  style={{ backgroundColor: preset.color }}
+                  title={preset.label}
+                />
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
+}
+
+function isLightColor(hex: string): boolean {
+  const c = hex.replace('#', '');
+  if (c.length !== 6) return true;
+  const r = parseInt(c.slice(0, 2), 16);
+  const g = parseInt(c.slice(2, 4), 16);
+  const b = parseInt(c.slice(4, 6), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 128;
 }
