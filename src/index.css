@@ -140,6 +140,18 @@
   .link-underline {
     @apply relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-current after:transition-all after:duration-300 hover:after:w-full;
   }
+
+  /* Mobile bottom nav spacing */
+  @media (max-width: 1023px) {
+    main {
+      padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  /* Badge utility */
+  .badge {
+    @apply absolute -top-1 -right-1 bg-accent text-accent-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center;
+  }
 }
 
 @layer utilities {
