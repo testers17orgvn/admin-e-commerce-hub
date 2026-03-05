@@ -21,6 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { haptic } from '@/lib/haptics';
 import { supabase } from '@/integrations/supabase/client';
 
 import { useCart } from '@/hooks/useCart';
@@ -220,8 +221,8 @@ export function Header() {
 
             {/* Hamburger Button */}
             <button
-              onClick={() => setMenuOpen(v => !v)}
-              className="lg:hidden relative z-[60] w-10 h-10 flex items-center justify-center rounded-xl transition-colors duration-300 hover:bg-muted"
+              onClick={() => { haptic('medium'); setMenuOpen(v => !v); }}
+              className="lg:hidden relative z-[60] w-10 h-10 flex items-center justify-center rounded-xl transition-colors duration-300 hover:bg-muted tap-ripple"
               aria-label="Menu"
             >
               <div className="w-5 h-4 relative flex flex-col justify-between">
@@ -483,8 +484,9 @@ export function Header() {
               <Link
                 key={item.href}
                 to={item.href}
+                onClick={() => haptic('selection')}
                 className={cn(
-                  "relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-300",
+                  "relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-300 tap-bounce",
                   isActive(item.href)
                     ? "text-accent"
                     : "text-muted-foreground active:scale-90"
