@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { ThemeSelector } from '@/components/admin/ThemeSelector';
 import { CustomMascotManager } from '@/components/admin/CustomMascotManager';
+import { MobilePopupManager } from '@/components/admin/MobilePopupManager';
 
 interface Settings {
   site_name?: string;
@@ -299,6 +300,7 @@ export default function AdminSettings() {
         <TabsContent value="theme" className="space-y-6">
           <ThemeSelector />
           <CustomMascotManager />
+          <MobilePopupManager />
         </TabsContent>
 
         <TabsContent value="contact" className="space-y-6">
