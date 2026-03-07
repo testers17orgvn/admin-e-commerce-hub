@@ -278,34 +278,38 @@
                </div>
              </CardContent>
            </Card>
-           <Card>
-             <CardContent className="p-4">
-               <div className="flex items-center gap-3">
-                 <div className="p-2 bg-purple-500/10 rounded-lg">
-                   <Navigation className="h-5 w-5 text-purple-500" />
-                 </div>
-                 <div>
-                   <p className="text-2xl font-bold">
-                     {isTracking ? 'ON' : 'OFF'}
-                   </p>
-                   <p className="text-sm text-muted-foreground">GPS</p>
-                 </div>
-               </div>
-             </CardContent>
-           </Card>
-           <Card>
-             <CardContent className="p-4">
-               <div className="flex items-center gap-3">
-                 <div className="p-2 bg-yellow-500/10 rounded-lg">
-                   <Clock className="h-5 w-5 text-yellow-500" />
-                 </div>
-                 <div>
-                   <p className="text-2xl font-bold">{orders.length}</p>
-                   <p className="text-sm text-muted-foreground">Tổng đơn</p>
-                 </div>
-               </div>
-             </CardContent>
-           </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-500/10 rounded-lg">
+                    <Navigation className="h-5 w-5 text-purple-500" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {isTracking ? 'ON' : 'OFF'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">GPS</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-yellow-500/10 rounded-lg">
+                    <Star className="h-5 w-5 text-yellow-500" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {avgRating.count > 0 ? avgRating.avg : '—'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {avgRating.count > 0 ? `${avgRating.count} đánh giá` : 'Chưa có'}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
          </div>
  
          {/* Orders List */}
