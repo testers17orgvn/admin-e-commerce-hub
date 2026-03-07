@@ -129,7 +129,13 @@ export function NotificationBell() {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
-  const getTypeStyles = (type: string) => {
+  const getTypeStyles = (type: string, title: string) => {
+    if (type === 'order' && (title.includes('🚚') || title.includes('🚗') || title.includes('📍'))) {
+      return 'bg-blue-500/10 text-blue-600';
+    }
+    if (type === 'order' && title.includes('✅')) {
+      return 'bg-emerald-500/10 text-emerald-600';
+    }
     switch (type) {
       case 'order':
         return 'bg-green-500/10 text-green-600';
