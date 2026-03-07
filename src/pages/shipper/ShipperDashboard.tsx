@@ -9,11 +9,11 @@
  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
  import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
  import { GoogleMap } from '@/components/maps/GoogleMap';
- import { 
-   Package, MapPin, Navigation, Phone, Clock, 
-   CheckCircle, XCircle, Truck, User, Play, 
-   Square, AlertCircle, Home
- } from 'lucide-react';
+  import { 
+    Package, MapPin, Navigation, Phone, Clock, 
+    CheckCircle, XCircle, Truck, User, Play, 
+    Square, AlertCircle, Home, Star
+  } from 'lucide-react';
  import { toast } from 'sonner';
  import { format } from 'date-fns';
  import { vi } from 'date-fns/locale';
@@ -36,8 +36,9 @@
    const [orders, setOrders] = useState<Order[]>([]);
    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
    const [isTracking, setIsTracking] = useState(false);
-   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
-   const [filterStatus, setFilterStatus] = useState('all');
+    const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [filterStatus, setFilterStatus] = useState('all');
+    const [avgRating, setAvgRating] = useState<{ avg: number; count: number }>({ avg: 0, count: 0 });
  
    useEffect(() => {
      if (!authLoading && !user) {
@@ -49,16 +50,30 @@
      }
    }, [user, authLoading]);
  
-   const checkShipperRole = async () => {
-     const { data } = await supabase.rpc('is_shipper');
-     if (!data) {
-       toast.error('Bạn cần có quyền shipper để truy cập trang này');
-       navigate('/');
-       return;
-     }
-     setIsShipper(true);
-     fetchOrders();
-   };
+    const checkShipperRole = async () => {
+      const { data } = await supabase.rpc('is_shipper');
+      if (!data) {
+        toast.error('Bạn cần có quyền shipper để truy cập trang này');
+        navigate('/');
+        return;
+      }
+      setIsShipper(true);
+      fetchOrders();
+      fetchRating();
+    };
+
+    const fetchRating = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('shipper_reviews' as any)
+        .select('rating')
+        .eq('shipper_id', user.id);
+      if (data && (data as any[]).length > 0) {
+        const ratings = (data as any[]).map((r: any) => r.rating);
+        const avg = ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length;
+        setAvgRating({ avg: Math.round(avg * 10) / 10, count: ratings.length });
+      }
+    };
  
    const fetchOrders = async () => {
      if (!user) return;
@@ -263,34 +278,38 @@
                </div>
              </CardContent>
            </Card>
-           <Card>
-             <CardContent className="p-4">
-               <div className="flex items-center gap-3">
-                 <div className="p-2 bg-purple-500/10 rounded-lg">
-                   <Navigation className="h-5 w-5 text-purple-500" />
-                 </div>
-                 <div>
-                   <p className="text-2xl font-bold">
-                     {isTracking ? 'ON' : 'OFF'}
-                   </p>
-                   <p className="text-sm text-muted-foreground">GPS</p>
-                 </div>
-               </div>
-             </CardContent>
-           </Card>
-           <Card>
-             <CardContent className="p-4">
-               <div className="flex items-center gap-3">
-                 <div className="p-2 bg-yellow-500/10 rounded-lg">
-                   <Clock className="h-5 w-5 text-yellow-500" />
-                 </div>
-                 <div>
-                   <p className="text-2xl font-bold">{orders.length}</p>
-                   <p className="text-sm text-muted-foreground">Tổng đơn</p>
-                 </div>
-               </div>
-             </CardContent>
-           </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-500/10 rounded-lg">
+                    <Navigation className="h-5 w-5 text-purple-500" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {isTracking ? 'ON' : 'OFF'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">GPS</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-yellow-500/10 rounded-lg">
+                    <Star className="h-5 w-5 text-yellow-500" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {avgRating.count > 0 ? avgRating.avg : '—'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {avgRating.count > 0 ? `${avgRating.count} đánh giá` : 'Chưa có'}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
          </div>
  
          {/* Orders List */}
