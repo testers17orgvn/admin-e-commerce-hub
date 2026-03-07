@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, Check, CheckCheck, Settings, Trash2 } from 'lucide-react';
+import { Bell, Check, CheckCheck, Settings, Trash2, Truck, Package, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -13,6 +13,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { toast } from 'sonner';
+import { triggerHaptic } from '@/lib/haptics';
 
 interface Notification {
   id: string;
