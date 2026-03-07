@@ -495,7 +495,19 @@ const OrderHistory = () => {
                         </p>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
+                        {/* Track order button for active orders */}
+                        {order.status !== 'cancelled' && order.status !== 'delivered' && (
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => navigate(`/orders/${order.id}`)}
+                            className="flex-1 sm:flex-none"
+                          >
+                            <Truck className="h-4 w-4 mr-1" />
+                            Theo dõi đơn
+                          </Button>
+                        )}
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button
