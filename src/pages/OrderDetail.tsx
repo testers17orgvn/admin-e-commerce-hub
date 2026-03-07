@@ -8,6 +8,7 @@
  import { Badge } from '@/components/ui/badge';
  import { Skeleton } from '@/components/ui/skeleton';
  import { OrderTrackingMap } from '@/components/orders/OrderTrackingMap';
+ import { ShipperRating } from '@/components/orders/ShipperRating';
  import { 
    ArrowLeft, Package, MapPin, Phone, Mail, 
    Calendar, CreditCard, FileText, Truck
