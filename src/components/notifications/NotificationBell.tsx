@@ -49,10 +49,9 @@ export function NotificationBell() {
   useEffect(() => {
     fetchNotifications();
 
-    // Set up realtime subscription
     if (user) {
       const channel = supabase
-        .channel('notifications')
+        .channel('user-notifications')
         .on(
           'postgres_changes',
           {
@@ -61,8 +60,35 @@ export function NotificationBell() {
             table: 'notifications',
             filter: `user_id=eq.${user.id}`,
           },
-          () => {
-            fetchNotifications();
+          (payload) => {
+            const n = payload.new as Notification;
+            setNotifications((prev) => [n, ...prev.slice(0, 19)]);
+
+            // Delivery-related toast with haptic
+            const isDelivery = n.type === 'order' && (
+              n.title.includes('giao') || n.title.includes('lấy hàng') || 
+              n.title.includes('shipper') || n.title.includes('🚚') || 
+              n.title.includes('📍') || n.title.includes('🚗') || 
+              n.title.includes('✅') || n.title.includes('❌')
+            );
+
+            if (isDelivery) {
+              haptic('success');
+              toast(n.title, {
+                description: n.message,
+                action: n.link ? {
+                  label: 'Xem chi tiết',
+                  onClick: () => window.location.href = n.link!,
+                } : undefined,
+                duration: 8000,
+              });
+            } else {
+              haptic('light');
+              toast(n.title, {
+                description: n.message,
+                duration: 5000,
+              });
+            }
           }
         )
         .subscribe();
