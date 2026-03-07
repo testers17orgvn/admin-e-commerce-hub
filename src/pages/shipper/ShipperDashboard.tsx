@@ -50,16 +50,30 @@
      }
    }, [user, authLoading]);
  
-   const checkShipperRole = async () => {
-     const { data } = await supabase.rpc('is_shipper');
-     if (!data) {
-       toast.error('Bạn cần có quyền shipper để truy cập trang này');
-       navigate('/');
-       return;
-     }
-     setIsShipper(true);
-     fetchOrders();
-   };
+    const checkShipperRole = async () => {
+      const { data } = await supabase.rpc('is_shipper');
+      if (!data) {
+        toast.error('Bạn cần có quyền shipper để truy cập trang này');
+        navigate('/');
+        return;
+      }
+      setIsShipper(true);
+      fetchOrders();
+      fetchRating();
+    };
+
+    const fetchRating = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('shipper_reviews' as any)
+        .select('rating')
+        .eq('shipper_id', user.id);
+      if (data && (data as any[]).length > 0) {
+        const ratings = (data as any[]).map((r: any) => r.rating);
+        const avg = ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length;
+        setAvgRating({ avg: Math.round(avg * 10) / 10, count: ratings.length });
+      }
+    };
  
    const fetchOrders = async () => {
      if (!user) return;
