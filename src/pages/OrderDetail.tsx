@@ -275,8 +275,13 @@
                    <p className="text-muted-foreground">{order.notes}</p>
                  </CardContent>
                </Card>
-             )}
-           </div>
+              )}
+
+              {/* Shipper Rating - show for delivered orders */}
+              {(order.status === 'completed' || order.status === 'delivered' || order.shipper_status === 'delivered') && order.shipper_id && (
+                <ShipperRating orderId={order.id} shipperId={order.shipper_id} />
+              )}
+            </div>
          </div>
        </div>
      </Layout>
