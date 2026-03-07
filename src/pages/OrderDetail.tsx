@@ -152,11 +152,11 @@
  
          <div className="grid lg:grid-cols-3 gap-6">
            {/* Main Content */}
-           <div className="lg:col-span-2 space-y-6">
-             {/* Tracking Map */}
-             {order.shipper_id && (
-               <OrderTrackingMap order={order} />
-             )}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Tracking Map - show for all non-cancelled orders */}
+              {order.status !== 'cancelled' && (
+                <OrderTrackingMap order={order} />
+              )}
  
              {/* Order Items */}
              <Card>

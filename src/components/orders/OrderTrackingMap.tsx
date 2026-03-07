@@ -163,53 +163,78 @@
  
    const currentStep = getCurrentStepIndex();
  
-   return (
-     <div className="space-y-6">
-       {/* Map Section */}
-       {(order.shipper_status === 'picking_up' || order.shipper_status === 'delivering') && (
-         <Card>
-           <CardHeader className="pb-2">
-             <div className="flex items-center justify-between">
-               <CardTitle className="flex items-center gap-2 text-lg">
-                 <Navigation className="h-5 w-5 text-primary" />
-                 Theo dõi vị trí
-               </CardTitle>
-               <div className="flex items-center gap-2">
-                 {isOnline ? (
-                   <Badge variant="default" className="bg-green-500">
-                     <Wifi className="h-3 w-3 mr-1" />
-                     Online
-                   </Badge>
-                 ) : (
-                   <Badge variant="secondary">
-                     <WifiOff className="h-3 w-3 mr-1" />
-                     Offline
-                   </Badge>
-                 )}
-               </div>
-             </div>
-             {lastUpdated && (
-               <p className="text-xs text-muted-foreground">
-                 Cập nhật lần cuối: {format(lastUpdated, 'HH:mm:ss', { locale: vi })}
-               </p>
-             )}
-           </CardHeader>
-           <CardContent>
-             <GoogleMap
-               shipperLocation={shipperLocation}
-               destinationLocation={destinationLocation}
-               showRoute={true}
-               className="h-[350px] rounded-lg"
-             />
-             {eta && (
-               <div className="mt-4 p-3 bg-primary/10 rounded-lg flex items-center justify-between">
-                 <span className="text-sm font-medium">Thời gian dự kiến:</span>
-                 <span className="text-lg font-bold text-primary">{eta}</span>
-               </div>
-             )}
-           </CardContent>
-         </Card>
-       )}
+    const isActiveDelivery = order.shipper_status === 'picking_up' || order.shipper_status === 'delivering';
+    const showMap = isActiveDelivery || destinationLocation || shipperLocation;
+
+    return (
+      <div className="space-y-6">
+        {/* Map Section */}
+        {showMap && (
+          <Card className="overflow-hidden">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Navigation className="h-5 w-5 text-primary" />
+                  {isActiveDelivery ? 'Theo dõi vị trí giao hàng' : 'Vị trí giao hàng'}
+                </CardTitle>
+                {order.shipper_id && (
+                  <div className="flex items-center gap-2">
+                    {isActiveDelivery ? (
+                      isOnline ? (
+                        <Badge variant="default" className="bg-green-500 animate-pulse">
+                          <Wifi className="h-3 w-3 mr-1" />
+                          Đang giao
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary">
+                          <WifiOff className="h-3 w-3 mr-1" />
+                          Offline
+                        </Badge>
+                      )
+                    ) : order.shipper_status === 'delivered' ? (
+                      <Badge variant="default" className="bg-green-500">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Đã giao
+                      </Badge>
+                    ) : order.shipper_status === 'assigned' ? (
+                      <Badge variant="secondary">
+                        <Clock className="h-3 w-3 mr-1" />
+                        Chờ lấy hàng
+                      </Badge>
+                    ) : null}
+                  </div>
+                )}
+              </div>
+              {isActiveDelivery && lastUpdated && (
+                <p className="text-xs text-muted-foreground">
+                  Cập nhật lần cuối: {format(lastUpdated, 'HH:mm:ss', { locale: vi })}
+                </p>
+              )}
+            </CardHeader>
+            <CardContent>
+              <GoogleMap
+                shipperLocation={shipperLocation}
+                destinationLocation={destinationLocation}
+                showRoute={isActiveDelivery && !!shipperLocation}
+                className="h-[350px] rounded-lg"
+              />
+              {/* ETA */}
+              {eta && isActiveDelivery && (
+                <div className="mt-4 p-3 bg-primary/10 rounded-lg flex items-center justify-between">
+                  <span className="text-sm font-medium">Thời gian dự kiến:</span>
+                  <span className="text-lg font-bold text-primary">{eta}</span>
+                </div>
+              )}
+              {/* Delivery address text */}
+              {order.customer_address && !isActiveDelivery && (
+                <div className="mt-3 p-3 bg-muted/50 rounded-lg flex items-start gap-2">
+                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-muted-foreground">{order.customer_address}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
  
        {/* Shipper Info */}
        {shipperInfo && (
