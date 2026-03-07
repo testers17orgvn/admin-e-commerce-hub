@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, Check, CheckCheck, Settings, Trash2 } from 'lucide-react';
+import { Bell, Check, CheckCheck, Settings, Trash2, Truck, Package, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -13,6 +13,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { toast } from 'sonner';
+import { haptic } from '@/lib/haptics';
 
 interface Notification {
   id: string;
@@ -47,10 +49,9 @@ export function NotificationBell() {
   useEffect(() => {
     fetchNotifications();
 
-    // Set up realtime subscription
     if (user) {
       const channel = supabase
-        .channel('notifications')
+        .channel('user-notifications')
         .on(
           'postgres_changes',
           {
@@ -59,8 +60,35 @@ export function NotificationBell() {
             table: 'notifications',
             filter: `user_id=eq.${user.id}`,
           },
-          () => {
-            fetchNotifications();
+          (payload) => {
+            const n = payload.new as Notification;
+            setNotifications((prev) => [n, ...prev.slice(0, 19)]);
+
+            // Delivery-related toast with haptic
+            const isDelivery = n.type === 'order' && (
+              n.title.includes('giao') || n.title.includes('lấy hàng') || 
+              n.title.includes('shipper') || n.title.includes('🚚') || 
+              n.title.includes('📍') || n.title.includes('🚗') || 
+              n.title.includes('✅') || n.title.includes('❌')
+            );
+
+            if (isDelivery) {
+              haptic('success');
+              toast(n.title, {
+                description: n.message,
+                action: n.link ? {
+                  label: 'Xem chi tiết',
+                  onClick: () => window.location.href = n.link!,
+                } : undefined,
+                duration: 8000,
+              });
+            } else {
+              haptic('light');
+              toast(n.title, {
+                description: n.message,
+                duration: 5000,
+              });
+            }
           }
         )
         .subscribe();
@@ -101,7 +129,13 @@ export function NotificationBell() {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
-  const getTypeStyles = (type: string) => {
+  const getTypeStyles = (type: string, title: string) => {
+    if (type === 'order' && (title.includes('🚚') || title.includes('🚗') || title.includes('📍'))) {
+      return 'bg-blue-500/10 text-blue-600';
+    }
+    if (type === 'order' && title.includes('✅')) {
+      return 'bg-emerald-500/10 text-emerald-600';
+    }
     switch (type) {
       case 'order':
         return 'bg-green-500/10 text-green-600';
