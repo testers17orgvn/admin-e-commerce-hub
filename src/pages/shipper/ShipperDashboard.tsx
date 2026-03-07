@@ -9,11 +9,11 @@
  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
  import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
  import { GoogleMap } from '@/components/maps/GoogleMap';
- import { 
-   Package, MapPin, Navigation, Phone, Clock, 
-   CheckCircle, XCircle, Truck, User, Play, 
-   Square, AlertCircle, Home
- } from 'lucide-react';
+  import { 
+    Package, MapPin, Navigation, Phone, Clock, 
+    CheckCircle, XCircle, Truck, User, Play, 
+    Square, AlertCircle, Home, Star
+  } from 'lucide-react';
  import { toast } from 'sonner';
  import { format } from 'date-fns';
  import { vi } from 'date-fns/locale';
