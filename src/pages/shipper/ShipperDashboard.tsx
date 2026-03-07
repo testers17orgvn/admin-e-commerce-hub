@@ -36,8 +36,9 @@
    const [orders, setOrders] = useState<Order[]>([]);
    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
    const [isTracking, setIsTracking] = useState(false);
-   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
-   const [filterStatus, setFilterStatus] = useState('all');
+    const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [filterStatus, setFilterStatus] = useState('all');
+    const [avgRating, setAvgRating] = useState<{ avg: number; count: number }>({ avg: 0, count: 0 });
  
    useEffect(() => {
      if (!authLoading && !user) {
