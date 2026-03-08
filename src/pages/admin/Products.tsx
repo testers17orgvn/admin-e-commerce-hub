@@ -154,7 +154,7 @@ export default function AdminProducts() {
       price: String(product.price),
       original_price: product.original_price ? String(product.original_price) : '',
       image_url: product.image_url || '', images: product.images || [],
-      video_url: (product as any).video_url || '',
+      video_url: product.video_url || '',
       category_id: product.category_id || '', stock: String(product.stock),
       is_featured: product.is_featured, is_active: product.is_active,
       is_hot: product.is_hot || false,

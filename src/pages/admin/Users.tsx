@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, Search, Shield, ShieldOff, Users, Store, Building2, ClipboardCheck, ShoppingBag } from 'lucide-react';
+import { Eye, Search, Shield, ShieldOff, Users, Store, Building2, ClipboardCheck, ShoppingBag, Truck } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Checkbox } from '@/components/ui/checkbox';
