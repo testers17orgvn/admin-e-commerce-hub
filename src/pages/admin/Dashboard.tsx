@@ -25,6 +25,8 @@ export default function Dashboard() {
   const [trendFilter, setTrendFilter] = useState<'7days' | '30days' | '6months' | '12months'>('30days');
   const [trendData, setTrendData] = useState<{ label: string; avg: number; count: number }[]>([]);
   const [currentWeek, setCurrentWeek] = useState({ start: startOfWeek(new Date(), { weekStartsOn: 1 }), end: endOfWeek(new Date(), { weekStartsOn: 1 }) });
+  const [revenueChartFilter, setRevenueChartFilter] = useState<'6months' | '12months'>('12months');
+  const [revenueChartData, setRevenueChartData] = useState<{ label: string; revenue: number; orders: number }[]>([]);
 
   const fetchStats = async () => {
     const [products, orders, blogs, contacts, shipperReviews] = await Promise.all([
