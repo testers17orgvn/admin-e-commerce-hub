@@ -11,7 +11,7 @@ import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
 
-type ReportType = 'products' | 'orders' | 'revenue' | 'customers';
+type ReportType = 'products' | 'orders' | 'revenue' | 'customers' | 'shipper_reviews';
 
 interface ExportOptions {
   type: ReportType;
