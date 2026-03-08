@@ -160,272 +160,448 @@ interface ShipperStats {
      setSelectedShipper('');
      fetchData();
    };
- 
-   const formatCurrency = (amount: number) =>
-     new Intl.NumberFormat('vi-VN').format(amount) + '₫';
- 
-   const filteredShippers = shippers.filter((s) =>
-     s.full_name?.toLowerCase().includes(searchShipper.toLowerCase()) ||
-     s.phone?.includes(searchShipper)
-   );
- 
-   const getStatusBadge = (status: string | null | undefined) => {
-     switch (status) {
-       case 'unassigned':
-         return <Badge variant="secondary">Chưa gán</Badge>;
-       case 'assigned':
-         return <Badge className="bg-blue-500 text-white">Đã gán</Badge>;
-       case 'picking_up':
-         return <Badge className="bg-yellow-500 text-white">Đang lấy</Badge>;
-       case 'delivering':
-         return <Badge className="bg-purple-500 text-white">Đang giao</Badge>;
-       case 'delivered':
-         return <Badge className="bg-green-500 text-white">Đã giao</Badge>;
-       default:
-         return <Badge variant="secondary">Chưa gán</Badge>;
-     }
-   };
- 
-   return (
-     <AdminLayout>
-       <div className="space-y-6">
-         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-           <div>
-             <h1 className="text-2xl font-bold flex items-center gap-2">
-               <Truck className="h-6 w-6 text-primary" />
-               Quản lý giao hàng
-             </h1>
-             <p className="text-muted-foreground">Gán shipper và theo dõi đơn hàng</p>
-           </div>
-           <Select value={filterStatus} onValueChange={setFilterStatus}>
-             <SelectTrigger className="w-48">
-               <SelectValue placeholder="Lọc trạng thái" />
-             </SelectTrigger>
-             <SelectContent>
-               <SelectItem value="all">Tất cả</SelectItem>
-               <SelectItem value="unassigned">Chưa gán shipper</SelectItem>
-               <SelectItem value="assigned">Đã gán shipper</SelectItem>
-               <SelectItem value="picking_up">Đang lấy hàng</SelectItem>
-               <SelectItem value="delivering">Đang giao</SelectItem>
-             </SelectContent>
-           </Select>
-         </div>
- 
-         {/* Stats */}
-         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-           <Card>
-             <CardContent className="p-4">
-               <div className="flex items-center gap-3">
-                 <Clock className="h-8 w-8 text-yellow-500" />
-                 <div>
-                   <p className="text-2xl font-bold">
-                     {orders.filter((o) => o.shipper_status === 'unassigned').length}
-                   </p>
-                   <p className="text-sm text-muted-foreground">Chưa gán</p>
-                 </div>
-               </div>
-             </CardContent>
-           </Card>
-           <Card>
-             <CardContent className="p-4">
-               <div className="flex items-center gap-3">
-                 <Package className="h-8 w-8 text-blue-500" />
-                 <div>
-                   <p className="text-2xl font-bold">
-                     {orders.filter((o) => o.shipper_status === 'assigned').length}
-                   </p>
-                   <p className="text-sm text-muted-foreground">Đã gán</p>
-                 </div>
-               </div>
-             </CardContent>
-           </Card>
-           <Card>
-             <CardContent className="p-4">
-               <div className="flex items-center gap-3">
-                 <Truck className="h-8 w-8 text-purple-500" />
-                 <div>
-                   <p className="text-2xl font-bold">
-                     {orders.filter((o) => o.shipper_status === 'delivering').length}
-                   </p>
-                   <p className="text-sm text-muted-foreground">Đang giao</p>
-                 </div>
-               </div>
-             </CardContent>
-           </Card>
-           <Card>
-             <CardContent className="p-4">
-               <div className="flex items-center gap-3">
-                 <User className="h-8 w-8 text-green-500" />
-                 <div>
-                   <p className="text-2xl font-bold">{shippers.length}</p>
-                   <p className="text-sm text-muted-foreground">Shipper</p>
-                 </div>
-               </div>
-             </CardContent>
-           </Card>
-         </div>
- 
-         {/* Orders List */}
-         <Card>
-           <CardHeader>
-             <CardTitle>Đơn hàng cần giao</CardTitle>
-             <CardDescription>Danh sách đơn hàng đang chờ hoặc đang giao</CardDescription>
-           </CardHeader>
-           <CardContent>
-             {loading ? (
-               <div className="text-center py-8">Đang tải...</div>
-             ) : orders.length === 0 ? (
-               <div className="text-center py-12">
-                 <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                 <h3 className="text-lg font-semibold">Không có đơn hàng</h3>
-                 <p className="text-muted-foreground">Không có đơn hàng nào phù hợp</p>
-               </div>
-             ) : (
-               <div className="overflow-x-auto">
-                 <table className="w-full">
-                   <thead className="bg-muted/50">
-                     <tr>
-                       <th className="text-left p-3 text-sm font-medium">Mã đơn</th>
-                       <th className="text-left p-3 text-sm font-medium">Khách hàng</th>
-                       <th className="text-left p-3 text-sm font-medium">Địa chỉ</th>
-                       <th className="text-left p-3 text-sm font-medium">Tổng tiền</th>
-                       <th className="text-left p-3 text-sm font-medium">Trạng thái</th>
-                       <th className="text-left p-3 text-sm font-medium">Shipper</th>
-                       <th className="text-right p-3 text-sm font-medium">Thao tác</th>
-                     </tr>
-                   </thead>
-                   <tbody>
-                     {orders.map((order) => {
-                       const shipper = shippers.find((s) => s.id === order.shipper_id);
-                       return (
-                         <tr key={order.id} className="border-t">
-                           <td className="p-3 font-mono text-sm">
-                             #{order.id.slice(0, 8)}
-                           </td>
-                           <td className="p-3">
-                             <div>
-                               <p className="font-medium">{order.customer_name}</p>
-                               <p className="text-sm text-muted-foreground">
-                                 {order.customer_phone}
-                               </p>
-                             </div>
-                           </td>
-                           <td className="p-3 max-w-[200px]">
-                             <p className="text-sm truncate">{order.customer_address}</p>
-                           </td>
-                           <td className="p-3 font-semibold text-primary">
-                             {formatCurrency(order.total_amount)}
-                           </td>
-                           <td className="p-3">{getStatusBadge(order.shipper_status)}</td>
-                           <td className="p-3">
-                             {shipper ? (
-                               <div className="flex items-center gap-2">
-                                 <User className="h-4 w-4 text-muted-foreground" />
-                                 <span className="text-sm">{shipper.full_name}</span>
-                               </div>
-                             ) : (
-                               <span className="text-sm text-muted-foreground">Chưa gán</span>
-                             )}
-                           </td>
-                           <td className="p-3 text-right">
-                             {!order.shipper_id && (
-                               <Button
-                                 size="sm"
-                                 onClick={() => {
-                                   setSelectedOrder(order);
-                                   setAssignDialogOpen(true);
-                                 }}
-                               >
-                                 <UserPlus className="h-4 w-4 mr-1" />
-                                 Gán shipper
-                               </Button>
-                             )}
-                           </td>
-                         </tr>
-                       );
-                     })}
-                   </tbody>
-                 </table>
-               </div>
-             )}
-           </CardContent>
-         </Card>
- 
-         {/* Assign Shipper Dialog */}
-         <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-           <DialogContent>
-             <DialogHeader>
-               <DialogTitle>Gán Shipper cho đơn hàng</DialogTitle>
-             </DialogHeader>
-             {selectedOrder && (
-               <div className="space-y-4">
-                 <div className="bg-muted/50 rounded-lg p-4">
-                   <p className="font-medium">Đơn hàng #{selectedOrder.id.slice(0, 8)}</p>
-                   <p className="text-sm text-muted-foreground mt-1">
-                     {selectedOrder.customer_name} - {selectedOrder.customer_address}
-                   </p>
-                   <p className="font-semibold text-primary mt-2">
-                     {formatCurrency(selectedOrder.total_amount)}
-                   </p>
-                 </div>
- 
-                 <div className="space-y-2">
-                   <Label>Chọn Shipper</Label>
-                   <div className="relative">
-                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                     <Input
-                       placeholder="Tìm shipper..."
-                       value={searchShipper}
-                       onChange={(e) => setSearchShipper(e.target.value)}
-                       className="pl-10"
-                     />
-                   </div>
-                   <div className="border rounded-lg max-h-[200px] overflow-y-auto">
-                     {filteredShippers.length === 0 ? (
-                       <div className="p-4 text-center text-muted-foreground">
-                         Không tìm thấy shipper
-                       </div>
-                     ) : (
-                       filteredShippers.map((shipper) => (
-                         <div
-                           key={shipper.id}
-                           className={`p-3 cursor-pointer hover:bg-muted/50 flex items-center gap-3 ${
-                             selectedShipper === shipper.id ? 'bg-primary/10' : ''
-                           }`}
-                           onClick={() => setSelectedShipper(shipper.id)}
-                         >
-                           <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                             {shipper.avatar_url ? (
-                               <img src={shipper.avatar_url} className="w-full h-full rounded-full object-cover" />
-                             ) : (
-                               <User className="h-5 w-5 text-muted-foreground" />
-                             )}
-                           </div>
-                           <div className="flex-1">
-                             <p className="font-medium">{shipper.full_name || 'Shipper'}</p>
-                             <p className="text-sm text-muted-foreground">{shipper.phone}</p>
-                           </div>
-                           {selectedShipper === shipper.id && (
-                             <CheckCircle className="h-5 w-5 text-primary" />
-                           )}
-                         </div>
-                       ))
-                     )}
-                   </div>
-                 </div>
-               </div>
-             )}
-             <DialogFooter>
-               <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>
-                 Hủy
-               </Button>
-               <Button onClick={handleAssignShipper} disabled={!selectedShipper}>
-                 Gán Shipper
-               </Button>
-             </DialogFooter>
-           </DialogContent>
-         </Dialog>
-       </div>
-     </AdminLayout>
-   );
- }
+
+    const formatCurrency = (amount: number) =>
+      new Intl.NumberFormat('vi-VN').format(amount) + '₫';
+
+    const filteredShippers = shippers.filter((s) =>
+      s.full_name?.toLowerCase().includes(searchShipper.toLowerCase()) ||
+      s.phone?.includes(searchShipper)
+    );
+
+    const getStatusBadge = (status: string | null | undefined) => {
+      switch (status) {
+        case 'unassigned':
+          return <Badge variant="secondary">Chưa gán</Badge>;
+        case 'assigned':
+          return <Badge className="bg-blue-500 text-white">Đã gán</Badge>;
+        case 'picking_up':
+          return <Badge className="bg-yellow-500 text-white">Đang lấy</Badge>;
+        case 'delivering':
+          return <Badge className="bg-purple-500 text-white">Đang giao</Badge>;
+        case 'delivered':
+          return <Badge className="bg-green-500 text-white">Đã giao</Badge>;
+        default:
+          return <Badge variant="secondary">Chưa gán</Badge>;
+      }
+    };
+
+    const renderStars = (rating: number) => (
+      <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`h-4 w-4 ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground/30'}`}
+          />
+        ))}
+      </div>
+    );
+
+    const selectedStats = selectedShipperReview
+      ? shipperStats.find((s) => s.shipper.id === selectedShipperReview)
+      : null;
+
+    return (
+      <AdminLayout>
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-2xl font-bold flex items-center gap-2">
+                <Truck className="h-6 w-6 text-primary" />
+                Quản lý giao hàng
+              </h1>
+              <p className="text-muted-foreground">Gán shipper và theo dõi đơn hàng</p>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <Clock className="h-8 w-8 text-yellow-500" />
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {orders.filter((o) => o.shipper_status === 'unassigned').length}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Chưa gán</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <Package className="h-8 w-8 text-blue-500" />
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {orders.filter((o) => o.shipper_status === 'assigned').length}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Đã gán</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <Truck className="h-8 w-8 text-purple-500" />
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {orders.filter((o) => o.shipper_status === 'delivering').length}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Đang giao</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <User className="h-8 w-8 text-green-500" />
+                  <div>
+                    <p className="text-2xl font-bold">{shippers.length}</p>
+                    <p className="text-sm text-muted-foreground">Shipper</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList>
+              <TabsTrigger value="orders" className="gap-2">
+                <Package className="h-4 w-4" /> Đơn hàng
+              </TabsTrigger>
+              <TabsTrigger value="reviews" className="gap-2">
+                <Star className="h-4 w-4" /> Đánh giá shipper
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Orders Tab */}
+            <TabsContent value="orders" className="mt-4">
+              <div className="flex justify-end mb-4">
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Lọc trạng thái" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả</SelectItem>
+                    <SelectItem value="unassigned">Chưa gán shipper</SelectItem>
+                    <SelectItem value="assigned">Đã gán shipper</SelectItem>
+                    <SelectItem value="picking_up">Đang lấy hàng</SelectItem>
+                    <SelectItem value="delivering">Đang giao</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Đơn hàng cần giao</CardTitle>
+                  <CardDescription>Danh sách đơn hàng đang chờ hoặc đang giao</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {loading ? (
+                    <div className="text-center py-8">Đang tải...</div>
+                  ) : orders.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold">Không có đơn hàng</h3>
+                      <p className="text-muted-foreground">Không có đơn hàng nào phù hợp</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-muted/50">
+                          <tr>
+                            <th className="text-left p-3 text-sm font-medium">Mã đơn</th>
+                            <th className="text-left p-3 text-sm font-medium">Khách hàng</th>
+                            <th className="text-left p-3 text-sm font-medium">Địa chỉ</th>
+                            <th className="text-left p-3 text-sm font-medium">Tổng tiền</th>
+                            <th className="text-left p-3 text-sm font-medium">Trạng thái</th>
+                            <th className="text-left p-3 text-sm font-medium">Shipper</th>
+                            <th className="text-right p-3 text-sm font-medium">Thao tác</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {orders.map((order) => {
+                            const shipper = shippers.find((s) => s.id === order.shipper_id);
+                            return (
+                              <tr key={order.id} className="border-t">
+                                <td className="p-3 font-mono text-sm">#{order.id.slice(0, 8)}</td>
+                                <td className="p-3">
+                                  <div>
+                                    <p className="font-medium">{order.customer_name}</p>
+                                    <p className="text-sm text-muted-foreground">{order.customer_phone}</p>
+                                  </div>
+                                </td>
+                                <td className="p-3 max-w-[200px]">
+                                  <p className="text-sm truncate">{order.customer_address}</p>
+                                </td>
+                                <td className="p-3 font-semibold text-primary">{formatCurrency(order.total_amount)}</td>
+                                <td className="p-3">{getStatusBadge(order.shipper_status)}</td>
+                                <td className="p-3">
+                                  {shipper ? (
+                                    <div className="flex items-center gap-2">
+                                      <User className="h-4 w-4 text-muted-foreground" />
+                                      <span className="text-sm">{shipper.full_name}</span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-sm text-muted-foreground">Chưa gán</span>
+                                  )}
+                                </td>
+                                <td className="p-3 text-right">
+                                  {!order.shipper_id && (
+                                    <Button
+                                      size="sm"
+                                      onClick={() => {
+                                        setSelectedOrder(order);
+                                        setAssignDialogOpen(true);
+                                      }}
+                                    >
+                                      <UserPlus className="h-4 w-4 mr-1" />
+                                      Gán shipper
+                                    </Button>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Reviews Tab */}
+            <TabsContent value="reviews" className="mt-4 space-y-4">
+              {shipperStats.length === 0 ? (
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <Star className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold">Chưa có đánh giá</h3>
+                    <p className="text-muted-foreground">Chưa có đánh giá nào cho shipper</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  {/* Shipper List */}
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-lg">Danh sách shipper</h3>
+                    {shipperStats.map((stat) => (
+                      <Card
+                        key={stat.shipper.id}
+                        className={`cursor-pointer transition-all hover:shadow-md ${
+                          selectedShipperReview === stat.shipper.id ? 'ring-2 ring-primary' : ''
+                        }`}
+                        onClick={() => setSelectedShipperReview(stat.shipper.id)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3">
+                            <Avatar>
+                              <AvatarImage src={stat.shipper.avatar_url || undefined} />
+                              <AvatarFallback>
+                                {stat.shipper.full_name?.charAt(0) || 'S'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">
+                                {stat.shipper.full_name || 'Shipper'}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <div className="flex items-center gap-1">
+                                  <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                                  <span className="text-sm font-semibold">
+                                    {stat.avgRating.toFixed(1)}
+                                  </span>
+                                </div>
+                                <span className="text-xs text-muted-foreground">
+                                  ({stat.totalReviews} đánh giá)
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  {/* Review Detail */}
+                  <div className="lg:col-span-2">
+                    {selectedStats ? (
+                      <div className="space-y-4">
+                        {/* Rating Overview */}
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                              <Star className="h-5 w-5 text-yellow-400" />
+                              Tổng quan đánh giá - {selectedStats.shipper.full_name}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="flex items-center gap-8">
+                              <div className="text-center">
+                                <p className="text-4xl font-bold text-primary">
+                                  {selectedStats.avgRating.toFixed(1)}
+                                </p>
+                                <div className="mt-1">{renderStars(Math.round(selectedStats.avgRating))}</div>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  {selectedStats.totalReviews} đánh giá
+                                </p>
+                              </div>
+                              <div className="flex-1 space-y-2">
+                                {[5, 4, 3, 2, 1].map((star) => {
+                                  const count = selectedStats.ratingDistribution[star - 1];
+                                  const percent = selectedStats.totalReviews > 0
+                                    ? (count / selectedStats.totalReviews) * 100
+                                    : 0;
+                                  return (
+                                    <div key={star} className="flex items-center gap-2">
+                                      <span className="text-sm w-8 text-right">{star} ★</span>
+                                      <Progress value={percent} className="flex-1 h-2" />
+                                      <span className="text-sm text-muted-foreground w-8">
+                                        {count}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        {/* Reviews List */}
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                              <MessageSquare className="h-5 w-5" />
+                              Đánh giá chi tiết
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            {selectedStats.reviews.length === 0 ? (
+                              <p className="text-center text-muted-foreground py-8">
+                                Chưa có đánh giá nào
+                              </p>
+                            ) : (
+                              <div className="space-y-4">
+                                {selectedStats.reviews.map((review) => (
+                                  <div
+                                    key={review.id}
+                                    className="border rounded-lg p-4 space-y-2"
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        {renderStars(review.rating)}
+                                        <Badge variant="outline" className="text-xs">
+                                          Đơn #{review.order_id.slice(0, 8)}
+                                        </Badge>
+                                      </div>
+                                      <span className="text-xs text-muted-foreground">
+                                        {format(new Date(review.created_at), 'dd/MM/yyyy HH:mm')}
+                                      </span>
+                                    </div>
+                                    {review.comment && (
+                                      <p className="text-sm text-foreground">{review.comment}</p>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </div>
+                    ) : (
+                      <Card>
+                        <CardContent className="py-16 text-center">
+                          <User className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                          <p className="text-muted-foreground">
+                            Chọn một shipper để xem đánh giá chi tiết
+                          </p>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+
+          {/* Assign Shipper Dialog */}
+          <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Gán Shipper cho đơn hàng</DialogTitle>
+              </DialogHeader>
+              {selectedOrder && (
+                <div className="space-y-4">
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <p className="font-medium">Đơn hàng #{selectedOrder.id.slice(0, 8)}</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {selectedOrder.customer_name} - {selectedOrder.customer_address}
+                    </p>
+                    <p className="font-semibold text-primary mt-2">
+                      {formatCurrency(selectedOrder.total_amount)}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Chọn Shipper</Label>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Tìm shipper..."
+                        value={searchShipper}
+                        onChange={(e) => setSearchShipper(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    <div className="border rounded-lg max-h-[200px] overflow-y-auto">
+                      {filteredShippers.length === 0 ? (
+                        <div className="p-4 text-center text-muted-foreground">
+                          Không tìm thấy shipper
+                        </div>
+                      ) : (
+                        filteredShippers.map((shipper) => (
+                          <div
+                            key={shipper.id}
+                            className={`p-3 cursor-pointer hover:bg-muted/50 flex items-center gap-3 ${
+                              selectedShipper === shipper.id ? 'bg-primary/10' : ''
+                            }`}
+                            onClick={() => setSelectedShipper(shipper.id)}
+                          >
+                            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                              {shipper.avatar_url ? (
+                                <img src={shipper.avatar_url} className="w-full h-full rounded-full object-cover" />
+                              ) : (
+                                <User className="h-5 w-5 text-muted-foreground" />
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-medium">{shipper.full_name || 'Shipper'}</p>
+                              <p className="text-sm text-muted-foreground">{shipper.phone}</p>
+                            </div>
+                            {selectedShipper === shipper.id && (
+                              <CheckCircle className="h-5 w-5 text-primary" />
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>
+                  Hủy
+                </Button>
+                <Button onClick={handleAssignShipper} disabled={!selectedShipper}>
+                  Gán Shipper
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </AdminLayout>
+    );
+  }
