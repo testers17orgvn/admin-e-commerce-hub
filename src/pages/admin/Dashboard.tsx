@@ -136,9 +136,45 @@ export default function Dashboard() {
     }));
   };
 
+  const fetchRevenueChart = async () => {
+    const now = new Date();
+    const months = revenueChartFilter === '6months' ? 5 : 11;
+    const startDate = subMonths(now, months);
+    const intervals = eachMonthOfInterval({ start: startOfMonth(startDate), end: now });
+
+    const { data: orderData } = await supabase
+      .from('orders')
+      .select('total_amount, created_at, status')
+      .gte('created_at', startOfMonth(startDate).toISOString())
+      .neq('status', 'cancelled');
+
+    const buckets: Record<string, { revenue: number; orders: number }> = {};
+    intervals.forEach(d => {
+      buckets[format(d, 'yyyy-MM')] = { revenue: 0, orders: 0 };
+    });
+
+    (orderData || []).forEach((o: any) => {
+      const key = format(new Date(o.created_at), 'yyyy-MM');
+      if (buckets[key]) {
+        buckets[key].revenue += Number(o.total_amount);
+        buckets[key].orders++;
+      }
+    });
+
+    setRevenueChartData(intervals.map(d => {
+      const key = format(d, 'yyyy-MM');
+      return {
+        label: format(d, 'MM/yyyy', { locale: vi }),
+        revenue: buckets[key].revenue,
+        orders: buckets[key].orders,
+      };
+    }));
+  };
+
   useEffect(() => { fetchStats(); }, [currentWeek]);
   useEffect(() => { fetchTopShippers(); }, [shipperTimeFilter]);
   useEffect(() => { fetchTrendData(); }, [trendFilter]);
+  useEffect(() => { fetchRevenueChart(); }, [revenueChartFilter]);
 
   const formatPrice = (price: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 
