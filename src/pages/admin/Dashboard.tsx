@@ -5,7 +5,7 @@ import { Package, ShoppingCart, FileText, Mail, TrendingUp, RefreshCw, Calendar,
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { format, startOfWeek, endOfWeek, subWeeks } from 'date-fns';
+import { format, startOfWeek, endOfWeek, subWeeks, subMonths, subYears, startOfMonth, startOfYear } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import {
   AlertDialog,
