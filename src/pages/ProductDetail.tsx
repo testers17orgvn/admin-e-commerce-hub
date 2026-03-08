@@ -7,6 +7,8 @@ import { Product } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/hooks/useCart';
+import { useWishlist } from '@/hooks/useWishlist';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   ShoppingBag, Heart, Share2, Minus, Plus, ChevronRight, ChevronLeft, 
   ZoomIn, Flame, Check, Eye, Sparkles, TrendingUp, Zap, Package, 
@@ -17,6 +19,7 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ProductReviews } from '@/components/products/ProductReviews';
 import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
 
 const colorMap: Record<string, string> = {
   'Đỏ': 'bg-red-500',
