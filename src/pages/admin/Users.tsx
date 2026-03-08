@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Checkbox } from '@/components/ui/checkbox';
 
-type AppRole = 'admin' | 'staff' | 'seller' | 'dealer' | 'tester';
+type AppRole = 'admin' | 'staff' | 'seller' | 'dealer' | 'tester' | 'shipper';
 
 interface UserProfile {
   id: string;
@@ -62,6 +62,12 @@ const roleConfig: Record<AppRole, { label: string; description: string; color: s
     description: 'Xem và duyệt sản phẩm trước khi đăng',
     color: 'bg-orange-500',
     icon: <ClipboardCheck className="h-4 w-4" />
+  },
+  shipper: { 
+    label: 'Shipper', 
+    description: 'Nhận và giao đơn hàng cho khách',
+    color: 'bg-teal-500',
+    icon: <Truck className="h-4 w-4" />
   },
 };
 
