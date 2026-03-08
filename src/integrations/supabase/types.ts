@@ -223,6 +223,7 @@ export type Database = {
           created_at: string
           email_notifications: boolean | null
           id: string
+          new_contacts: boolean | null
           new_products: boolean | null
           order_updates: boolean | null
           promotions: boolean | null
@@ -233,6 +234,7 @@ export type Database = {
           created_at?: string
           email_notifications?: boolean | null
           id?: string
+          new_contacts?: boolean | null
           new_products?: boolean | null
           order_updates?: boolean | null
           promotions?: boolean | null
@@ -243,6 +245,7 @@ export type Database = {
           created_at?: string
           email_notifications?: boolean | null
           id?: string
+          new_contacts?: boolean | null
           new_products?: boolean | null
           order_updates?: boolean | null
           promotions?: boolean | null
