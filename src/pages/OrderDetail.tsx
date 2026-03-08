@@ -74,6 +74,20 @@ export default function OrderDetail() {
         items: (data.items as unknown as OrderItem[]) || [],
       };
       setOrder(orderData as Order);
+
+      // Fetch product slugs for links
+      const productIds = orderData.items.map((item: OrderItem) => item.product_id).filter(Boolean);
+      if (productIds.length > 0) {
+        const { data: products } = await supabase
+          .from('products')
+          .select('id, slug')
+          .in('id', productIds);
+        if (products) {
+          const slugMap: Record<string, string> = {};
+          products.forEach(p => { slugMap[p.id] = p.slug; });
+          setProductSlugs(slugMap);
+        }
+      }
     }
 
     setLoading(false);
