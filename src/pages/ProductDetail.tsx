@@ -56,6 +56,8 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const { addItem } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const { user } = useAuth();
 
   useEffect(() => {
     async function fetchProduct() {
