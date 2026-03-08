@@ -356,6 +356,51 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      {/* Top Shipper */}
+      <div className="bg-card rounded-lg border p-6 mt-6">
+        <h2 className="text-lg font-semibold flex items-center gap-2 mb-6">
+          <Trophy className="h-5 w-5 text-yellow-500" />
+          Bảng xếp hạng Top Shipper
+        </h2>
+
+        {topShippers.length === 0 ? (
+          <p className="text-muted-foreground text-center py-8">Chưa có đánh giá nào</p>
+        ) : (
+          <div className="space-y-3">
+            {topShippers.map((shipper, index) => {
+              const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : null;
+              return (
+                <div
+                  key={shipper.id}
+                  className={`flex items-center gap-4 p-4 rounded-lg transition-colors ${
+                    index < 3 ? 'bg-muted/70 border border-border' : 'bg-muted/30'
+                  }`}
+                >
+                  <div className="w-8 text-center font-bold text-lg">
+                    {medal || <span className="text-muted-foreground">#{index + 1}</span>}
+                  </div>
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border">
+                    {shipper.avatar ? (
+                      <img src={shipper.avatar} alt={shipper.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{shipper.name}</p>
+                    <p className="text-xs text-muted-foreground">{shipper.total} đánh giá</p>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                    <span className="font-bold text-lg">{shipper.avg}</span>
+                    <span className="text-muted-foreground text-sm">/5</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </AdminLayout>
   );
 }
