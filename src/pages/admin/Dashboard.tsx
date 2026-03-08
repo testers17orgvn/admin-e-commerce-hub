@@ -291,6 +291,84 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Revenue & Orders Chart */}
+      <div className="rounded-xl border bg-card p-6 mb-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+              <TrendingUp className="h-4 w-4 text-white" />
+            </div>
+            Doanh thu & Đơn hàng theo tháng
+          </h2>
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+            {([['6months', '6 tháng'], ['12months', '12 tháng']] as const).map(([key, label]) => (
+              <Button key={key} variant={revenueChartFilter === key ? 'default' : 'ghost'} size="sm" className="h-7 text-xs px-3" onClick={() => setRevenueChartFilter(key)}>
+                {label}
+              </Button>
+            ))}
+          </div>
+        </div>
+        {revenueChartData.length === 0 ? (
+          <p className="text-muted-foreground text-center py-12">Chưa có dữ liệu</p>
+        ) : (
+          <div className="space-y-4">
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={revenueChartData} barGap={2}>
+                <defs>
+                  <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.9} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
+                  </linearGradient>
+                  <linearGradient id="ordersGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.9} />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity={0.5} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="label" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis
+                  yAxisId="revenue"
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => v >= 1000000 ? `${(v / 1000000).toFixed(0)}M` : v >= 1000 ? `${(v / 1000).toFixed(0)}K` : v}
+                  label={{ value: 'Doanh thu (VNĐ)', angle: -90, position: 'insideLeft', style: { fill: 'hsl(var(--muted-foreground))', fontSize: 11 }, offset: 10 }}
+                />
+                <YAxis
+                  yAxisId="orders"
+                  orientation="right"
+                  allowDecimals={false}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  label={{ value: 'Đơn hàng', angle: 90, position: 'insideRight', style: { fill: 'hsl(var(--muted-foreground))', fontSize: 11 } }}
+                />
+                <Tooltip
+                  contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
+                  labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600, marginBottom: 4 }}
+                  formatter={(value: number, name: string) => [
+                    name === 'revenue' ? formatPrice(value) : `${value} đơn`,
+                    name === 'revenue' ? 'Doanh thu' : 'Đơn hàng'
+                  ]}
+                />
+                <Bar yAxisId="revenue" dataKey="revenue" fill="url(#revenueGrad)" radius={[6, 6, 0, 0]} barSize={28} />
+                <Bar yAxisId="orders" dataKey="orders" fill="url(#ordersGrad)" radius={[6, 6, 0, 0]} barSize={20} />
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-sm bg-primary" />
+                <span>Doanh thu</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-sm bg-emerald-500" />
+                <span>Đơn hàng</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Shipper Review Overview + Distribution */}
       <div className="rounded-xl border bg-card p-6 mb-6 shadow-sm">
         <h2 className="text-lg font-semibold flex items-center gap-2 mb-6">
