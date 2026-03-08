@@ -87,17 +87,43 @@ interface ShipperStats {
        .select('user_id')
        .eq('role', 'shipper');
  
-     if (shipperRoles && shipperRoles.length > 0) {
-       const shipperIds = shipperRoles.map((r) => r.user_id);
-       const { data: profiles } = await supabase
-         .from('profiles')
-         .select('id, full_name, phone, avatar_url')
-         .in('id', shipperIds);
-       
-       setShippers((profiles || []) as Shipper[]);
-     }
- 
-     setLoading(false);
+      if (shipperRoles && shipperRoles.length > 0) {
+        const shipperIds = shipperRoles.map((r) => r.user_id);
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, full_name, phone, avatar_url')
+          .in('id', shipperIds);
+        
+        const shipperList = (profiles || []) as Shipper[];
+        setShippers(shipperList);
+
+        // Fetch all shipper reviews
+        const { data: allReviews } = await supabase
+          .from('shipper_reviews')
+          .select('*')
+          .in('shipper_id', shipperIds)
+          .order('created_at', { ascending: false });
+
+        const reviews = (allReviews || []) as ShipperReview[];
+
+        // Build stats per shipper
+        const stats: ShipperStats[] = shipperList.map((shipper) => {
+          const shipperReviews = reviews.filter((r) => r.shipper_id === shipper.id);
+          const totalReviews = shipperReviews.length;
+          const avgRating = totalReviews > 0
+            ? shipperReviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
+            : 0;
+          const ratingDistribution = [0, 0, 0, 0, 0];
+          shipperReviews.forEach((r) => {
+            if (r.rating >= 1 && r.rating <= 5) ratingDistribution[r.rating - 1]++;
+          });
+          return { shipper, reviews: shipperReviews, avgRating, totalReviews, ratingDistribution };
+        });
+
+        setShipperStats(stats.sort((a, b) => b.totalReviews - a.totalReviews));
+      }
+
+      setLoading(false);
    };
  
    const handleAssignShipper = async () => {
