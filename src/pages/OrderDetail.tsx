@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -41,6 +41,7 @@ export default function OrderDetail() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState(false);
+  const [productSlugs, setProductSlugs] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -73,6 +74,20 @@ export default function OrderDetail() {
         items: (data.items as unknown as OrderItem[]) || [],
       };
       setOrder(orderData as Order);
+
+      // Fetch product slugs for links
+      const productIds = orderData.items.map((item: OrderItem) => item.product_id).filter(Boolean);
+      if (productIds.length > 0) {
+        const { data: products } = await supabase
+          .from('products')
+          .select('id, slug')
+          .in('id', productIds);
+        if (products) {
+          const slugMap: Record<string, string> = {};
+          products.forEach(p => { slugMap[p.id] = p.slug; });
+          setProductSlugs(slugMap);
+        }
+      }
     }
 
     setLoading(false);
@@ -299,8 +314,8 @@ export default function OrderDetail() {
               <CardContent className="p-0">
                 <div className="divide-y">
                   {order.items.map((item, index) => {
-                    // Build product link using product_id (slug not available in order items)
-                    const productLink = item.product_id ? `/products/${item.product_id}` : '#';
+                    const slug = productSlugs[item.product_id];
+                    const productLink = slug ? `/products/${slug}` : '#';
                     
                     return (
                       <div key={index} className="flex gap-4 p-4 hover:bg-muted/20 transition-colors">
