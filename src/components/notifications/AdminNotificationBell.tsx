@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, Check, CheckCheck, ShoppingCart, Trash2 } from 'lucide-react';
+import { Bell, Check, CheckCheck, ShoppingCart, Trash2, Package, UserCheck, Truck, Star, MessageSquare, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -14,7 +14,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+import { haptic } from '@/lib/haptics';
 
 interface Notification {
   id: string;
@@ -39,7 +40,7 @@ export function AdminNotificationBell() {
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .limit(20);
+      .limit(30);
 
     if (data) {
       setNotifications(data);
@@ -49,7 +50,6 @@ export function AdminNotificationBell() {
   useEffect(() => {
     fetchNotifications();
 
-    // Set up realtime subscription for notifications
     if (user) {
       const notificationChannel = supabase
         .channel('admin-notifications')
@@ -62,21 +62,52 @@ export function AdminNotificationBell() {
             filter: `user_id=eq.${user.id}`,
           },
           (payload) => {
-            const newNotification = payload.new as Notification;
-            setNotifications((prev) => [newNotification, ...prev]);
-            
-            // Show toast for new order notifications
-            if (newNotification.type === 'order') {
-              toast({
-                title: newNotification.title,
-                description: newNotification.message,
+            const n = payload.new as Notification;
+            setNotifications((prev) => [n, ...prev.slice(0, 29)]);
+
+            // Role-aware toast notifications
+            const isOrder = n.type === 'order';
+            const isSeller = n.type === 'seller' || n.type === 'product';
+            const isShipper = n.title.includes('shipper') || n.title.includes('giao') || n.title.includes('🚚');
+
+            if (isOrder) {
+              haptic('medium');
+              toast(n.title, {
+                description: n.message,
+                action: n.link ? {
+                  label: 'Xem ngay',
+                  onClick: () => window.location.href = n.link!,
+                } : undefined,
+                duration: 6000,
               });
+            } else if (isSeller) {
+              haptic('light');
+              toast(n.title, {
+                description: n.message,
+                action: n.link ? {
+                  label: 'Chi tiết',
+                  onClick: () => window.location.href = n.link!,
+                } : undefined,
+                duration: 5000,
+              });
+            } else if (isShipper) {
+              haptic('success');
+              toast(n.title, {
+                description: n.message,
+                action: n.link ? {
+                  label: 'Theo dõi',
+                  onClick: () => window.location.href = n.link!,
+                } : undefined,
+                duration: 8000,
+              });
+            } else {
+              haptic('light');
+              toast(n.title, { description: n.message, duration: 4000 });
             }
           }
         )
         .subscribe();
 
-      // Also listen for new orders directly
       const orderChannel = supabase
         .channel('admin-new-orders')
         .on(
@@ -87,7 +118,6 @@ export function AdminNotificationBell() {
             table: 'orders',
           },
           () => {
-            // Refetch notifications when new order is placed
             fetchNotifications();
           }
         )
@@ -130,23 +160,55 @@ export function AdminNotificationBell() {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
-  const getTypeIcon = (type: string) => {
+  const getTypeIcon = (type: string, title: string) => {
+    // Shipper-related
+    if (title.includes('🚚') || title.includes('🚗') || title.includes('📍') || title.includes('shipper')) {
+      return <Truck className="h-4 w-4" />;
+    }
+    if (title.includes('⭐') || title.includes('đánh giá')) {
+      return <Star className="h-4 w-4" />;
+    }
+    if (title.includes('✅') || title.includes('duyệt') || title.includes('Đăng ký')) {
+      return <UserCheck className="h-4 w-4" />;
+    }
+    if (title.includes('❌') || title.includes('từ chối')) {
+      return <AlertTriangle className="h-4 w-4" />;
+    }
     switch (type) {
       case 'order':
         return <ShoppingCart className="h-4 w-4" />;
+      case 'product':
+        return <Package className="h-4 w-4" />;
+      case 'seller':
+        return <UserCheck className="h-4 w-4" />;
+      case 'contact':
+        return <MessageSquare className="h-4 w-4" />;
       default:
         return <Bell className="h-4 w-4" />;
     }
   };
 
-  const getTypeStyles = (type: string) => {
+  const getTypeStyles = (type: string, title: string) => {
+    if (title.includes('🚚') || title.includes('🚗') || title.includes('📍')) {
+      return 'bg-blue-500/10 text-blue-600';
+    }
+    if (title.includes('✅') || title.includes('duyệt')) {
+      return 'bg-emerald-500/10 text-emerald-600';
+    }
+    if (title.includes('❌') || title.includes('từ chối') || title.includes('thất bại')) {
+      return 'bg-destructive/10 text-destructive';
+    }
     switch (type) {
       case 'order':
-        return 'bg-green-500/10 text-green-600 border-green-200';
+        return 'bg-green-500/10 text-green-600';
+      case 'product':
+        return 'bg-purple-500/10 text-purple-600';
+      case 'seller':
+        return 'bg-amber-500/10 text-amber-600';
       case 'warning':
-        return 'bg-yellow-500/10 text-yellow-600 border-yellow-200';
+        return 'bg-yellow-500/10 text-yellow-600';
       default:
-        return 'bg-blue-500/10 text-blue-600 border-blue-200';
+        return 'bg-primary/10 text-primary';
     }
   };
 
@@ -212,10 +274,10 @@ export function AdminNotificationBell() {
                     <div
                       className={cn(
                         'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',
-                        getTypeStyles(notification.type)
+                        getTypeStyles(notification.type, notification.title)
                       )}
                     >
-                      {getTypeIcon(notification.type)}
+                      {getTypeIcon(notification.type, notification.title)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
