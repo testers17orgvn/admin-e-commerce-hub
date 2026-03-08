@@ -73,8 +73,19 @@ export default function Dashboard() {
     const avg = reviews.length > 0 ? reviews.reduce((s: number, r: any) => s + r.rating, 0) / reviews.length : 0;
     setShipperReviewStats({ total: reviews.length, avg: Math.round(avg * 10) / 10, distribution: dist });
 
-    // Top shippers
-    const { data: allReviews } = await supabase.from('shipper_reviews').select('shipper_id, rating');
+  };
+
+  const fetchTopShippers = async () => {
+    let query = supabase.from('shipper_reviews').select('shipper_id, rating, created_at');
+    const now = new Date();
+    if (shipperTimeFilter === 'week') {
+      query = query.gte('created_at', startOfWeek(now, { weekStartsOn: 1 }).toISOString());
+    } else if (shipperTimeFilter === 'month') {
+      query = query.gte('created_at', startOfMonth(now).toISOString());
+    } else if (shipperTimeFilter === 'year') {
+      query = query.gte('created_at', startOfYear(now).toISOString());
+    }
+    const { data: allReviews } = await query;
     const shipperMap: Record<string, { total: number; sum: number }> = {};
     (allReviews || []).forEach((r: any) => {
       if (!shipperMap[r.shipper_id]) shipperMap[r.shipper_id] = { total: 0, sum: 0 };
@@ -86,7 +97,6 @@ export default function Dashboard() {
       .sort((a, b) => b.avg - a.avg || b.total - a.total)
       .slice(0, 10);
 
-    // Fetch profiles for top shippers
     if (ranked.length > 0) {
       const { data: profiles } = await supabase
         .from('profiles')
@@ -107,6 +117,10 @@ export default function Dashboard() {
   useEffect(() => {
     fetchStats();
   }, [currentWeek]);
+
+  useEffect(() => {
+    fetchTopShippers();
+  }, [shipperTimeFilter]);
 
   const formatPrice = (price: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 
