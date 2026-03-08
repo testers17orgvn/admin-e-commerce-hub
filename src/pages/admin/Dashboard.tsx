@@ -23,6 +23,7 @@ import { ExportExcel } from '@/components/admin/ExportExcel';
 export default function Dashboard() {
   const [stats, setStats] = useState({ products: 0, orders: 0, blogs: 0, contacts: 0, revenue: 0 });
   const [weeklyStats, setWeeklyStats] = useState({ revenue: 0, contacts: 0 });
+  const [shipperReviewStats, setShipperReviewStats] = useState({ total: 0, avg: 0, distribution: [0, 0, 0, 0, 0] });
   const [currentWeek, setCurrentWeek] = useState({ start: startOfWeek(new Date(), { weekStartsOn: 1 }), end: endOfWeek(new Date(), { weekStartsOn: 1 }) });
 
   const fetchStats = async () => {
