@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { AdminLayout } from './AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
-import { Package, ShoppingCart, FileText, Mail, TrendingUp, RefreshCw, Calendar } from 'lucide-react';
+import { Package, ShoppingCart, FileText, Mail, TrendingUp, RefreshCw, Calendar, Star, Truck } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { format, startOfWeek, endOfWeek, subWeeks } from 'date-fns';
@@ -22,14 +23,16 @@ import { ExportExcel } from '@/components/admin/ExportExcel';
 export default function Dashboard() {
   const [stats, setStats] = useState({ products: 0, orders: 0, blogs: 0, contacts: 0, revenue: 0 });
   const [weeklyStats, setWeeklyStats] = useState({ revenue: 0, contacts: 0 });
+  const [shipperReviewStats, setShipperReviewStats] = useState({ total: 0, avg: 0, distribution: [0, 0, 0, 0, 0] });
   const [currentWeek, setCurrentWeek] = useState({ start: startOfWeek(new Date(), { weekStartsOn: 1 }), end: endOfWeek(new Date(), { weekStartsOn: 1 }) });
 
   const fetchStats = async () => {
-    const [products, orders, blogs, contacts] = await Promise.all([
+    const [products, orders, blogs, contacts, shipperReviews] = await Promise.all([
       supabase.from('products').select('id', { count: 'exact', head: true }),
       supabase.from('orders').select('id, total_amount, created_at'),
       supabase.from('blogs').select('id', { count: 'exact', head: true }),
       supabase.from('contacts').select('id, created_at').eq('is_read', false),
+      supabase.from('shipper_reviews').select('rating'),
     ]);
     
     const allRevenue = (orders.data as any[])?.reduce((sum, o) => sum + Number(o.total_amount), 0) || 0;
@@ -60,6 +63,13 @@ export default function Dashboard() {
       revenue: weeklyRevenue,
       contacts: weeklyContacts,
     });
+
+    // Shipper review stats
+    const reviews = shipperReviews.data || [];
+    const dist = [0, 0, 0, 0, 0];
+    reviews.forEach((r: any) => { if (r.rating >= 1 && r.rating <= 5) dist[r.rating - 1]++; });
+    const avg = reviews.length > 0 ? reviews.reduce((s: number, r: any) => s + r.rating, 0) / reviews.length : 0;
+    setShipperReviewStats({ total: reviews.length, avg: Math.round(avg * 10) / 10, distribution: dist });
   };
 
   useEffect(() => {
@@ -248,6 +258,70 @@ export default function Dashboard() {
                 </AlertDialogContent>
               </AlertDialog>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Thống kê đánh giá shipper */}
+      <div className="bg-card rounded-lg border p-6 mt-6">
+        <h2 className="text-lg font-semibold flex items-center gap-2 mb-6">
+          <Truck className="h-5 w-5" />
+          Đánh giá Shipper
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {/* Tổng quan */}
+          <div className="space-y-4">
+            <div className="p-4 bg-muted/50 rounded-lg text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <Star className="h-6 w-6 fill-yellow-500 text-yellow-500" />
+                <span className="text-3xl font-bold">{shipperReviewStats.avg}</span>
+                <span className="text-muted-foreground text-sm">/5</span>
+              </div>
+              <p className="text-sm text-muted-foreground">{shipperReviewStats.total} đánh giá</p>
+            </div>
+            <div className="space-y-2">
+              {[5, 4, 3, 2, 1].map((star) => {
+                const count = shipperReviewStats.distribution[star - 1];
+                const pct = shipperReviewStats.total > 0 ? (count / shipperReviewStats.total) * 100 : 0;
+                return (
+                  <div key={star} className="flex items-center gap-2 text-sm">
+                    <span className="w-4 text-right">{star}</span>
+                    <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                    <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-yellow-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="w-8 text-muted-foreground text-right">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Biểu đồ cột */}
+          <div className="md:col-span-2">
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={[
+                { name: '1 ⭐', value: shipperReviewStats.distribution[0], fill: 'hsl(var(--destructive))' },
+                { name: '2 ⭐', value: shipperReviewStats.distribution[1], fill: 'hsl(var(--accent))' },
+                { name: '3 ⭐', value: shipperReviewStats.distribution[2], fill: 'hsl(var(--muted-foreground))' },
+                { name: '4 ⭐', value: shipperReviewStats.distribution[3], fill: 'hsl(var(--primary))' },
+                { name: '5 ⭐', value: shipperReviewStats.distribution[4], fill: 'hsl(var(--primary))' },
+              ]}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+                <YAxis allowDecimals={false} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+                <Tooltip
+                  contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8 }}
+                  labelStyle={{ color: 'hsl(var(--foreground))' }}
+                />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <Cell key={i} fill={['hsl(var(--destructive))', 'hsl(var(--accent))', 'hsl(var(--muted-foreground))', 'hsl(var(--primary))', 'hsl(var(--primary))'][i]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
