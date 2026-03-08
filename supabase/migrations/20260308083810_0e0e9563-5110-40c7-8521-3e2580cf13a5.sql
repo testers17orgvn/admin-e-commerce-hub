@@ -1,0 +1,1 @@
+UPDATE public.orders SET user_id = '6b265cf6-82e9-465b-9f75-e132db79e4e2', shipper_id = '6b265cf6-82e9-465b-9f75-e132db79e4e2', shipper_status = 'delivered', status = 'completed' WHERE id = '7f946a6f-28d1-47c3-b9d5-a2e3794549f1';
