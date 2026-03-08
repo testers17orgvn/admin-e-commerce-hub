@@ -62,6 +62,7 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <SEOHead />
                 <CustomMascotRenderer />
                 <MobilePopup />
                 <Routes>
