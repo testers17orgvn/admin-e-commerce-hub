@@ -256,8 +256,12 @@ const Cart = () => {
 
   const handleCompleteOrder = () => {
     clearCart();
-    navigate('/');
-    toast.success('Cảm ơn bạn đã mua hàng!');
+    if (orderId) {
+      navigate(`/orders/${orderId}`);
+    } else {
+      navigate('/orders');
+    }
+    toast.success('Cảm ơn bạn đã mua hàng! Đơn hàng đang được xử lý.');
   };
 
   if (items.length === 0) {
