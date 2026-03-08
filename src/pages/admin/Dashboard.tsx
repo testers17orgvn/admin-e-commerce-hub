@@ -25,6 +25,7 @@ export default function Dashboard() {
   const [weeklyStats, setWeeklyStats] = useState({ revenue: 0, contacts: 0 });
   const [shipperReviewStats, setShipperReviewStats] = useState({ total: 0, avg: 0, distribution: [0, 0, 0, 0, 0] });
   const [topShippers, setTopShippers] = useState<{ id: string; name: string; avatar: string | null; avg: number; total: number }[]>([]);
+  const [shipperTimeFilter, setShipperTimeFilter] = useState<'all' | 'week' | 'month' | 'year'>('all');
   const [currentWeek, setCurrentWeek] = useState({ start: startOfWeek(new Date(), { weekStartsOn: 1 }), end: endOfWeek(new Date(), { weekStartsOn: 1 }) });
 
   const fetchStats = async () => {
