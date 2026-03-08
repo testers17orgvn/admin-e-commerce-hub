@@ -183,6 +183,7 @@ const OrderHistory = () => {
           colors: [],
           sizes: [],
           tags: [],
+          video_url: null,
           created_at: "",
           updated_at: "",
         };
