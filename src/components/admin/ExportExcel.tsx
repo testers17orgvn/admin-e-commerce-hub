@@ -241,6 +241,9 @@ export function ExportExcel() {
         case 'customers':
           result = await exportCustomers();
           break;
+        case 'shipper_reviews':
+          result = await exportShipperReviews();
+          break;
         default:
           throw new Error('Invalid report type');
       }
