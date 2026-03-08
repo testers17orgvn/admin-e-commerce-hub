@@ -373,11 +373,25 @@ export default function Dashboard() {
       </div>
       {/* Top Shipper */}
       <div className="bg-card rounded-lg border p-6 mt-6">
-        <h2 className="text-lg font-semibold flex items-center gap-2 mb-6">
-          <Trophy className="h-5 w-5 text-yellow-500" />
-          Bảng xếp hạng Top Shipper
-        </h2>
-
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-yellow-500" />
+            Bảng xếp hạng Top Shipper
+          </h2>
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+            {([['all', 'Tất cả'], ['week', 'Tuần'], ['month', 'Tháng'], ['year', 'Năm']] as const).map(([key, label]) => (
+              <Button
+                key={key}
+                variant={shipperTimeFilter === key ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => setShipperTimeFilter(key)}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+        </div>
         {topShippers.length === 0 ? (
           <p className="text-muted-foreground text-center py-8">Chưa có đánh giá nào</p>
         ) : (
