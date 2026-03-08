@@ -677,7 +677,7 @@ const ProductDetail = () => {
       </div>
 
       {/* Product Video Section */}
-      {(product as any).video_url && (
+      {product.video_url && (
         <section className="bg-gradient-to-b from-background to-muted/30 border-t py-16">
           <div className="container">
             <div className="flex items-center gap-3 mb-8">
