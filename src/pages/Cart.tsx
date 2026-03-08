@@ -213,6 +213,7 @@ const Cart = () => {
       items: orderItems,
       total_amount: finalPrice,
       notes: orderNotes,
+      user_id: user?.id || null,
     }).select('id').single();
 
     if (error) {

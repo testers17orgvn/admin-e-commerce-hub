@@ -714,7 +714,7 @@ const ProductDetail = () => {
                   className="w-full rounded-2xl shadow-2xl"
                   poster={product.image_url || undefined}
                 >
-                  <source src={(product as any).video_url} type="video/mp4" />
+                  <source src={product.video_url!} type="video/mp4" />
                   Trình duyệt không hỗ trợ video.
                 </video>
               )}
