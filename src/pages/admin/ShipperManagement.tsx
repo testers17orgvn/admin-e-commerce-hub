@@ -1,27 +1,48 @@
- import { useEffect, useState } from 'react';
- import { AdminLayout } from './AdminLayout';
- import { supabase } from '@/integrations/supabase/client';
- import { Button } from '@/components/ui/button';
- import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
- import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
- import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
- import { Badge } from '@/components/ui/badge';
- import { Input } from '@/components/ui/input';
- import { Label } from '@/components/ui/label';
- import { 
-   Truck, Package, MapPin, User, Phone, 
-   Search, UserPlus, CheckCircle, Clock
- } from 'lucide-react';
- import { toast } from 'sonner';
- import { format } from 'date-fns';
- import { Order, OrderItem } from '@/lib/types';
- 
- interface Shipper {
-   id: string;
-   full_name: string | null;
-   phone: string | null;
-   avatar_url: string | null;
- }
+import { useEffect, useState } from 'react';
+import { AdminLayout } from './AdminLayout';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
+import { 
+  Truck, Package, MapPin, User, Phone, 
+  Search, UserPlus, CheckCircle, Clock, Star, MessageSquare
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { format } from 'date-fns';
+import { Order, OrderItem } from '@/lib/types';
+
+interface Shipper {
+  id: string;
+  full_name: string | null;
+  phone: string | null;
+  avatar_url: string | null;
+}
+
+interface ShipperReview {
+  id: string;
+  order_id: string;
+  shipper_id: string;
+  user_id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+}
+
+interface ShipperStats {
+  shipper: Shipper;
+  reviews: ShipperReview[];
+  avgRating: number;
+  totalReviews: number;
+  ratingDistribution: number[];
+}
  
  export default function ShipperManagement() {
    const [orders, setOrders] = useState<Order[]>([]);
