@@ -7,6 +7,8 @@ import { Product } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/hooks/useCart';
+import { useWishlist } from '@/hooks/useWishlist';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   ShoppingBag, Heart, Share2, Minus, Plus, ChevronRight, ChevronLeft, 
   ZoomIn, Flame, Check, Eye, Sparkles, TrendingUp, Zap, Package, 
@@ -17,6 +19,7 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ProductReviews } from '@/components/products/ProductReviews';
 import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
 
 const colorMap: Record<string, string> = {
   'Đỏ': 'bg-red-500',
@@ -53,6 +56,8 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const { addItem } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const { user } = useAuth();
 
   useEffect(() => {
     async function fetchProduct() {
@@ -588,11 +593,40 @@ const ProductDetail = () => {
             </div>
 
             <div className="flex gap-3">
-              <Button variant="outline" size="lg" className="flex-1 gap-2">
-                <Heart className="h-5 w-5" />
-                Yêu thích
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className={cn(
+                  "flex-1 gap-2 transition-colors",
+                  product && isInWishlist(product.id) && "bg-destructive/10 border-destructive/30 text-destructive hover:bg-destructive/20"
+                )}
+                onClick={() => {
+                  if (!user) {
+                    toast.error('Vui lòng đăng nhập để thêm vào yêu thích');
+                    return;
+                  }
+                  if (product) toggleWishlist(product.id);
+                }}
+              >
+                <Heart className={cn("h-5 w-5", product && isInWishlist(product.id) && "fill-current")} />
+                {product && isInWishlist(product.id) ? 'Đã yêu thích' : 'Yêu thích'}
               </Button>
-              <Button variant="outline" size="lg" className="flex-1 gap-2">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="flex-1 gap-2"
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: product?.name,
+                      url: window.location.href,
+                    }).catch(() => {});
+                  } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    toast.success('Đã sao chép link sản phẩm');
+                  }
+                }}
+              >
                 <Share2 className="h-5 w-5" />
                 Chia sẻ
               </Button>
@@ -643,7 +677,7 @@ const ProductDetail = () => {
       </div>
 
       {/* Product Video Section */}
-      {(product as any).video_url && (
+      {product.video_url && (
         <section className="bg-gradient-to-b from-background to-muted/30 border-t py-16">
           <div className="container">
             <div className="flex items-center gap-3 mb-8">
@@ -656,19 +690,19 @@ const ProductDetail = () => {
               </div>
             </div>
             <div className="max-w-4xl mx-auto">
-              {(product as any).video_url.includes('youtube.com') || (product as any).video_url.includes('youtu.be') ? (
+              {product.video_url!.includes('youtube.com') || product.video_url!.includes('youtu.be') ? (
                 <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl">
                   <iframe
-                    src={`https://www.youtube.com/embed/${getYouTubeId((product as any).video_url)}`}
+                    src={`https://www.youtube.com/embed/${getYouTubeId(product.video_url!)}`}
                     className="w-full h-full"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   />
                 </div>
-              ) : (product as any).video_url.includes('vimeo.com') ? (
+              ) : product.video_url!.includes('vimeo.com') ? (
                 <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl">
                   <iframe
-                    src={`https://player.vimeo.com/video/${getVimeoId((product as any).video_url)}`}
+                    src={`https://player.vimeo.com/video/${getVimeoId(product.video_url!)}`}
                     className="w-full h-full"
                     allow="autoplay; fullscreen; picture-in-picture"
                     allowFullScreen
@@ -680,7 +714,7 @@ const ProductDetail = () => {
                   className="w-full rounded-2xl shadow-2xl"
                   poster={product.image_url || undefined}
                 >
-                  <source src={(product as any).video_url} type="video/mp4" />
+                  <source src={product.video_url!} type="video/mp4" />
                   Trình duyệt không hỗ trợ video.
                 </video>
               )}

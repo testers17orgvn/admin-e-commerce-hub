@@ -25,6 +25,7 @@ export interface Product {
   colors: string[];
   sizes: string[];
   tags: string[];
+  video_url: string | null;
   created_at: string;
   updated_at: string;
   category?: Category;
