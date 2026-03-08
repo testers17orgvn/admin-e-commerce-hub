@@ -121,6 +121,20 @@ export default function AdminContacts() {
                 <label className="text-sm text-muted-foreground">Nội dung</label>
                 <p className="mt-1 p-3 bg-muted/30 rounded-lg whitespace-pre-wrap">{selectedContact.message}</p>
               </div>
+              {/* Custom fields */}
+              {(selectedContact as any).custom_fields && Object.keys((selectedContact as any).custom_fields).length > 0 && (
+                <div>
+                  <label className="text-sm text-muted-foreground font-medium">Thông tin bổ sung</label>
+                  <div className="mt-1 space-y-2">
+                    {Object.entries((selectedContact as any).custom_fields as Record<string, string>).map(([key, value]) => (
+                      <div key={key} className="flex items-start gap-2 p-2 bg-muted/20 rounded-lg">
+                        <span className="text-sm text-muted-foreground min-w-[100px]">{key}:</span>
+                        <span className="text-sm font-medium">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <Button variant="hero" className="w-full" onClick={() => window.open(`mailto:${selectedContact.email}`)}>
                 <Mail className="h-4 w-4 mr-2" /> Gửi email phản hồi
               </Button>
