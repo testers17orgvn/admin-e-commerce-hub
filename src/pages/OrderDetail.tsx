@@ -41,6 +41,7 @@ export default function OrderDetail() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState(false);
+  const [productSlugs, setProductSlugs] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!authLoading && !user) {
