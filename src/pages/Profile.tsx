@@ -482,8 +482,9 @@ export default function Profile() {
                     orders.map((order, index) => (
                       <Card 
                         key={order.id} 
-                        className="border-0 shadow-lg overflow-hidden animate-slide-up"
+                        className="border-0 shadow-lg overflow-hidden animate-slide-up cursor-pointer hover:shadow-xl transition-all"
                         style={{ animationDelay: `${index * 0.1}s` }}
+                        onClick={() => navigate(`/orders/${order.id}`)}
                       >
                         <div className="p-4 md:p-6 border-b bg-muted/30 flex flex-wrap items-center justify-between gap-4">
                           <div className="flex items-center gap-4">
@@ -499,9 +500,12 @@ export default function Profile() {
                               </p>
                             </div>
                           </div>
-                          <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${statusConfig[order.status]?.bgColor} ${statusConfig[order.status]?.color}`}>
-                            {statusConfig[order.status]?.label || order.status}
-                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${statusConfig[order.status]?.bgColor} ${statusConfig[order.status]?.color}`}>
+                              {statusConfig[order.status]?.label || order.status}
+                            </span>
+                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                          </div>
                         </div>
                         
                         <CardContent className="p-4 md:p-6">
