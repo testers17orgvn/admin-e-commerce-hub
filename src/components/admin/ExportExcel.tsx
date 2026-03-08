@@ -310,6 +310,7 @@ export function ExportExcel() {
                 <SelectItem value="orders">Đơn hàng</SelectItem>
                 <SelectItem value="revenue">Báo cáo doanh thu</SelectItem>
                 <SelectItem value="customers">Khách hàng</SelectItem>
+                <SelectItem value="shipper_reviews">Đánh giá shipper</SelectItem>
               </SelectContent>
             </Select>
           </div>
