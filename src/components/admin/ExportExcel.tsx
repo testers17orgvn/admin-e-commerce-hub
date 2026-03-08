@@ -315,7 +315,7 @@ export function ExportExcel() {
             </Select>
           </div>
 
-          {(options.type === 'orders' || options.type === 'revenue') && (
+          {(options.type === 'orders' || options.type === 'revenue' || options.type === 'shipper_reviews') && (
             <>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Chọn nhanh</label>
