@@ -63,6 +63,13 @@ export default function Dashboard() {
       revenue: weeklyRevenue,
       contacts: weeklyContacts,
     });
+
+    // Shipper review stats
+    const reviews = shipperReviews.data || [];
+    const dist = [0, 0, 0, 0, 0];
+    reviews.forEach((r: any) => { if (r.rating >= 1 && r.rating <= 5) dist[r.rating - 1]++; });
+    const avg = reviews.length > 0 ? reviews.reduce((s: number, r: any) => s + r.rating, 0) / reviews.length : 0;
+    setShipperReviewStats({ total: reviews.length, avg: Math.round(avg * 10) / 10, distribution: dist });
   };
 
   useEffect(() => {
