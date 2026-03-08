@@ -185,6 +185,7 @@ export type Database = {
       contacts: {
         Row: {
           created_at: string | null
+          custom_fields: Json | null
           email: string
           id: string
           is_read: boolean | null
@@ -195,6 +196,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          custom_fields?: Json | null
           email: string
           id?: string
           is_read?: boolean | null
@@ -205,6 +207,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          custom_fields?: Json | null
           email?: string
           id?: string
           is_read?: boolean | null
