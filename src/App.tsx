@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/hooks/useTheme";
 import { ThemeParticles } from "@/components/effects/ThemeParticles";
 import { CustomMascotRenderer } from "@/components/effects/CustomMascotRenderer";
 import { MobilePopup } from "@/components/effects/MobilePopup";
+import { SEOHead } from "@/components/SEOHead";
 
 import Index from "./pages/Index";
 import Products from "./pages/Products";
