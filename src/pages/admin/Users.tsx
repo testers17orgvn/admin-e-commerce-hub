@@ -279,6 +279,14 @@ export default function AdminUsers() {
                   <p>❌ Không thể thay đổi cài đặt hệ thống</p>
                 </div>
               )}
+              {activeTab === 'shipper' && (
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p>✅ Nhận đơn hàng được giao</p>
+                  <p>✅ Cập nhật trạng thái giao hàng</p>
+                  <p>✅ Theo dõi GPS vị trí</p>
+                  <p>❌ Không thể quản lý sản phẩm</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
