@@ -314,8 +314,8 @@ export default function OrderDetail() {
               <CardContent className="p-0">
                 <div className="divide-y">
                   {order.items.map((item, index) => {
-                    // Build product link using product_id (slug not available in order items)
-                    const productLink = item.product_id ? `/products/${item.product_id}` : '#';
+                    const slug = productSlugs[item.product_id];
+                    const productLink = slug ? `/products/${slug}` : '#';
                     
                     return (
                       <div key={index} className="flex gap-4 p-4 hover:bg-muted/20 transition-colors">
