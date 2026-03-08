@@ -5,7 +5,7 @@ import { Package, ShoppingCart, FileText, Mail, TrendingUp, RefreshCw, Calendar,
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { format, startOfWeek, endOfWeek, subWeeks } from 'date-fns';
+import { format, startOfWeek, endOfWeek, subWeeks, subMonths, subYears, startOfMonth, startOfYear } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import {
   AlertDialog,
@@ -25,6 +25,7 @@ export default function Dashboard() {
   const [weeklyStats, setWeeklyStats] = useState({ revenue: 0, contacts: 0 });
   const [shipperReviewStats, setShipperReviewStats] = useState({ total: 0, avg: 0, distribution: [0, 0, 0, 0, 0] });
   const [topShippers, setTopShippers] = useState<{ id: string; name: string; avatar: string | null; avg: number; total: number }[]>([]);
+  const [shipperTimeFilter, setShipperTimeFilter] = useState<'all' | 'week' | 'month' | 'year'>('all');
   const [currentWeek, setCurrentWeek] = useState({ start: startOfWeek(new Date(), { weekStartsOn: 1 }), end: endOfWeek(new Date(), { weekStartsOn: 1 }) });
 
   const fetchStats = async () => {
@@ -72,8 +73,19 @@ export default function Dashboard() {
     const avg = reviews.length > 0 ? reviews.reduce((s: number, r: any) => s + r.rating, 0) / reviews.length : 0;
     setShipperReviewStats({ total: reviews.length, avg: Math.round(avg * 10) / 10, distribution: dist });
 
-    // Top shippers
-    const { data: allReviews } = await supabase.from('shipper_reviews').select('shipper_id, rating');
+  };
+
+  const fetchTopShippers = async () => {
+    let query = supabase.from('shipper_reviews').select('shipper_id, rating, created_at');
+    const now = new Date();
+    if (shipperTimeFilter === 'week') {
+      query = query.gte('created_at', startOfWeek(now, { weekStartsOn: 1 }).toISOString());
+    } else if (shipperTimeFilter === 'month') {
+      query = query.gte('created_at', startOfMonth(now).toISOString());
+    } else if (shipperTimeFilter === 'year') {
+      query = query.gte('created_at', startOfYear(now).toISOString());
+    }
+    const { data: allReviews } = await query;
     const shipperMap: Record<string, { total: number; sum: number }> = {};
     (allReviews || []).forEach((r: any) => {
       if (!shipperMap[r.shipper_id]) shipperMap[r.shipper_id] = { total: 0, sum: 0 };
@@ -85,7 +97,6 @@ export default function Dashboard() {
       .sort((a, b) => b.avg - a.avg || b.total - a.total)
       .slice(0, 10);
 
-    // Fetch profiles for top shippers
     if (ranked.length > 0) {
       const { data: profiles } = await supabase
         .from('profiles')
@@ -106,6 +117,10 @@ export default function Dashboard() {
   useEffect(() => {
     fetchStats();
   }, [currentWeek]);
+
+  useEffect(() => {
+    fetchTopShippers();
+  }, [shipperTimeFilter]);
 
   const formatPrice = (price: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 
@@ -358,11 +373,25 @@ export default function Dashboard() {
       </div>
       {/* Top Shipper */}
       <div className="bg-card rounded-lg border p-6 mt-6">
-        <h2 className="text-lg font-semibold flex items-center gap-2 mb-6">
-          <Trophy className="h-5 w-5 text-yellow-500" />
-          Bảng xếp hạng Top Shipper
-        </h2>
-
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-yellow-500" />
+            Bảng xếp hạng Top Shipper
+          </h2>
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+            {([['all', 'Tất cả'], ['week', 'Tuần'], ['month', 'Tháng'], ['year', 'Năm']] as const).map(([key, label]) => (
+              <Button
+                key={key}
+                variant={shipperTimeFilter === key ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => setShipperTimeFilter(key)}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+        </div>
         {topShippers.length === 0 ? (
           <p className="text-muted-foreground text-center py-8">Chưa có đánh giá nào</p>
         ) : (
