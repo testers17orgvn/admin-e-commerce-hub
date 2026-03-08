@@ -8,12 +8,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, Search, Shield, ShieldOff, Users, Store, Building2, ClipboardCheck, ShoppingBag } from 'lucide-react';
+import { Eye, Search, Shield, ShieldOff, Users, Store, Building2, ClipboardCheck, ShoppingBag, Truck } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Checkbox } from '@/components/ui/checkbox';
 
-type AppRole = 'admin' | 'staff' | 'seller' | 'dealer' | 'tester';
+type AppRole = 'admin' | 'staff' | 'seller' | 'dealer' | 'tester' | 'shipper';
 
 interface UserProfile {
   id: string;
@@ -62,6 +62,12 @@ const roleConfig: Record<AppRole, { label: string; description: string; color: s
     description: 'Xem và duyệt sản phẩm trước khi đăng',
     color: 'bg-orange-500',
     icon: <ClipboardCheck className="h-4 w-4" />
+  },
+  shipper: { 
+    label: 'Shipper', 
+    description: 'Nhận và giao đơn hàng cho khách',
+    color: 'bg-teal-500',
+    icon: <Truck className="h-4 w-4" />
   },
 };
 
@@ -271,6 +277,14 @@ export default function AdminUsers() {
                   <p>✅ Hỗ trợ khách hàng</p>
                   <p>✅ Quản lý liên hệ</p>
                   <p>❌ Không thể thay đổi cài đặt hệ thống</p>
+                </div>
+              )}
+              {activeTab === 'shipper' && (
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p>✅ Nhận đơn hàng được giao</p>
+                  <p>✅ Cập nhật trạng thái giao hàng</p>
+                  <p>✅ Theo dõi GPS vị trí</p>
+                  <p>❌ Không thể quản lý sản phẩm</p>
                 </div>
               )}
             </CardContent>
