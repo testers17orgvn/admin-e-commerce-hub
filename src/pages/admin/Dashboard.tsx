@@ -71,6 +71,36 @@ export default function Dashboard() {
     reviews.forEach((r: any) => { if (r.rating >= 1 && r.rating <= 5) dist[r.rating - 1]++; });
     const avg = reviews.length > 0 ? reviews.reduce((s: number, r: any) => s + r.rating, 0) / reviews.length : 0;
     setShipperReviewStats({ total: reviews.length, avg: Math.round(avg * 10) / 10, distribution: dist });
+
+    // Top shippers
+    const { data: allReviews } = await supabase.from('shipper_reviews').select('shipper_id, rating');
+    const shipperMap: Record<string, { total: number; sum: number }> = {};
+    (allReviews || []).forEach((r: any) => {
+      if (!shipperMap[r.shipper_id]) shipperMap[r.shipper_id] = { total: 0, sum: 0 };
+      shipperMap[r.shipper_id].total++;
+      shipperMap[r.shipper_id].sum += r.rating;
+    });
+    const ranked = Object.entries(shipperMap)
+      .map(([id, s]) => ({ id, avg: Math.round((s.sum / s.total) * 10) / 10, total: s.total }))
+      .sort((a, b) => b.avg - a.avg || b.total - a.total)
+      .slice(0, 10);
+
+    // Fetch profiles for top shippers
+    if (ranked.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url')
+        .in('id', ranked.map(r => r.id));
+      const profileMap: Record<string, { name: string; avatar: string | null }> = {};
+      (profiles || []).forEach((p: any) => { profileMap[p.id] = { name: p.full_name || 'Shipper', avatar: p.avatar_url }; });
+      setTopShippers(ranked.map(r => ({
+        ...r,
+        name: profileMap[r.id]?.name || 'Shipper',
+        avatar: profileMap[r.id]?.avatar || null,
+      })));
+    } else {
+      setTopShippers([]);
+    }
   };
 
   useEffect(() => {
