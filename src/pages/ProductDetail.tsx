@@ -693,7 +693,7 @@ const ProductDetail = () => {
               {product.video_url!.includes('youtube.com') || product.video_url!.includes('youtu.be') ? (
                 <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl">
                   <iframe
-                    src={`https://www.youtube.com/embed/${getYouTubeId((product as any).video_url)}`}
+                    src={`https://www.youtube.com/embed/${getYouTubeId(product.video_url!)}`}
                     className="w-full h-full"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
