@@ -702,7 +702,7 @@ const ProductDetail = () => {
               ) : product.video_url!.includes('vimeo.com') ? (
                 <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl">
                   <iframe
-                    src={`https://player.vimeo.com/video/${getVimeoId((product as any).video_url)}`}
+                    src={`https://player.vimeo.com/video/${getVimeoId(product.video_url!)}`}
                     className="w-full h-full"
                     allow="autoplay; fullscreen; picture-in-picture"
                     allowFullScreen
