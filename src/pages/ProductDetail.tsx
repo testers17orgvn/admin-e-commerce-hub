@@ -593,11 +593,40 @@ const ProductDetail = () => {
             </div>
 
             <div className="flex gap-3">
-              <Button variant="outline" size="lg" className="flex-1 gap-2">
-                <Heart className="h-5 w-5" />
-                Yêu thích
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className={cn(
+                  "flex-1 gap-2 transition-colors",
+                  product && isInWishlist(product.id) && "bg-destructive/10 border-destructive/30 text-destructive hover:bg-destructive/20"
+                )}
+                onClick={() => {
+                  if (!user) {
+                    toast.error('Vui lòng đăng nhập để thêm vào yêu thích');
+                    return;
+                  }
+                  if (product) toggleWishlist(product.id);
+                }}
+              >
+                <Heart className={cn("h-5 w-5", product && isInWishlist(product.id) && "fill-current")} />
+                {product && isInWishlist(product.id) ? 'Đã yêu thích' : 'Yêu thích'}
               </Button>
-              <Button variant="outline" size="lg" className="flex-1 gap-2">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="flex-1 gap-2"
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: product?.name,
+                      url: window.location.href,
+                    }).catch(() => {});
+                  } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    toast.success('Đã sao chép link sản phẩm');
+                  }
+                }}
+              >
                 <Share2 className="h-5 w-5" />
                 Chia sẻ
               </Button>
