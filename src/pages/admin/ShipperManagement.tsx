@@ -45,15 +45,17 @@ interface ShipperStats {
 }
  
  export default function ShipperManagement() {
-   const [orders, setOrders] = useState<Order[]>([]);
-   const [shippers, setShippers] = useState<Shipper[]>([]);
-   const [loading, setLoading] = useState(true);
-   const [filterStatus, setFilterStatus] = useState('unassigned');
-   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
-   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-   const [selectedShipper, setSelectedShipper] = useState<string>('');
-   const [searchShipper, setSearchShipper] = useState('');
- 
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [shippers, setShippers] = useState<Shipper[]>([]);
+    const [shipperStats, setShipperStats] = useState<ShipperStats[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [filterStatus, setFilterStatus] = useState('unassigned');
+    const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [selectedShipper, setSelectedShipper] = useState<string>('');
+    const [searchShipper, setSearchShipper] = useState('');
+    const [activeTab, setActiveTab] = useState('orders');
+    const [selectedShipperReview, setSelectedShipperReview] = useState<string | null>(null);
    useEffect(() => {
      fetchData();
    }, [filterStatus]);
