@@ -27,11 +27,12 @@ export default function Dashboard() {
   const [currentWeek, setCurrentWeek] = useState({ start: startOfWeek(new Date(), { weekStartsOn: 1 }), end: endOfWeek(new Date(), { weekStartsOn: 1 }) });
 
   const fetchStats = async () => {
-    const [products, orders, blogs, contacts] = await Promise.all([
+    const [products, orders, blogs, contacts, shipperReviews] = await Promise.all([
       supabase.from('products').select('id', { count: 'exact', head: true }),
       supabase.from('orders').select('id, total_amount, created_at'),
       supabase.from('blogs').select('id', { count: 'exact', head: true }),
       supabase.from('contacts').select('id, created_at').eq('is_read', false),
+      supabase.from('shipper_reviews').select('rating'),
     ]);
     
     const allRevenue = (orders.data as any[])?.reduce((sum, o) => sum + Number(o.total_amount), 0) || 0;
