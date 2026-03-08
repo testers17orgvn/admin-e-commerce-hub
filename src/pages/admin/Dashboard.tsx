@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AdminLayout } from './AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
-import { Package, ShoppingCart, FileText, Mail, TrendingUp, RefreshCw, Calendar, Star, Truck } from 'lucide-react';
+import { Package, ShoppingCart, FileText, Mail, TrendingUp, RefreshCw, Calendar, Star, Truck, Trophy, User } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -24,6 +24,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState({ products: 0, orders: 0, blogs: 0, contacts: 0, revenue: 0 });
   const [weeklyStats, setWeeklyStats] = useState({ revenue: 0, contacts: 0 });
   const [shipperReviewStats, setShipperReviewStats] = useState({ total: 0, avg: 0, distribution: [0, 0, 0, 0, 0] });
+  const [topShippers, setTopShippers] = useState<{ id: string; name: string; avatar: string | null; avg: number; total: number }[]>([]);
   const [currentWeek, setCurrentWeek] = useState({ start: startOfWeek(new Date(), { weekStartsOn: 1 }), end: endOfWeek(new Date(), { weekStartsOn: 1 }) });
 
   const fetchStats = async () => {
@@ -70,6 +71,36 @@ export default function Dashboard() {
     reviews.forEach((r: any) => { if (r.rating >= 1 && r.rating <= 5) dist[r.rating - 1]++; });
     const avg = reviews.length > 0 ? reviews.reduce((s: number, r: any) => s + r.rating, 0) / reviews.length : 0;
     setShipperReviewStats({ total: reviews.length, avg: Math.round(avg * 10) / 10, distribution: dist });
+
+    // Top shippers
+    const { data: allReviews } = await supabase.from('shipper_reviews').select('shipper_id, rating');
+    const shipperMap: Record<string, { total: number; sum: number }> = {};
+    (allReviews || []).forEach((r: any) => {
+      if (!shipperMap[r.shipper_id]) shipperMap[r.shipper_id] = { total: 0, sum: 0 };
+      shipperMap[r.shipper_id].total++;
+      shipperMap[r.shipper_id].sum += r.rating;
+    });
+    const ranked = Object.entries(shipperMap)
+      .map(([id, s]) => ({ id, avg: Math.round((s.sum / s.total) * 10) / 10, total: s.total }))
+      .sort((a, b) => b.avg - a.avg || b.total - a.total)
+      .slice(0, 10);
+
+    // Fetch profiles for top shippers
+    if (ranked.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url')
+        .in('id', ranked.map(r => r.id));
+      const profileMap: Record<string, { name: string; avatar: string | null }> = {};
+      (profiles || []).forEach((p: any) => { profileMap[p.id] = { name: p.full_name || 'Shipper', avatar: p.avatar_url }; });
+      setTopShippers(ranked.map(r => ({
+        ...r,
+        name: profileMap[r.id]?.name || 'Shipper',
+        avatar: profileMap[r.id]?.avatar || null,
+      })));
+    } else {
+      setTopShippers([]);
+    }
   };
 
   useEffect(() => {
@@ -324,6 +355,51 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
         </div>
+      </div>
+      {/* Top Shipper */}
+      <div className="bg-card rounded-lg border p-6 mt-6">
+        <h2 className="text-lg font-semibold flex items-center gap-2 mb-6">
+          <Trophy className="h-5 w-5 text-yellow-500" />
+          Bảng xếp hạng Top Shipper
+        </h2>
+
+        {topShippers.length === 0 ? (
+          <p className="text-muted-foreground text-center py-8">Chưa có đánh giá nào</p>
+        ) : (
+          <div className="space-y-3">
+            {topShippers.map((shipper, index) => {
+              const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : null;
+              return (
+                <div
+                  key={shipper.id}
+                  className={`flex items-center gap-4 p-4 rounded-lg transition-colors ${
+                    index < 3 ? 'bg-muted/70 border border-border' : 'bg-muted/30'
+                  }`}
+                >
+                  <div className="w-8 text-center font-bold text-lg">
+                    {medal || <span className="text-muted-foreground">#{index + 1}</span>}
+                  </div>
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border">
+                    {shipper.avatar ? (
+                      <img src={shipper.avatar} alt={shipper.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{shipper.name}</p>
+                    <p className="text-xs text-muted-foreground">{shipper.total} đánh giá</p>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                    <span className="font-bold text-lg">{shipper.avg}</span>
+                    <span className="text-muted-foreground text-sm">/5</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </AdminLayout>
   );
