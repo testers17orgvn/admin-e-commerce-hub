@@ -3,7 +3,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bell, Mail, Package, Tag, Sparkles, Save } from 'lucide-react';
+import { Bell, Mail, Package, Tag, Sparkles, Save, MessageSquare, Truck, Store } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -13,46 +13,109 @@ interface NotificationSettingsData {
   promotions: boolean;
   new_products: boolean;
   email_notifications: boolean;
+  new_contacts: boolean;
 }
 
+interface NotificationOption {
+  key: keyof NotificationSettingsData;
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  roles: string[]; // empty = all roles
+}
+
+const allNotificationTypes: NotificationOption[] = [
+  {
+    key: 'order_updates',
+    title: 'Cập nhật đơn hàng',
+    description: 'Nhận thông báo khi đơn hàng được xác nhận, đang giao hoặc đã giao',
+    icon: Package,
+    roles: [],
+  },
+  {
+    key: 'new_contacts',
+    title: 'Liên hệ mới',
+    description: 'Nhận thông báo khi có khách hàng gửi form liên hệ',
+    icon: MessageSquare,
+    roles: ['admin'],
+  },
+  {
+    key: 'promotions',
+    title: 'Khuyến mãi',
+    description: 'Nhận thông báo về các chương trình khuyến mãi và voucher',
+    icon: Tag,
+    roles: [],
+  },
+  {
+    key: 'new_products',
+    title: 'Sản phẩm mới',
+    description: 'Nhận thông báo khi có sản phẩm mới hoặc sản phẩm cần duyệt',
+    icon: Sparkles,
+    roles: [],
+  },
+  {
+    key: 'email_notifications',
+    title: 'Thông báo qua Email',
+    description: 'Nhận các thông báo quan trọng qua email',
+    icon: Mail,
+    roles: [],
+  },
+];
+
 export function NotificationSettings() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+  const [userRoles, setUserRoles] = useState<string[]>([]);
   const [settings, setSettings] = useState<NotificationSettingsData>({
     order_updates: true,
     promotions: true,
     new_products: true,
     email_notifications: true,
+    new_contacts: true,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const fetchSettings = async () => {
-      if (!user) return;
+    if (!user) return;
 
-      const { data } = await supabase
-        .from('notification_settings')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
+    const fetchData = async () => {
+      const [settingsRes, rolesRes] = await Promise.all([
+        supabase
+          .from('notification_settings')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+        isAdmin
+          ? Promise.resolve({ data: [{ role: 'admin' }] })
+          : supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', user.id),
+      ]);
 
-      if (data) {
+      if (settingsRes.data) {
         setSettings({
-          order_updates: data.order_updates ?? true,
-          promotions: data.promotions ?? true,
-          new_products: data.new_products ?? true,
-          email_notifications: data.email_notifications ?? true,
+          order_updates: settingsRes.data.order_updates ?? true,
+          promotions: settingsRes.data.promotions ?? true,
+          new_products: settingsRes.data.new_products ?? true,
+          email_notifications: settingsRes.data.email_notifications ?? true,
+          new_contacts: (settingsRes.data as any).new_contacts ?? true,
         });
       }
+
+      if (rolesRes.data) {
+        setUserRoles(rolesRes.data.map((r: any) => r.role));
+      }
+
       setLoading(false);
     };
 
-    fetchSettings();
-  }, [user]);
+    fetchData();
+  }, [user, isAdmin]);
 
   const handleSave = async () => {
     if (!user) return;
-    
+
     setSaving(true);
     try {
       const { data: existing } = await supabase
@@ -61,18 +124,23 @@ export function NotificationSettings() {
         .eq('user_id', user.id)
         .maybeSingle();
 
+      const payload: any = {
+        order_updates: settings.order_updates,
+        promotions: settings.promotions,
+        new_products: settings.new_products,
+        email_notifications: settings.email_notifications,
+        new_contacts: settings.new_contacts,
+      };
+
       if (existing) {
         await supabase
           .from('notification_settings')
-          .update({
-            ...settings,
-            updated_at: new Date().toISOString(),
-          })
+          .update({ ...payload, updated_at: new Date().toISOString() })
           .eq('user_id', user.id);
       } else {
         await supabase.from('notification_settings').insert({
           user_id: user.id,
-          ...settings,
+          ...payload,
         });
       }
 
@@ -92,32 +160,19 @@ export function NotificationSettings() {
     return <div className="p-4 text-center">Đang tải...</div>;
   }
 
-  const notificationTypes = [
-    {
-      key: 'order_updates' as const,
-      title: 'Cập nhật đơn hàng',
-      description: 'Nhận thông báo khi đơn hàng được xác nhận, đang giao hoặc đã giao',
-      icon: Package,
-    },
-    {
-      key: 'promotions' as const,
-      title: 'Khuyến mãi',
-      description: 'Nhận thông báo về các chương trình khuyến mãi và voucher',
-      icon: Tag,
-    },
-    {
-      key: 'new_products' as const,
-      title: 'Sản phẩm mới',
-      description: 'Nhận thông báo khi có sản phẩm mới',
-      icon: Sparkles,
-    },
-    {
-      key: 'email_notifications' as const,
-      title: 'Thông báo qua Email',
-      description: 'Nhận các thông báo quan trọng qua email',
-      icon: Mail,
-    },
-  ];
+  // Filter notification types based on user roles
+  const visibleTypes = allNotificationTypes.filter((type) => {
+    if (type.roles.length === 0) return true;
+    return type.roles.some((r) => userRoles.includes(r) || (r === 'admin' && isAdmin));
+  });
+
+  const getRoleLabel = () => {
+    if (isAdmin) return 'Quản trị viên';
+    if (userRoles.includes('seller')) return 'Người bán';
+    if (userRoles.includes('shipper')) return 'Shipper';
+    if (userRoles.includes('dealer')) return 'Đại lý';
+    return 'Khách hàng';
+  };
 
   return (
     <Card>
@@ -127,11 +182,11 @@ export function NotificationSettings() {
           Cài đặt thông báo
         </CardTitle>
         <CardDescription>
-          Tùy chỉnh các loại thông báo bạn muốn nhận
+          Tùy chỉnh các loại thông báo bạn muốn nhận ({getRoleLabel()})
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {notificationTypes.map(({ key, title, description, icon: Icon }) => (
+        {visibleTypes.map(({ key, title, description, icon: Icon }) => (
           <div
             key={key}
             className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors"
