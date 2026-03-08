@@ -690,7 +690,7 @@ const ProductDetail = () => {
               </div>
             </div>
             <div className="max-w-4xl mx-auto">
-              {(product as any).video_url.includes('youtube.com') || (product as any).video_url.includes('youtu.be') ? (
+              {product.video_url!.includes('youtube.com') || product.video_url!.includes('youtu.be') ? (
                 <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl">
                   <iframe
                     src={`https://www.youtube.com/embed/${getYouTubeId((product as any).video_url)}`}
