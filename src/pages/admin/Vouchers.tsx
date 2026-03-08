@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
@@ -12,11 +12,11 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Plus, Pencil, Trash2, Ticket, Copy, Percent, DollarSign, Calendar,
-  Users, Gift, Search, Filter, TrendingUp, Clock, CheckCircle2,
-  XCircle, AlertCircle, BarChart3, Zap, Eye
+  Gift, Search, TrendingUp, Clock, CheckCircle2,
+  XCircle, AlertCircle, Zap, Eye, ShoppingCart, Tag
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -39,23 +39,11 @@ interface Voucher {
   created_at: string;
 }
 
-const initialVoucher: {
-  code: string; name: string; description: string;
-  discount_type: 'percentage' | 'fixed';
-  discount_value: number; min_order_value: number; max_discount: number;
-  usage_limit: number; start_date: string; end_date: string; is_active: boolean;
-} = {
-  code: '',
-  name: '',
-  description: '',
-  discount_type: 'percentage',
-  discount_value: 0,
-  min_order_value: 0,
-  max_discount: 0,
-  usage_limit: 0,
-  start_date: '',
-  end_date: '',
-  is_active: true,
+const initialVoucher = {
+  code: '', name: '', description: '',
+  discount_type: 'percentage' as 'percentage' | 'fixed',
+  discount_value: 0, min_order_value: 0, max_discount: 0,
+  usage_limit: 0, start_date: '', end_date: '', is_active: true,
 };
 
 type StatusFilter = 'all' | 'active' | 'inactive' | 'expired' | 'upcoming';
@@ -71,18 +59,12 @@ export default function AdminVouchers() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [selectedVouchers, setSelectedVouchers] = useState<Set<string>>(new Set());
   const [detailVoucher, setDetailVoucher] = useState<Voucher | null>(null);
+  const [previewAmount, setPreviewAmount] = useState('500000');
 
   const fetchData = async () => {
-    const { data, error } = await supabase
-      .from('vouchers')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      toast.error('Lỗi tải danh sách voucher');
-    } else if (data) {
-      setVouchers(data.map(v => ({ ...v, discount_type: v.discount_type as 'percentage' | 'fixed' })));
-    }
+    const { data, error } = await supabase.from('vouchers').select('*').order('created_at', { ascending: false });
+    if (error) toast.error('Lỗi tải danh sách voucher');
+    else if (data) setVouchers(data.map(v => ({ ...v, discount_type: v.discount_type as 'percentage' | 'fixed' })));
     setLoading(false);
   };
 
@@ -98,22 +80,21 @@ export default function AdminVouchers() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.code || !formData.name || !formData.start_date || !formData.end_date) {
-      toast.error('Vui lòng điền đầy đủ thông tin bắt buộc');
-      return;
+      toast.error('Vui lòng điền đầy đủ thông tin bắt buộc'); return;
+    }
+    if (new Date(formData.end_date) <= new Date(formData.start_date)) {
+      toast.error('Ngày kết thúc phải sau ngày bắt đầu'); return;
+    }
+    if (formData.discount_type === 'percentage' && (formData.discount_value <= 0 || formData.discount_value > 100)) {
+      toast.error('Phần trăm giảm phải từ 1-100'); return;
     }
     setSaving(true);
     const voucherData = {
-      code: formData.code.toUpperCase(),
-      name: formData.name,
-      description: formData.description || null,
-      discount_type: formData.discount_type,
-      discount_value: formData.discount_value,
-      min_order_value: formData.min_order_value || 0,
-      max_discount: formData.max_discount || null,
-      usage_limit: formData.usage_limit || null,
-      start_date: formData.start_date,
-      end_date: formData.end_date,
-      is_active: formData.is_active,
+      code: formData.code.toUpperCase(), name: formData.name,
+      description: formData.description || null, discount_type: formData.discount_type,
+      discount_value: formData.discount_value, min_order_value: formData.min_order_value || 0,
+      max_discount: formData.max_discount || null, usage_limit: formData.usage_limit || null,
+      start_date: formData.start_date, end_date: formData.end_date, is_active: formData.is_active,
     };
 
     let error;
@@ -125,14 +106,8 @@ export default function AdminVouchers() {
       error = result.error;
     }
 
-    if (error) {
-      toast.error(error.message.includes('duplicate') ? 'Mã voucher đã tồn tại' : 'Lỗi lưu voucher');
-    } else {
-      toast.success(editingVoucher ? 'Cập nhật thành công' : 'Tạo voucher thành công');
-      setIsDialogOpen(false);
-      resetForm();
-      fetchData();
-    }
+    if (error) toast.error(error.message.includes('duplicate') ? 'Mã voucher đã tồn tại' : 'Lỗi lưu voucher');
+    else { toast.success(editingVoucher ? 'Cập nhật thành công' : 'Tạo voucher thành công'); setIsDialogOpen(false); resetForm(); fetchData(); }
     setSaving(false);
   };
 
@@ -147,17 +122,28 @@ export default function AdminVouchers() {
     if (selectedVouchers.size === 0) return;
     if (!confirm(`Xóa ${selectedVouchers.size} voucher đã chọn?`)) return;
     const ids = Array.from(selectedVouchers);
-    const { error } = await supabase.from('vouchers').delete().in('id', ids);
-    if (error) toast.error('Lỗi xóa hàng loạt');
-    else { toast.success(`Đã xóa ${ids.length} voucher`); setSelectedVouchers(new Set()); fetchData(); }
+    await supabase.from('vouchers').delete().in('id', ids);
+    toast.success(`Đã xóa ${ids.length} voucher`); setSelectedVouchers(new Set()); fetchData();
   };
 
   const handleBulkToggle = async (active: boolean) => {
     if (selectedVouchers.size === 0) return;
     const ids = Array.from(selectedVouchers);
-    const { error } = await supabase.from('vouchers').update({ is_active: active }).in('id', ids);
-    if (error) toast.error('Lỗi cập nhật');
-    else { toast.success(`Đã ${active ? 'bật' : 'tắt'} ${ids.length} voucher`); setSelectedVouchers(new Set()); fetchData(); }
+    await supabase.from('vouchers').update({ is_active: active }).in('id', ids);
+    toast.success(`Đã ${active ? 'bật' : 'tắt'} ${ids.length} voucher`); setSelectedVouchers(new Set()); fetchData();
+  };
+
+  const handleDuplicate = async (voucher: Voucher) => {
+    const newCode = voucher.code + '-' + Date.now().toString(36).slice(-4).toUpperCase();
+    const { error } = await supabase.from('vouchers').insert([{
+      code: newCode, name: voucher.name + ' (Copy)',
+      description: voucher.description, discount_type: voucher.discount_type,
+      discount_value: voucher.discount_value, min_order_value: voucher.min_order_value,
+      max_discount: voucher.max_discount, usage_limit: voucher.usage_limit,
+      start_date: voucher.start_date, end_date: voucher.end_date, is_active: false,
+    }]);
+    if (error) toast.error('Lỗi nhân bản');
+    else { toast.success('Đã nhân bản voucher (đã tắt)'); fetchData(); }
   };
 
   const toggleActive = async (voucher: Voucher) => {
@@ -165,26 +151,17 @@ export default function AdminVouchers() {
     fetchData();
   };
 
-  const copyCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    toast.success('Đã sao chép: ' + code);
-  };
-
+  const copyCode = (code: string) => { navigator.clipboard.writeText(code); toast.success('Đã sao chép: ' + code); };
   const resetForm = () => { setFormData(initialVoucher); setEditingVoucher(null); };
 
   const openEditDialog = (voucher: Voucher) => {
     setEditingVoucher(voucher);
     setFormData({
-      code: voucher.code,
-      name: voucher.name,
-      description: voucher.description || '',
-      discount_type: voucher.discount_type,
-      discount_value: voucher.discount_value,
-      min_order_value: voucher.min_order_value,
-      max_discount: voucher.max_discount || 0,
+      code: voucher.code, name: voucher.name, description: voucher.description || '',
+      discount_type: voucher.discount_type, discount_value: voucher.discount_value,
+      min_order_value: voucher.min_order_value, max_discount: voucher.max_discount || 0,
       usage_limit: voucher.usage_limit || 0,
-      start_date: voucher.start_date.slice(0, 16),
-      end_date: voucher.end_date.slice(0, 16),
+      start_date: voucher.start_date.slice(0, 16), end_date: voucher.end_date.slice(0, 16),
       is_active: voucher.is_active,
     });
     setIsDialogOpen(true);
@@ -209,11 +186,15 @@ export default function AdminVouchers() {
     return 'active';
   };
 
-  // Filtering
+  const calcDiscount = (amount: number, v: { discount_type: string; discount_value: number; max_discount: number; min_order_value: number }) => {
+    if (amount < v.min_order_value) return { discount: 0, final: amount, eligible: false };
+    let discount = v.discount_type === 'percentage' ? (amount * v.discount_value / 100) : v.discount_value;
+    if (v.max_discount && v.max_discount > 0 && discount > v.max_discount) discount = v.max_discount;
+    return { discount, final: Math.max(0, amount - discount), eligible: true };
+  };
+
   const filtered = vouchers.filter(v => {
-    const matchSearch = !searchQuery ||
-      v.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      v.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchSearch = !searchQuery || v.code.toLowerCase().includes(searchQuery.toLowerCase()) || v.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchStatus = statusFilter === 'all' || getStatusKey(v) === statusFilter;
     return matchSearch && matchStatus;
   });
@@ -223,27 +204,17 @@ export default function AdminVouchers() {
     active: vouchers.filter(v => getStatusKey(v) === 'active').length,
     expired: vouchers.filter(v => getStatusKey(v) === 'expired').length,
     used: vouchers.reduce((acc, v) => acc + v.used_count, 0),
-    totalDiscount: vouchers.reduce((acc, v) => {
-      if (v.discount_type === 'fixed') return acc + v.discount_value * v.used_count;
-      return acc;
-    }, 0),
   };
 
   const toggleSelect = (id: string) => {
-    setSelectedVouchers(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
+    setSelectedVouchers(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
+  };
+  const toggleSelectAll = () => {
+    if (selectedVouchers.size === filtered.length) setSelectedVouchers(new Set());
+    else setSelectedVouchers(new Set(filtered.map(v => v.id)));
   };
 
-  const toggleSelectAll = () => {
-    if (selectedVouchers.size === filtered.length) {
-      setSelectedVouchers(new Set());
-    } else {
-      setSelectedVouchers(new Set(filtered.map(v => v.id)));
-    }
-  };
+  const formatVND = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '₫';
 
   if (loading) {
     return (
@@ -262,9 +233,7 @@ export default function AdminVouchers() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-accent/10">
-              <Ticket className="h-6 w-6 text-accent" />
-            </div>
+            <div className="p-2 rounded-xl bg-accent/10"><Ticket className="h-6 w-6 text-accent" /></div>
             Quản lý Voucher
           </h1>
           <p className="text-muted-foreground mt-1">Tạo và quản lý mã giảm giá cho khách hàng</p>
@@ -288,9 +257,7 @@ export default function AdminVouchers() {
                   <Label>Mã voucher *</Label>
                   <div className="flex gap-2">
                     <Input value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })} placeholder="VD: SALE50" className="uppercase font-mono" />
-                    <Button type="button" variant="outline" onClick={generateCode} className="shrink-0">
-                      <Zap className="h-4 w-4" />
-                    </Button>
+                    <Button type="button" variant="outline" onClick={generateCode} className="shrink-0"><Zap className="h-4 w-4" /></Button>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -354,21 +321,51 @@ export default function AdminVouchers() {
                 </div>
               </div>
 
-              {/* Preview card */}
+              {/* Live Preview */}
               {formData.code && (
-                <div className="p-4 rounded-xl border-2 border-dashed border-accent/30 bg-accent/5">
-                  <p className="text-xs text-muted-foreground mb-2">Xem trước</p>
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-lg bg-accent/10">
-                      {formData.discount_type === 'percentage' ? <Percent className="h-5 w-5 text-accent" /> : <DollarSign className="h-5 w-5 text-accent" />}
+                <div className="rounded-xl border-2 border-dashed border-accent/30 bg-accent/5 overflow-hidden">
+                  <div className="p-4 border-b border-accent/10">
+                    <p className="text-xs font-medium text-muted-foreground mb-3 flex items-center gap-1"><Eye className="h-3 w-3" /> Xem trước voucher</p>
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 rounded-lg bg-accent/10">
+                        {formData.discount_type === 'percentage' ? <Percent className="h-5 w-5 text-accent" /> : <DollarSign className="h-5 w-5 text-accent" />}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-bold text-lg">
+                          {formData.discount_type === 'percentage' ? `${formData.discount_value}%` : formatVND(formData.discount_value)}
+                        </p>
+                        <p className="text-sm text-muted-foreground">{formData.name || 'Tên voucher'}</p>
+                      </div>
+                      <code className="bg-muted px-3 py-1.5 rounded-lg font-mono text-sm font-bold tracking-wider">{formData.code}</code>
                     </div>
-                    <div>
-                      <p className="font-bold text-lg">
-                        {formData.discount_type === 'percentage' ? `${formData.discount_value}%` : `${formData.discount_value.toLocaleString('vi-VN')}đ`}
-                      </p>
-                      <p className="text-sm text-muted-foreground">{formData.name || 'Tên voucher'}</p>
+                  </div>
+
+                  {/* Discount Simulator */}
+                  <div className="p-4 bg-muted/30">
+                    <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1">
+                      <ShoppingCart className="h-3 w-3" /> Mô phỏng giảm giá
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <Label className="text-xs">Giá trị đơn hàng</Label>
+                        <Input type="number" value={previewAmount} onChange={e => setPreviewAmount(e.target.value)} className="h-9 mt-1" />
+                      </div>
+                      {(() => {
+                        const result = calcDiscount(Number(previewAmount), formData);
+                        return (
+                          <div className="text-right flex-1">
+                            {!result.eligible ? (
+                              <p className="text-sm text-destructive font-medium">Chưa đủ đơn tối thiểu ({formatVND(formData.min_order_value)})</p>
+                            ) : (
+                              <>
+                                <p className="text-xs text-muted-foreground">Giảm: <span className="text-green-600 font-bold">{formatVND(result.discount)}</span></p>
+                                <p className="text-lg font-bold text-primary">{formatVND(result.final)}</p>
+                              </>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
-                    <code className="ml-auto bg-muted px-3 py-1.5 rounded-lg font-mono text-sm font-bold tracking-wider">{formData.code}</code>
                   </div>
                 </div>
               )}
@@ -394,7 +391,7 @@ export default function AdminVouchers() {
         ].map((stat) => (
           <Card key={stat.label} className="overflow-hidden">
             <CardContent className="p-4">
-              <div className={`flex items-center gap-3`}>
+              <div className="flex items-center gap-3">
                 <div className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.gradient}`}>
                   <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
                 </div>
@@ -412,17 +409,13 @@ export default function AdminVouchers() {
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Tìm theo mã hoặc tên voucher..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+          <Input placeholder="Tìm theo mã hoặc tên voucher..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
         </div>
         <Tabs value={statusFilter} onValueChange={v => setStatusFilter(v as StatusFilter)} className="shrink-0">
           <TabsList>
             <TabsTrigger value="all" className="text-xs">Tất cả</TabsTrigger>
             <TabsTrigger value="active" className="text-xs">Hoạt động</TabsTrigger>
+            <TabsTrigger value="upcoming" className="text-xs">Sắp tới</TabsTrigger>
             <TabsTrigger value="expired" className="text-xs">Hết hạn</TabsTrigger>
             <TabsTrigger value="inactive" className="text-xs">Đã tắt</TabsTrigger>
           </TabsList>
@@ -434,15 +427,9 @@ export default function AdminVouchers() {
         <div className="flex items-center gap-3 mb-4 p-3 rounded-lg bg-accent/5 border border-accent/20 animate-in slide-in-from-top duration-200">
           <span className="text-sm font-medium">Đã chọn {selectedVouchers.size} voucher</span>
           <div className="flex gap-2 ml-auto">
-            <Button size="sm" variant="outline" onClick={() => handleBulkToggle(true)}>
-              <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Bật
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => handleBulkToggle(false)}>
-              <XCircle className="h-3.5 w-3.5 mr-1" /> Tắt
-            </Button>
-            <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
-              <Trash2 className="h-3.5 w-3.5 mr-1" /> Xóa
-            </Button>
+            <Button size="sm" variant="outline" onClick={() => handleBulkToggle(true)}><CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Bật</Button>
+            <Button size="sm" variant="outline" onClick={() => handleBulkToggle(false)}><XCircle className="h-3.5 w-3.5 mr-1" /> Tắt</Button>
+            <Button size="sm" variant="destructive" onClick={handleBulkDelete}><Trash2 className="h-3.5 w-3.5 mr-1" /> Xóa</Button>
           </div>
         </div>
       )}
@@ -488,9 +475,7 @@ export default function AdminVouchers() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <code className="bg-muted px-2 py-1 rounded font-mono text-sm font-bold">{voucher.code}</code>
-                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyCode(voucher.code)}>
-                            <Copy className="h-3 w-3" />
-                          </Button>
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyCode(voucher.code)}><Copy className="h-3 w-3" /></Button>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -505,17 +490,13 @@ export default function AdminVouchers() {
                             {voucher.discount_type === 'percentage' ? <Percent className="h-3 w-3 text-accent" /> : <DollarSign className="h-3 w-3 text-accent" />}
                           </div>
                           <span className="font-semibold">
-                            {voucher.discount_type === 'percentage' ? `${voucher.discount_value}%` : `${voucher.discount_value.toLocaleString('vi-VN')}đ`}
+                            {voucher.discount_type === 'percentage' ? `${voucher.discount_value}%` : formatVND(voucher.discount_value)}
                           </span>
                         </div>
                       </TableCell>
                       <TableCell className="text-sm">
-                        {voucher.min_order_value > 0 && (
-                          <p className="text-xs">Tối thiểu: {voucher.min_order_value.toLocaleString('vi-VN')}đ</p>
-                        )}
-                        {voucher.max_discount && voucher.max_discount > 0 && (
-                          <p className="text-xs">Tối đa: {voucher.max_discount.toLocaleString('vi-VN')}đ</p>
-                        )}
+                        {voucher.min_order_value > 0 && <p className="text-xs">Tối thiểu: {formatVND(voucher.min_order_value)}</p>}
+                        {voucher.max_discount && voucher.max_discount > 0 && <p className="text-xs">Tối đa: {formatVND(voucher.max_discount)}</p>}
                       </TableCell>
                       <TableCell className="text-xs">
                         <div className="flex items-center gap-1">
@@ -526,29 +507,19 @@ export default function AdminVouchers() {
                       <TableCell>
                         <div className="space-y-1 min-w-[80px]">
                           <span className="text-sm font-medium">{voucher.used_count}/{voucher.usage_limit || '∞'}</span>
-                          {voucher.usage_limit && voucher.usage_limit > 0 && (
-                            <Progress value={usagePercent} className="h-1.5" />
-                          )}
+                          {voucher.usage_limit && voucher.usage_limit > 0 && <Progress value={usagePercent} className="h-1.5" />}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={status.variant} className="gap-1">
-                          <status.icon className="h-3 w-3" />
-                          {status.label}
-                        </Badge>
+                        <Badge variant={status.variant} className="gap-1"><status.icon className="h-3 w-3" />{status.label}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
                           <Switch checked={voucher.is_active} onCheckedChange={() => toggleActive(voucher)} className="mr-1" />
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDetailVoucher(voucher)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(voucher)}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(voucher.id)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDetailVoucher(voucher)}><Eye className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDuplicate(voucher)} title="Nhân bản"><Copy className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(voucher)}><Pencil className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(voucher.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -576,7 +547,6 @@ export default function AdminVouchers() {
             return (
               <Card key={voucher.id} className="overflow-hidden transition-all active:scale-[0.98]">
                 <CardContent className="p-4">
-                  {/* Top row */}
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <div className="p-2 rounded-lg bg-accent/10">
@@ -584,61 +554,40 @@ export default function AdminVouchers() {
                       </div>
                       <div>
                         <p className="font-bold text-lg leading-tight">
-                          {voucher.discount_type === 'percentage' ? `${voucher.discount_value}%` : `${voucher.discount_value.toLocaleString('vi-VN')}đ`}
+                          {voucher.discount_type === 'percentage' ? `${voucher.discount_value}%` : formatVND(voucher.discount_value)}
                         </p>
                         <p className="text-xs text-muted-foreground">{voucher.name}</p>
                       </div>
                     </div>
-                    <Badge variant={status.variant} className="gap-1 text-xs">
-                      <status.icon className="h-3 w-3" />
-                      {status.label}
-                    </Badge>
+                    <Badge variant={status.variant} className="gap-1 text-xs"><status.icon className="h-3 w-3" />{status.label}</Badge>
                   </div>
 
-                  {/* Code */}
                   <div className="flex items-center gap-2 mb-3">
-                    <code className="flex-1 bg-muted px-3 py-2 rounded-lg font-mono text-sm font-bold text-center tracking-widest">
-                      {voucher.code}
-                    </code>
-                    <Button variant="outline" size="sm" onClick={() => copyCode(voucher.code)}>
-                      <Copy className="h-3.5 w-3.5" />
-                    </Button>
+                    <code className="flex-1 bg-muted px-3 py-2 rounded-lg font-mono text-sm font-bold text-center tracking-widest">{voucher.code}</code>
+                    <Button variant="outline" size="sm" onClick={() => copyCode(voucher.code)}><Copy className="h-3.5 w-3.5" /></Button>
                   </div>
 
-                  {/* Details */}
                   <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground mb-3">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {format(new Date(voucher.start_date), 'dd/MM')} – {format(new Date(voucher.end_date), 'dd/MM/yy')}
-                    </div>
-                    {voucher.min_order_value > 0 && (
-                      <div>Tối thiểu: {voucher.min_order_value.toLocaleString('vi-VN')}đ</div>
-                    )}
+                    <div className="flex items-center gap-1"><Calendar className="h-3 w-3" />{format(new Date(voucher.start_date), 'dd/MM')} – {format(new Date(voucher.end_date), 'dd/MM/yy')}</div>
+                    {voucher.min_order_value > 0 && <div>Tối thiểu: {formatVND(voucher.min_order_value)}</div>}
                   </div>
 
-                  {/* Usage progress */}
                   {voucher.usage_limit && voucher.usage_limit > 0 ? (
                     <div className="space-y-1.5 mb-3">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-muted-foreground">Đã sử dụng</span>
-                        <span className="font-medium">{voucher.used_count}/{voucher.usage_limit}</span>
-                      </div>
+                      <div className="flex justify-between text-xs"><span className="text-muted-foreground">Đã sử dụng</span><span className="font-medium">{voucher.used_count}/{voucher.usage_limit}</span></div>
                       <Progress value={usagePercent} className="h-2" />
                     </div>
                   ) : (
                     <p className="text-xs text-muted-foreground mb-3">Đã dùng: {voucher.used_count} lượt</p>
                   )}
 
-                  {/* Actions */}
                   <div className="flex items-center gap-2 pt-2 border-t">
                     <Switch checked={voucher.is_active} onCheckedChange={() => toggleActive(voucher)} />
                     <span className="text-xs text-muted-foreground mr-auto">{voucher.is_active ? 'Đang bật' : 'Đã tắt'}</span>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(voucher)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(voucher.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDetailVoucher(voucher)}><Eye className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDuplicate(voucher)}><Copy className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(voucher)}><Pencil className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(voucher.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                   </div>
                 </CardContent>
               </Card>
@@ -647,7 +596,7 @@ export default function AdminVouchers() {
         )}
       </div>
 
-      {/* Detail Dialog */}
+      {/* Detail Dialog with Discount Simulator */}
       <Dialog open={!!detailVoucher} onOpenChange={() => setDetailVoucher(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -668,41 +617,29 @@ export default function AdminVouchers() {
                 <div className="text-center p-6 rounded-xl bg-accent/5 border border-accent/20">
                   <code className="text-2xl font-bold font-mono tracking-[0.3em]">{detailVoucher.code}</code>
                   <p className="text-sm text-muted-foreground mt-1">{detailVoucher.name}</p>
-                  <div className="mt-3">
-                    <Badge variant={status.variant} className="gap-1">
-                      <status.icon className="h-3 w-3" />
-                      {status.label}
-                    </Badge>
-                  </div>
+                  <div className="mt-3"><Badge variant={status.variant} className="gap-1"><status.icon className="h-3 w-3" />{status.label}</Badge></div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-3 rounded-lg bg-muted/50">
                     <p className="text-xs text-muted-foreground">Giảm giá</p>
-                    <p className="text-lg font-bold">
-                      {detailVoucher.discount_type === 'percentage' ? `${detailVoucher.discount_value}%` : `${detailVoucher.discount_value.toLocaleString('vi-VN')}đ`}
-                    </p>
+                    <p className="text-lg font-bold">{detailVoucher.discount_type === 'percentage' ? `${detailVoucher.discount_value}%` : formatVND(detailVoucher.discount_value)}</p>
                   </div>
                   <div className="p-3 rounded-lg bg-muted/50">
                     <p className="text-xs text-muted-foreground">Đơn tối thiểu</p>
-                    <p className="text-lg font-bold">{detailVoucher.min_order_value > 0 ? `${detailVoucher.min_order_value.toLocaleString('vi-VN')}đ` : 'Không'}</p>
+                    <p className="text-lg font-bold">{detailVoucher.min_order_value > 0 ? formatVND(detailVoucher.min_order_value) : 'Không'}</p>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Tiến độ sử dụng</span>
-                    <span className="font-medium">{detailVoucher.used_count}/{detailVoucher.usage_limit || '∞'}</span>
-                  </div>
+                  <div className="flex justify-between text-sm"><span>Tiến độ sử dụng</span><span className="font-medium">{detailVoucher.used_count}/{detailVoucher.usage_limit || '∞'}</span></div>
                   <Progress value={usagePercent} className="h-2" />
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Thời gian còn lại</span>
-                    <span className="font-medium">
-                      {now > end ? 'Đã kết thúc' : now < start ? 'Chưa bắt đầu' : `${Math.ceil(totalDays - elapsedDays)} ngày`}
-                    </span>
+                    <span className="font-medium">{now > end ? 'Đã kết thúc' : now < start ? 'Chưa bắt đầu' : `${Math.ceil(totalDays - elapsedDays)} ngày`}</span>
                   </div>
                   <Progress value={timePercent} className="h-2" />
                   <div className="flex justify-between text-xs text-muted-foreground">
@@ -711,19 +648,51 @@ export default function AdminVouchers() {
                   </div>
                 </div>
 
+                {/* Discount Simulator in Detail */}
+                <div className="p-4 rounded-xl bg-muted/30 border">
+                  <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1"><ShoppingCart className="h-3 w-3" /> Mô phỏng giảm giá</p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <Input type="number" value={previewAmount} onChange={e => setPreviewAmount(e.target.value)} placeholder="Nhập giá trị đơn hàng" className="h-9" />
+                    </div>
+                    {(() => {
+                      const result = calcDiscount(Number(previewAmount), {
+                        discount_type: detailVoucher.discount_type,
+                        discount_value: detailVoucher.discount_value,
+                        max_discount: detailVoucher.max_discount || 0,
+                        min_order_value: detailVoucher.min_order_value,
+                      });
+                      return (
+                        <div className="text-right flex-1">
+                          {!result.eligible ? (
+                            <p className="text-xs text-destructive">Chưa đủ đơn tối thiểu</p>
+                          ) : (
+                            <>
+                              <p className="text-xs text-green-600">Giảm: {formatVND(result.discount)}</p>
+                              <p className="text-lg font-bold text-primary">{formatVND(result.final)}</p>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" className="flex-1" onClick={() => { setDetailVoucher(null); openEditDialog(detailVoucher); }}>
-                    <Pencil className="h-4 w-4 mr-1" /> Sửa
-                  </Button>
-                  <Button variant="outline" className="flex-1" onClick={() => copyCode(detailVoucher.code)}>
-                    <Copy className="h-4 w-4 mr-1" /> Sao chép
-                  </Button>
+                  <Button variant="outline" className="flex-1" onClick={() => { setDetailVoucher(null); openEditDialog(detailVoucher); }}><Pencil className="h-4 w-4 mr-1" /> Sửa</Button>
+                  <Button variant="outline" className="flex-1" onClick={() => copyCode(detailVoucher.code)}><Copy className="h-4 w-4 mr-1" /> Sao chép</Button>
+                  <Button variant="outline" className="flex-1" onClick={() => { setDetailVoucher(null); handleDuplicate(detailVoucher); }}><Copy className="h-4 w-4 mr-1" /> Nhân bản</Button>
                 </div>
               </div>
             );
           })()}
         </DialogContent>
       </Dialog>
+
+      {/* Results count */}
+      <p className="text-sm text-muted-foreground mt-4">
+        Hiển thị {filtered.length}/{vouchers.length} voucher
+      </p>
     </AdminLayout>
   );
 }
