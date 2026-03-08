@@ -261,6 +261,70 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Thống kê đánh giá shipper */}
+      <div className="bg-card rounded-lg border p-6 mt-6">
+        <h2 className="text-lg font-semibold flex items-center gap-2 mb-6">
+          <Truck className="h-5 w-5" />
+          Đánh giá Shipper
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {/* Tổng quan */}
+          <div className="space-y-4">
+            <div className="p-4 bg-muted/50 rounded-lg text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <Star className="h-6 w-6 fill-yellow-500 text-yellow-500" />
+                <span className="text-3xl font-bold">{shipperReviewStats.avg}</span>
+                <span className="text-muted-foreground text-sm">/5</span>
+              </div>
+              <p className="text-sm text-muted-foreground">{shipperReviewStats.total} đánh giá</p>
+            </div>
+            <div className="space-y-2">
+              {[5, 4, 3, 2, 1].map((star) => {
+                const count = shipperReviewStats.distribution[star - 1];
+                const pct = shipperReviewStats.total > 0 ? (count / shipperReviewStats.total) * 100 : 0;
+                return (
+                  <div key={star} className="flex items-center gap-2 text-sm">
+                    <span className="w-4 text-right">{star}</span>
+                    <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                    <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-yellow-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="w-8 text-muted-foreground text-right">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Biểu đồ cột */}
+          <div className="md:col-span-2">
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={[
+                { name: '1 ⭐', value: shipperReviewStats.distribution[0], fill: 'hsl(var(--destructive))' },
+                { name: '2 ⭐', value: shipperReviewStats.distribution[1], fill: 'hsl(var(--accent))' },
+                { name: '3 ⭐', value: shipperReviewStats.distribution[2], fill: 'hsl(var(--muted-foreground))' },
+                { name: '4 ⭐', value: shipperReviewStats.distribution[3], fill: 'hsl(var(--primary))' },
+                { name: '5 ⭐', value: shipperReviewStats.distribution[4], fill: 'hsl(var(--primary))' },
+              ]}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+                <YAxis allowDecimals={false} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+                <Tooltip
+                  contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8 }}
+                  labelStyle={{ color: 'hsl(var(--foreground))' }}
+                />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <Cell key={i} fill={['hsl(var(--destructive))', 'hsl(var(--accent))', 'hsl(var(--muted-foreground))', 'hsl(var(--primary))', 'hsl(var(--primary))'][i]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
     </AdminLayout>
   );
 }
