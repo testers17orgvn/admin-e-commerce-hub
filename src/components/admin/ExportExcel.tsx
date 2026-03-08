@@ -11,7 +11,7 @@ import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
 
-type ReportType = 'products' | 'orders' | 'revenue' | 'customers';
+type ReportType = 'products' | 'orders' | 'revenue' | 'customers' | 'shipper_reviews';
 
 interface ExportOptions {
   type: ReportType;
@@ -127,6 +127,72 @@ export function ExportExcel() {
     };
   };
 
+  const exportShipperReviews = async () => {
+    let query = supabase.from('shipper_reviews').select('*');
+    
+    if (options.startDate) {
+      query = query.gte('created_at', options.startDate.toISOString());
+    }
+    if (options.endDate) {
+      query = query.lte('created_at', options.endDate.toISOString());
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+    if (error) throw error;
+
+    // Get unique shipper IDs and fetch profiles
+    const shipperIds = [...new Set(data?.map(r => r.shipper_id) || [])];
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name, email, phone')
+      .in('id', shipperIds);
+
+    const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+    // Detail rows
+    const detailRows = data?.map(r => {
+      const profile = profileMap.get(r.shipper_id);
+      return {
+        'Shipper': profile?.full_name || 'Không rõ',
+        'Email': profile?.email || '',
+        'Đánh giá (sao)': r.rating,
+        'Nhận xét': r.comment || '',
+        'Ngày đánh giá': format(new Date(r.created_at), 'dd/MM/yyyy HH:mm'),
+      };
+    }) || [];
+
+    // Summary per shipper
+    const shipperMap = new Map<string, { name: string; ratings: number[] }>();
+    data?.forEach(r => {
+      const profile = profileMap.get(r.shipper_id);
+      const name = profile?.full_name || 'Không rõ';
+      if (!shipperMap.has(r.shipper_id)) {
+        shipperMap.set(r.shipper_id, { name, ratings: [] });
+      }
+      shipperMap.get(r.shipper_id)!.ratings.push(r.rating);
+    });
+
+    const summaryRows = Array.from(shipperMap.entries()).map(([, info]) => {
+      const avg = info.ratings.reduce((a, b) => a + b, 0) / info.ratings.length;
+      return {
+        'Shipper': info.name,
+        'Số đánh giá': info.ratings.length,
+        'Điểm TB': Number(avg.toFixed(1)),
+        '5 sao': info.ratings.filter(r => r === 5).length,
+        '4 sao': info.ratings.filter(r => r === 4).length,
+        '3 sao': info.ratings.filter(r => r === 3).length,
+        '2 sao': info.ratings.filter(r => r === 2).length,
+        '1 sao': info.ratings.filter(r => r === 1).length,
+      };
+    }).sort((a, b) => b['Điểm TB'] - a['Điểm TB']);
+
+    return {
+      data: summaryRows,
+      name: 'Tổng hợp shipper',
+      additionalSheets: [{ data: detailRows, name: 'Chi tiết đánh giá' }],
+    };
+  };
+
   const exportCustomers = async () => {
     const { data: profiles, error: pErr } = await supabase
       .from('profiles')
@@ -174,6 +240,9 @@ export function ExportExcel() {
           break;
         case 'customers':
           result = await exportCustomers();
+          break;
+        case 'shipper_reviews':
+          result = await exportShipperReviews();
           break;
         default:
           throw new Error('Invalid report type');
@@ -241,11 +310,12 @@ export function ExportExcel() {
                 <SelectItem value="orders">Đơn hàng</SelectItem>
                 <SelectItem value="revenue">Báo cáo doanh thu</SelectItem>
                 <SelectItem value="customers">Khách hàng</SelectItem>
+                <SelectItem value="shipper_reviews">Đánh giá shipper</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {(options.type === 'orders' || options.type === 'revenue') && (
+          {(options.type === 'orders' || options.type === 'revenue' || options.type === 'shipper_reviews') && (
             <>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Chọn nhanh</label>
