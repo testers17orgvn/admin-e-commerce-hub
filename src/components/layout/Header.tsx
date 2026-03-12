@@ -51,7 +51,7 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [logo, setLogo] = useState(defaultLogo);
-  const [brand, setBrand] = useState({ first: 'VSM', second: 'STORE' });
+  const [brand, setBrand] = useState({ first: '', second: '' });
   const [scrolled, setScrolled] = useState(false);
 
   const { totalItems } = useCart();
