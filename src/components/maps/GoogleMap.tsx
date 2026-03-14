@@ -2,7 +2,11 @@
  import { Loader2, MapPin, AlertCircle } from 'lucide-react';
  import { cn } from '@/lib/utils';
  
-/// <reference types="google.maps" />
+declare global {
+  interface Window {
+    google: typeof google;
+  }
+}
  
  interface LatLng {
    lat: number;
