@@ -477,6 +477,23 @@ export default function OrderDetail() {
               </Card>
             )}
 
+            {/* Call Shipper Button */}
+            {order.shipper_id && order.customer_phone && ['shipping', 'confirmed'].includes(order.status) && (
+              <Card className="overflow-hidden border-0 shadow-md border-primary/20 bg-primary/5">
+                <CardContent className="p-4 space-y-3">
+                  <p className="text-sm font-medium">Liên hệ shipper</p>
+                  <Button
+                    variant="default"
+                    className="w-full gap-2"
+                    onClick={() => window.open(`tel:${order.customer_phone}`, '_self')}
+                  >
+                    <Phone className="h-4 w-4" />
+                    Gọi shipper
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Shipper Rating */}
             {(order.status === 'completed' || order.status === 'delivered' || order.shipper_status === 'delivered') && order.shipper_id && (
               <ShipperRating orderId={order.id} shipperId={order.shipper_id} />
