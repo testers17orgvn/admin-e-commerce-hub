@@ -6,6 +6,7 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { useHomepageSettings } from '@/hooks/useHomepageSettings';
+import { ScrollReveal } from './ScrollReveal';
 
 export function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -32,18 +33,20 @@ export function FeaturedProducts() {
     <section className="py-20 bg-secondary/30">
       <div className="container">
         {/* Header */}
-        <div className="text-center mb-12 animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-accent/10 rounded-full text-accent text-sm font-medium mb-4">
-            <Sparkles className="h-4 w-4" />
-            {featured.badge_text}
+        <ScrollReveal direction="up">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-accent/10 rounded-full text-accent text-sm font-medium mb-4">
+              <Sparkles className="h-4 w-4" />
+              {featured.badge_text}
+            </div>
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
+              {featured.title}
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              {featured.description}
+            </p>
           </div>
-          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-            {featured.title}
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            {featured.description}
-          </p>
-        </div>
+        </ScrollReveal>
 
         {/* Products Grid */}
         {loading ? (
@@ -55,9 +58,9 @@ export function FeaturedProducts() {
         ) : products.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((product, index) => (
-              <div key={product.id} className="animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
+              <ScrollReveal key={product.id} direction="up" delay={index * 0.08} distance={30}>
                 <ProductCard product={product} />
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         ) : (
@@ -67,14 +70,16 @@ export function FeaturedProducts() {
         )}
 
         {/* CTA */}
-        <div className="text-center mt-12">
-          <Link to="/products">
-            <Button variant="elegant-outline" size="lg" className="group">
-              {featured.button_text}
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </Link>
-        </div>
+        <ScrollReveal direction="up" delay={0.2}>
+          <div className="text-center mt-12">
+            <Link to="/products">
+              <Button variant="elegant-outline" size="lg" className="group">
+                {featured.button_text}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+          </div>
+        </ScrollReveal>
       </div>
     </section>
   );
