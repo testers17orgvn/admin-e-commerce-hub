@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Category } from '@/lib/types';
 import { useHomepageSettings } from '@/hooks/useHomepageSettings';
+import { ScrollReveal } from './ScrollReveal';
 
 export function CategoriesSection() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -45,47 +46,49 @@ export function CategoriesSection() {
     <section className="py-20">
       <div className="container">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-            {categoriesSettings.title}
-          </h2>
-          <p className="text-muted-foreground">
-            {categoriesSettings.description}
-          </p>
-        </div>
+        <ScrollReveal direction="up">
+          <div className="text-center mb-12">
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
+              {categoriesSettings.title}
+            </h2>
+            <p className="text-muted-foreground">
+              {categoriesSettings.description}
+            </p>
+          </div>
+        </ScrollReveal>
 
         {/* Categories Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
           {categories.map((category, index) => (
-            <Link
-              key={category.id}
-              to={`/products?category=${category.slug}`}
-              className="group relative aspect-square overflow-hidden rounded-lg animate-slide-up"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              {category.image_url ? (
-                <img
-                  src={category.image_url}
-                  alt={category.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-charcoal to-charcoal-light" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/20 to-transparent" />
-              <div className="absolute inset-0 flex items-end p-6">
-                <div>
-                  <h3 className="font-display text-xl md:text-2xl font-bold text-cream mb-1">
-                    {category.name}
-                  </h3>
-                  {category.description && (
-                    <p className="text-cream/70 text-sm line-clamp-2">
-                      {category.description}
-                    </p>
-                  )}
+            <ScrollReveal key={category.id} direction="scale" delay={index * 0.1}>
+              <Link
+                to={`/products?category=${category.slug}`}
+                className="group relative aspect-square overflow-hidden rounded-lg block"
+              >
+                {category.image_url ? (
+                  <img
+                    src={category.image_url}
+                    alt={category.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-charcoal to-charcoal-light" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/20 to-transparent" />
+                <div className="absolute inset-0 flex items-end p-6">
+                  <div>
+                    <h3 className="font-display text-xl md:text-2xl font-bold text-cream mb-1">
+                      {category.name}
+                    </h3>
+                    {category.description && (
+                      <p className="text-cream/70 text-sm line-clamp-2">
+                        {category.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </ScrollReveal>
           ))}
         </div>
       </div>
