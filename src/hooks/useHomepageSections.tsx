@@ -11,8 +11,9 @@ export interface HomepageSection {
 const defaultSections: HomepageSection[] = [
   { id: 'hero', name: 'Hero Banner', enabled: true, order: 0 },
   { id: 'categories', name: 'Danh mục sản phẩm', enabled: true, order: 1 },
-  { id: 'featured', name: 'Sản phẩm nổi bật', enabled: true, order: 2 },
-  { id: 'newsletter', name: 'Đăng ký nhận tin', enabled: true, order: 3 },
+  { id: 'promo_banner', name: 'Banner quảng cáo', enabled: true, order: 2 },
+  { id: 'featured', name: 'Sản phẩm nổi bật', enabled: true, order: 3 },
+  { id: 'newsletter', name: 'Đăng ký nhận tin', enabled: true, order: 4 },
 ];
 
 export function useHomepageSections() {
