@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ProductFilters } from '@/components/products/ProductFilters';
@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Product, Category } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Grid3X3, List, X } from 'lucide-react';
+import { Grid3X3, List, X, Package } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FilterState {
@@ -199,6 +199,63 @@ const Products = () => {
   return (
     <Layout>
       <div className="container py-8 md:py-12">
+        {/* Shopee-style Category Icons */}
+        {categories.length > 0 && (
+          <div className="bg-card border border-border rounded-2xl p-4 md:p-6 mb-8">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Danh mục</h2>
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-x-2 gap-y-3">
+              {/* All categories item */}
+              <button
+                onClick={() => handleCategoryChange('all')}
+                className={cn(
+                  "group flex flex-col items-center gap-2 text-center hover:scale-105 transition-transform duration-200",
+                )}
+              >
+                <div className={cn(
+                  "w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border flex items-center justify-center transition-all duration-200",
+                  !categorySlug
+                    ? "bg-primary/10 border-primary/30 shadow-md"
+                    : "bg-muted/50 border-border/50 group-hover:border-primary/30 group-hover:shadow-md"
+                )}>
+                  <Grid3X3 className={cn("w-5 h-5 transition-colors", !categorySlug ? "text-primary" : "text-muted-foreground group-hover:text-primary")} />
+                </div>
+                <span className={cn(
+                  "text-xs font-medium leading-tight",
+                  !categorySlug ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+                )}>
+                  Tất cả
+                </span>
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategoryChange(cat.slug)}
+                  className="group flex flex-col items-center gap-2 text-center hover:scale-105 transition-transform duration-200"
+                >
+                  <div className={cn(
+                    "w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border flex items-center justify-center transition-all duration-200",
+                    categorySlug === cat.slug
+                      ? "bg-primary/10 border-primary/30 shadow-md"
+                      : "bg-muted/50 border-border/50 group-hover:border-primary/30 group-hover:shadow-md"
+                  )}>
+                    {cat.image_url ? (
+                      <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover" loading="lazy" />
+                    ) : (
+                      <Package className={cn("w-5 h-5 transition-colors", categorySlug === cat.slug ? "text-primary" : "text-muted-foreground group-hover:text-primary")} />
+                    )}
+                  </div>
+                  <span className={cn(
+                    "text-xs font-medium leading-tight line-clamp-2 max-w-[72px] transition-colors",
+                    categorySlug === cat.slug ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+                  )}>
+                    {cat.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center mb-10">
           <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">

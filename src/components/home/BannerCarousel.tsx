@@ -24,12 +24,14 @@ interface BannerCarouselProps {
   pageLocation?: string;
   displayType?: string;
   className?: string;
+  compact?: boolean;
 }
 
 export function BannerCarousel({ 
   pageLocation = 'home', 
   displayType = 'carousel',
-  className 
+  className,
+  compact = false,
 }: BannerCarouselProps) {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -78,7 +80,11 @@ export function BannerCarousel({
 
   if (loading) {
     return (
-      <div className={cn("relative w-full h-[400px] md:h-[500px] bg-muted animate-pulse rounded-xl", className)} />
+      <div className={cn(
+        "relative w-full bg-muted animate-pulse rounded-xl",
+        compact ? "h-[140px] md:h-[180px]" : "h-[400px] md:h-[500px]",
+        className
+      )} />
     );
   }
 
@@ -100,8 +106,14 @@ export function BannerCarousel({
           <div key={banner.id} className="min-w-full relative">
             {banner.link_url ? (
               <Link to={banner.link_url} className="block">
-                <BannerSlide banner={banner} />
+                {compact ? (
+                  <CompactBannerSlide banner={banner} />
+                ) : (
+                  <BannerSlide banner={banner} />
+                )}
               </Link>
+            ) : compact ? (
+              <CompactBannerSlide banner={banner} />
             ) : (
               <BannerSlide banner={banner} />
             )}
@@ -115,33 +127,40 @@ export function BannerCarousel({
           <Button
             variant="ghost"
             size="icon"
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background opacity-0 group-hover:opacity-100 transition-opacity duration-300 h-12 w-12 rounded-full shadow-lg"
+            className={cn(
+              "absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full shadow-lg",
+              compact ? "h-8 w-8" : "h-12 w-12 left-4"
+            )}
             onClick={goToPrev}
           >
-            <ChevronLeft className="h-6 w-6" />
+            <ChevronLeft className={compact ? "h-4 w-4" : "h-6 w-6"} />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background opacity-0 group-hover:opacity-100 transition-opacity duration-300 h-12 w-12 rounded-full shadow-lg"
+            className={cn(
+              "absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full shadow-lg",
+              compact ? "h-8 w-8" : "h-12 w-12 right-4"
+            )}
             onClick={goToNext}
           >
-            <ChevronRight className="h-6 w-6" />
+            <ChevronRight className={compact ? "h-4 w-4" : "h-6 w-6"} />
           </Button>
         </>
       )}
 
       {/* Indicators */}
       {showIndicators && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+        <div className={cn("absolute left-1/2 -translate-x-1/2 flex gap-1.5", compact ? "bottom-2" : "bottom-4 gap-2")}>
           {banners.map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
               className={cn(
-                "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
+                "rounded-full transition-all duration-300 hover:scale-110",
+                compact ? "w-2 h-2" : "w-3 h-3",
                 index === currentIndex 
-                  ? "bg-accent w-8" 
+                  ? cn("bg-accent", compact ? "w-5" : "w-8")
                   : "bg-background/60 hover:bg-background/80"
               )}
             />
@@ -178,6 +197,31 @@ function BannerSlide({ banner }: { banner: Banner }) {
               </Button>
             )}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CompactBannerSlide({ banner }: { banner: Banner }) {
+  return (
+    <div className="relative h-[140px] md:h-[180px]">
+      <img
+        src={banner.image_url}
+        alt={banner.title}
+        className="w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-charcoal/60 via-transparent to-transparent" />
+      <div className="absolute inset-0 flex items-center px-6 md:px-10">
+        <div className="space-y-1">
+          <h3 className="font-display text-lg md:text-2xl font-bold text-cream">
+            {banner.title}
+          </h3>
+          {banner.subtitle && (
+            <p className="text-cream/80 text-xs md:text-sm line-clamp-1">
+              {banner.subtitle}
+            </p>
+          )}
         </div>
       </div>
     </div>
