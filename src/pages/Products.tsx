@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ProductFilters } from '@/components/products/ProductFilters';
@@ -7,8 +7,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Product, Category } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Grid3X3, List, X, Package } from 'lucide-react';
+import { Grid3X3, LayoutGrid, List, X, Package, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ScrollReveal } from '@/components/home/ScrollReveal';
 
 interface FilterState {
   colors: string[];
@@ -31,7 +32,6 @@ const Products = () => {
   const sortBy = searchParams.get('sort') || 'newest';
   const searchQuery = searchParams.get('search') || '';
 
-  // Extract all available filter options from products
   const { availableColors, availableSizes, availableTags, maxPrice } = useMemo(() => {
     const colors = new Set<string>();
     const sizes = new Set<string>();
@@ -63,7 +63,6 @@ const Products = () => {
     categoryId: '',
   });
 
-  // Update price range when maxPrice changes
   useEffect(() => {
     if (maxPrice > 0) {
       setFilters(prev => ({
@@ -76,38 +75,21 @@ const Products = () => {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      
-      // Fetch categories
       const { data: catData } = await supabase.from('categories').select('*');
       setCategories((catData as Category[]) || []);
 
-      // Build product query
       let query = supabase.from('products').select('*').eq('is_active', true);
-
-      // Apply search filter
-      if (searchQuery) {
-        query = query.ilike('name', `%${searchQuery}%`);
-      }
-
+      if (searchQuery) query = query.ilike('name', `%${searchQuery}%`);
       if (categorySlug) {
         const category = catData?.find(c => c.slug === categorySlug);
-        if (category) {
-          query = query.eq('category_id', category.id);
-        }
+        if (category) query = query.eq('category_id', category.id);
       }
 
       switch (sortBy) {
-        case 'price-asc':
-          query = query.order('price', { ascending: true });
-          break;
-        case 'price-desc':
-          query = query.order('price', { ascending: false });
-          break;
-        case 'name':
-          query = query.order('name', { ascending: true });
-          break;
-        default:
-          query = query.order('created_at', { ascending: false });
+        case 'price-asc': query = query.order('price', { ascending: true }); break;
+        case 'price-desc': query = query.order('price', { ascending: false }); break;
+        case 'name': query = query.order('name', { ascending: true }); break;
+        default: query = query.order('created_at', { ascending: false });
       }
 
       const { data: prodData } = await query;
@@ -122,59 +104,24 @@ const Products = () => {
     setSearchParams(searchParams);
   };
 
-  // Apply client-side filters
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
-      // Category filter (from sidebar)
-      if (filters.categoryId && product.category_id !== filters.categoryId) {
-        return false;
-      }
-
-      // Price filter
-      if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) {
-        return false;
-      }
-
-      // Color filter
-      if (filters.colors.length > 0) {
-        if (!product.colors?.some(c => filters.colors.includes(c))) {
-          return false;
-        }
-      }
-
-      // Size filter
-      if (filters.sizes.length > 0) {
-        if (!product.sizes?.some(s => filters.sizes.includes(s))) {
-          return false;
-        }
-      }
-
-      // Tag filter
-      if (filters.tags.length > 0) {
-        if (!product.tags?.some(t => filters.tags.includes(t))) {
-          return false;
-        }
-      }
-
-      // Hot filter
-      if (filters.isHot && !product.is_hot) {
-        return false;
-      }
-
-      // Discount filter
-      if (filters.hasDiscount && (!product.original_price || product.original_price <= product.price)) {
-        return false;
-      }
-
+      if (filters.categoryId && product.category_id !== filters.categoryId) return false;
+      if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) return false;
+      if (filters.colors.length > 0 && !product.colors?.some(c => filters.colors.includes(c))) return false;
+      if (filters.sizes.length > 0 && !product.sizes?.some(s => filters.sizes.includes(s))) return false;
+      if (filters.tags.length > 0 && !product.tags?.some(t => filters.tags.includes(t))) return false;
+      if (filters.isHot && !product.is_hot) return false;
+      if (filters.hasDiscount && (!product.original_price || product.original_price <= product.price)) return false;
       return true;
     });
   }, [products, filters]);
 
-  const handleCategoryChange = (value: string) => {
-    if (value === 'all') {
+  const handleCategoryChange = (slug: string) => {
+    if (slug === 'all') {
       searchParams.delete('category');
     } else {
-      searchParams.set('category', value);
+      searchParams.set('category', slug);
     }
     setSearchParams(searchParams);
   };
@@ -196,93 +143,106 @@ const Products = () => {
     });
   };
 
+  const selectedCategory = categories.find(c => c.slug === categorySlug);
+
   return (
     <Layout>
-      <div className="container py-8 md:py-12">
-        {/* Shopee-style Category Icons */}
+      <div className="container py-6 md:py-10">
+        {/* Category Icons - Shopee style */}
         {categories.length > 0 && (
-          <div className="bg-card border border-border rounded-2xl p-4 md:p-6 mb-8">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Danh mục</h2>
-            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-x-2 gap-y-3">
-              {/* All categories item */}
-              <button
-                onClick={() => handleCategoryChange('all')}
-                className={cn(
-                  "group flex flex-col items-center gap-2 text-center hover:scale-105 transition-transform duration-200",
+          <ScrollReveal direction="up">
+            <div className="bg-card border border-border rounded-2xl p-4 md:p-5 mb-6 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Danh mục</h2>
+                {categorySlug && (
+                  <button
+                    onClick={() => handleCategoryChange('all')}
+                    className="text-xs text-primary hover:underline flex items-center gap-1"
+                  >
+                    <X className="w-3 h-3" />
+                    Bỏ chọn
+                  </button>
                 )}
-              >
-                <div className={cn(
-                  "w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border flex items-center justify-center transition-all duration-200",
-                  !categorySlug
-                    ? "bg-primary/10 border-primary/30 shadow-md"
-                    : "bg-muted/50 border-border/50 group-hover:border-primary/30 group-hover:shadow-md"
-                )}>
-                  <Grid3X3 className={cn("w-5 h-5 transition-colors", !categorySlug ? "text-primary" : "text-muted-foreground group-hover:text-primary")} />
-                </div>
-                <span className={cn(
-                  "text-xs font-medium leading-tight",
-                  !categorySlug ? "text-primary" : "text-muted-foreground group-hover:text-primary"
-                )}>
-                  Tất cả
-                </span>
-              </button>
-              {categories.map((cat) => (
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
                 <button
-                  key={cat.id}
-                  onClick={() => handleCategoryChange(cat.slug)}
-                  className="group flex flex-col items-center gap-2 text-center hover:scale-105 transition-transform duration-200"
+                  onClick={() => handleCategoryChange('all')}
+                  className="group flex flex-col items-center gap-1.5 flex-shrink-0"
                 >
                   <div className={cn(
-                    "w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border flex items-center justify-center transition-all duration-200",
-                    categorySlug === cat.slug
-                      ? "bg-primary/10 border-primary/30 shadow-md"
-                      : "bg-muted/50 border-border/50 group-hover:border-primary/30 group-hover:shadow-md"
+                    "w-14 h-14 rounded-2xl overflow-hidden border-2 flex items-center justify-center transition-all duration-200",
+                    !categorySlug
+                      ? "bg-primary/10 border-primary shadow-md shadow-primary/20"
+                      : "bg-muted/40 border-transparent group-hover:border-primary/30 group-hover:shadow-sm"
                   )}>
-                    {cat.image_url ? (
-                      <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover" loading="lazy" />
-                    ) : (
-                      <Package className={cn("w-5 h-5 transition-colors", categorySlug === cat.slug ? "text-primary" : "text-muted-foreground group-hover:text-primary")} />
-                    )}
+                    <LayoutGrid className={cn("w-6 h-6 transition-colors", !categorySlug ? "text-primary" : "text-muted-foreground group-hover:text-primary")} />
                   </div>
                   <span className={cn(
-                    "text-xs font-medium leading-tight line-clamp-2 max-w-[72px] transition-colors",
-                    categorySlug === cat.slug ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+                    "text-[11px] font-medium leading-tight text-center w-16 line-clamp-2",
+                    !categorySlug ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
                   )}>
-                    {cat.name}
+                    Tất cả
                   </span>
                 </button>
-              ))}
+                {categories.map((cat) => {
+                  const isActive = categorySlug === cat.slug;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => handleCategoryChange(cat.slug)}
+                      className="group flex flex-col items-center gap-1.5 flex-shrink-0"
+                    >
+                      <div className={cn(
+                        "w-14 h-14 rounded-2xl overflow-hidden border-2 flex items-center justify-center transition-all duration-200",
+                        isActive
+                          ? "bg-primary/10 border-primary shadow-md shadow-primary/20"
+                          : "bg-muted/40 border-transparent group-hover:border-primary/30 group-hover:shadow-sm"
+                      )}>
+                        {cat.image_url ? (
+                          <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover" loading="lazy" />
+                        ) : (
+                          <Package className={cn("w-6 h-6 transition-colors", isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary")} />
+                        )}
+                      </div>
+                      <span className={cn(
+                        "text-[11px] font-medium leading-tight text-center w-16 line-clamp-2",
+                        isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                      )}>
+                        {cat.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          </ScrollReveal>
         )}
 
-        {/* Header */}
-        <div className="text-center mb-10">
-          <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">
-            {searchQuery ? `Kết quả tìm kiếm: "${searchQuery}"` : 'Bộ sưu tập'}
-          </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            {searchQuery 
-              ? `Tìm thấy ${filteredProducts.length} sản phẩm phù hợp`
-              : 'Khám phá các sản phẩm cao cấp được tuyển chọn kỹ lưỡng'
-            }
-          </p>
-          {searchQuery && (
-            <Button 
-              variant="outline" 
-              className="mt-4" 
-              onClick={clearSearch}
-            >
-              <X className="h-4 w-4 mr-2" />
-              Xóa tìm kiếm
-            </Button>
-          )}
-        </div>
+        {/* Page Title */}
+        <ScrollReveal direction="up" delay={0.05}>
+          <div className="mb-6">
+            <h1 className="font-display text-2xl md:text-3xl font-bold">
+              {searchQuery 
+                ? <>Tìm kiếm: <span className="text-primary">"{searchQuery}"</span></>
+                : selectedCategory 
+                  ? selectedCategory.name 
+                  : 'Tất cả sản phẩm'
+              }
+            </h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              {filteredProducts.length} sản phẩm
+              {searchQuery && (
+                <Button variant="link" size="sm" className="ml-2 h-auto p-0 text-primary" onClick={clearSearch}>
+                  Xóa tìm kiếm
+                </Button>
+              )}
+            </p>
+          </div>
+        </ScrollReveal>
 
-        {/* Filters Bar */}
-        <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 pb-6 border-b">
-          <div className="flex items-center gap-4 flex-wrap">
-            {/* Mobile Filters - Only show on mobile */}
+        {/* Toolbar */}
+        <div className="flex items-center justify-between mb-6 gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
             <div className="lg:hidden">
               <ProductFilters
                 availableColors={availableColors}
@@ -296,23 +256,8 @@ const Products = () => {
                 isMobileOnly
               />
             </div>
-
-            <Select value={categorySlug || 'all'} onValueChange={handleCategoryChange}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Danh mục" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả</SelectItem>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.slug}>
-                    {cat.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
             <Select value={sortBy} onValueChange={handleSortChange}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[160px] h-9 rounded-full text-sm">
                 <SelectValue placeholder="Sắp xếp" />
               </SelectTrigger>
               <SelectContent>
@@ -324,32 +269,29 @@ const Products = () => {
             </Select>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              {filteredProducts.length} sản phẩm
-            </span>
-            <div className="flex border rounded-md">
-              <Button
-                variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-                size="icon"
-                onClick={() => setViewMode('grid')}
-              >
-                <Grid3X3 className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-                size="icon"
-                onClick={() => setViewMode('list')}
-              >
-                <List className="h-4 w-4" />
-              </Button>
-            </div>
+          <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
+            <Button
+              variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+              size="icon"
+              className="h-8 w-8 rounded-md"
+              onClick={() => setViewMode('grid')}
+            >
+              <Grid3X3 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+              size="icon"
+              className="h-8 w-8 rounded-md"
+              onClick={() => setViewMode('list')}
+            >
+              <List className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
-        {/* Main Content with Sidebar */}
-        <div className="flex gap-8">
-          {/* Desktop Filters Sidebar - Only show on desktop */}
+        {/* Main Content */}
+        <div className="flex gap-6">
+          {/* Desktop Sidebar */}
           <div className="hidden lg:block">
             <ProductFilters
               availableColors={availableColors}
@@ -364,19 +306,19 @@ const Products = () => {
             />
           </div>
 
-          {/* Products Grid */}
-          <div className="flex-1">
+          {/* Products */}
+          <div className="flex-1 min-w-0">
             {loading ? (
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="aspect-[3/4] bg-muted animate-pulse rounded-lg" />
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 md:gap-6">
+                {[...Array(9)].map((_, i) => (
+                  <div key={i} className="aspect-[3/4] bg-muted animate-pulse rounded-xl" />
                 ))}
               </div>
             ) : filteredProducts.length > 0 ? (
               <div className={cn(
-                'grid gap-6',
+                'grid gap-4 md:gap-6',
                 viewMode === 'grid' 
-                  ? 'grid-cols-2 md:grid-cols-2 lg:grid-cols-3' 
+                  ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-3' 
                   : 'grid-cols-1 md:grid-cols-2'
               )}>
                 {filteredProducts.map((product) => (
@@ -385,8 +327,9 @@ const Products = () => {
               </div>
             ) : (
               <div className="text-center py-20">
+                <Search className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
                 <p className="text-muted-foreground mb-4">Không tìm thấy sản phẩm nào.</p>
-                <Button variant="outline" onClick={resetFilters}>
+                <Button variant="outline" onClick={resetFilters} className="rounded-full">
                   Xóa bộ lọc
                 </Button>
               </div>
