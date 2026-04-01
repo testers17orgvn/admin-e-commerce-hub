@@ -26,8 +26,8 @@ const Index = () => {
         // Show default order while loading
         <>
           <HeroSection />
-          <FeaturedProducts />
           <CategoriesSection />
+          <FeaturedProducts />
           <NewsletterSection />
         </>
       ) : (
