@@ -19,14 +19,17 @@ import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { GripVertical, Layout, Sparkles, Grid, Mail, Save, RotateCcw } from 'lucide-react';
+import { GripVertical, Layout, Sparkles, Grid, Mail, Save, RotateCcw, Image, Zap, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { HomepageSection, useHomepageSections } from '@/hooks/useHomepageSections';
 
 const sectionIcons: Record<string, React.ReactNode> = {
   hero: <Layout className="h-5 w-5 text-accent" />,
-  featured: <Sparkles className="h-5 w-5 text-accent" />,
   categories: <Grid className="h-5 w-5 text-accent" />,
+  promo_banner: <Image className="h-5 w-5 text-accent" />,
+  flash_sale: <Zap className="h-5 w-5 text-destructive" />,
+  new_arrivals: <Clock className="h-5 w-5 text-accent" />,
+  featured: <Sparkles className="h-5 w-5 text-accent" />,
   newsletter: <Mail className="h-5 w-5 text-accent" />,
 };
 
