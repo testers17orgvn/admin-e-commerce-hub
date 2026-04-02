@@ -4,12 +4,14 @@ import { FeaturedProducts } from '@/components/home/FeaturedProducts';
 import { CategoriesSection } from '@/components/home/CategoriesSection';
 import { NewsletterSection } from '@/components/home/NewsletterSection';
 import { PromoBannerSection } from '@/components/home/PromoBannerSection';
+import { FlashSaleSection } from '@/components/home/FlashSaleSection';
 import { useHomepageSections } from '@/hooks/useHomepageSections';
 
 const sectionComponents: Record<string, React.ComponentType> = {
   hero: HeroSection,
   categories: CategoriesSection,
   promo_banner: PromoBannerSection,
+  flash_sale: FlashSaleSection,
   featured: FeaturedProducts,
   newsletter: NewsletterSection,
 };
