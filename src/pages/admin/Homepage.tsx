@@ -242,7 +242,12 @@ export default function AdminHomepage() {
           <HomepageSectionManager />
         </TabsContent>
 
-        {/* Hero Section */}
+        {/* Flash Sale Section */}
+        <TabsContent value="flash_sale">
+          <FlashSaleManager />
+        </TabsContent>
+
+
         <TabsContent value="hero">
           <Card>
             <CardHeader>
