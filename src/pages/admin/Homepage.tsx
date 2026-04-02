@@ -210,7 +210,7 @@ export default function AdminHomepage() {
       </div>
 
       <Tabs defaultValue="layout" className="space-y-6">
-        <TabsList className="grid grid-cols-5 w-full max-w-3xl">
+        <TabsList className="grid grid-cols-6 w-full max-w-4xl">
           <TabsTrigger value="layout" className="flex items-center gap-2">
             <Layers className="h-4 w-4" />
             Bố cục
@@ -218,6 +218,10 @@ export default function AdminHomepage() {
           <TabsTrigger value="hero" className="flex items-center gap-2">
             <Layout className="h-4 w-4" />
             Hero
+          </TabsTrigger>
+          <TabsTrigger value="flash_sale" className="flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            Flash Sale
           </TabsTrigger>
           <TabsTrigger value="featured" className="flex items-center gap-2">
             <Sparkles className="h-4 w-4" />
