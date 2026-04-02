@@ -12,6 +12,7 @@ import { Save, Layout, Sparkles, Grid, Mail, Plus, Trash2, Layers, Zap } from 'l
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { HomepageSectionManager } from '@/components/admin/HomepageSectionManager';
+import { FlashSaleManager } from '@/components/admin/FlashSaleManager';
 import type { HomepageSettings } from '@/hooks/useHomepageSettings';
 
 interface StatItem {
