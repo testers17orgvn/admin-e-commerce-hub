@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Save, Layout, Sparkles, Grid, Mail, Plus, Trash2, Layers } from 'lucide-react';
+import { Save, Layout, Sparkles, Grid, Mail, Plus, Trash2, Layers, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { HomepageSectionManager } from '@/components/admin/HomepageSectionManager';
