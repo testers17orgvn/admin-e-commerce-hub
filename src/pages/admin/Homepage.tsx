@@ -8,10 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Save, Layout, Sparkles, Grid, Mail, Plus, Trash2, Layers } from 'lucide-react';
+import { Save, Layout, Sparkles, Grid, Mail, Plus, Trash2, Layers, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { HomepageSectionManager } from '@/components/admin/HomepageSectionManager';
+import { FlashSaleManager } from '@/components/admin/FlashSaleManager';
 import type { HomepageSettings } from '@/hooks/useHomepageSettings';
 
 interface StatItem {
@@ -209,7 +210,7 @@ export default function AdminHomepage() {
       </div>
 
       <Tabs defaultValue="layout" className="space-y-6">
-        <TabsList className="grid grid-cols-5 w-full max-w-3xl">
+        <TabsList className="grid grid-cols-6 w-full max-w-4xl">
           <TabsTrigger value="layout" className="flex items-center gap-2">
             <Layers className="h-4 w-4" />
             Bố cục
@@ -217,6 +218,10 @@ export default function AdminHomepage() {
           <TabsTrigger value="hero" className="flex items-center gap-2">
             <Layout className="h-4 w-4" />
             Hero
+          </TabsTrigger>
+          <TabsTrigger value="flash_sale" className="flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            Flash Sale
           </TabsTrigger>
           <TabsTrigger value="featured" className="flex items-center gap-2">
             <Sparkles className="h-4 w-4" />
@@ -237,7 +242,12 @@ export default function AdminHomepage() {
           <HomepageSectionManager />
         </TabsContent>
 
-        {/* Hero Section */}
+        {/* Flash Sale Section */}
+        <TabsContent value="flash_sale">
+          <FlashSaleManager />
+        </TabsContent>
+
+
         <TabsContent value="hero">
           <Card>
             <CardHeader>
