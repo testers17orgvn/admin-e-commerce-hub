@@ -5,6 +5,7 @@ import { CategoriesSection } from '@/components/home/CategoriesSection';
 import { NewsletterSection } from '@/components/home/NewsletterSection';
 import { PromoBannerSection } from '@/components/home/PromoBannerSection';
 import { FlashSaleSection } from '@/components/home/FlashSaleSection';
+import { NewArrivalsSection } from '@/components/home/NewArrivalsSection';
 import { useHomepageSections } from '@/hooks/useHomepageSections';
 
 const sectionComponents: Record<string, React.ComponentType> = {
@@ -12,6 +13,7 @@ const sectionComponents: Record<string, React.ComponentType> = {
   categories: CategoriesSection,
   promo_banner: PromoBannerSection,
   flash_sale: FlashSaleSection,
+  new_arrivals: NewArrivalsSection,
   featured: FeaturedProducts,
   newsletter: NewsletterSection,
 };
