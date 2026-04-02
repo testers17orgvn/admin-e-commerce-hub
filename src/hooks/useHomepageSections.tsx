@@ -13,8 +13,9 @@ const defaultSections: HomepageSection[] = [
   { id: 'categories', name: 'Danh mục sản phẩm', enabled: true, order: 1 },
   { id: 'promo_banner', name: 'Banner quảng cáo', enabled: true, order: 2 },
   { id: 'flash_sale', name: 'Flash Sale', enabled: true, order: 3 },
-  { id: 'featured', name: 'Sản phẩm nổi bật', enabled: true, order: 4 },
-  { id: 'newsletter', name: 'Đăng ký nhận tin', enabled: true, order: 5 },
+  { id: 'new_arrivals', name: 'Hàng mới về', enabled: true, order: 4 },
+  { id: 'featured', name: 'Sản phẩm nổi bật', enabled: true, order: 5 },
+  { id: 'newsletter', name: 'Đăng ký nhận tin', enabled: true, order: 6 },
 ];
 
 export function useHomepageSections() {
