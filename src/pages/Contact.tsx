@@ -8,8 +8,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useContactSettings } from '@/hooks/useContactSettings';
 import { toast } from 'sonner';
-import { Mail, Phone, MapPin, Clock, Send, Loader2, MessageCircle, Facebook } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, Send, Loader2, MessageCircle, Facebook, Share2, Copy, ExternalLink } from 'lucide-react';
 import { ContactFormField, DEFAULT_FORM_FIELDS } from '@/components/admin/ContactFormFieldManager';
+
+const SITE_URL = 'https://store.vsm.org.vn';
 
 const Contact = () => {
   const { settings, loading: settingsLoading } = useContactSettings();
@@ -17,7 +19,6 @@ const Contact = () => {
   const [formFields, setFormFields] = useState<ContactFormField[]>(DEFAULT_FORM_FIELDS);
   const [formData, setFormData] = useState<Record<string, string>>({});
 
-  // Fetch form field config
   useEffect(() => {
     const fetchFields = async () => {
       const { data } = await supabase
@@ -45,24 +46,17 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validate required fields
     for (const field of enabledFields) {
       if (field.required && !formData[field.id]?.trim()) {
         toast.error(`Vui lòng điền "${field.label}"`);
         return;
       }
     }
-
-    // Email validation
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       toast.error('Email không hợp lệ');
       return;
     }
-
     setLoading(true);
-
-    // Separate built-in fields from custom fields
     const builtinKeys = ['name', 'email', 'phone', 'subject', 'message'];
     const customFields: Record<string, string> = {};
     for (const [key, value] of Object.entries(formData)) {
@@ -71,7 +65,6 @@ const Contact = () => {
         customFields[fieldConfig?.label || key] = value.trim();
       }
     }
-
     const { error } = await supabase.from('contacts').insert({
       name: formData.name || '',
       email: formData.email || '',
@@ -80,17 +73,23 @@ const Contact = () => {
       message: formData.message || '',
       custom_fields: Object.keys(customFields).length > 0 ? customFields : null,
     } as any);
-
     if (error) {
       toast.error('Đã có lỗi xảy ra. Vui lòng thử lại.');
       setLoading(false);
       return;
     }
-
     toast.success('Gửi tin nhắn thành công! Chúng tôi sẽ phản hồi sớm.');
     setFormData({});
     setLoading(false);
   };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(`${SITE_URL}/contact`);
+    toast.success('Đã sao chép liên kết!');
+  };
+
+  const shareUrl = `${SITE_URL}/contact`;
+  const shareText = 'Liên hệ VSM Shop - Cửa hàng thời trang trực tuyến';
 
   if (settingsLoading) {
     return (
@@ -102,11 +101,9 @@ const Contact = () => {
     );
   }
 
-  // Group fields into rows (half-width fields are paired)
   const renderFormFields = () => {
     const rows: ContactFormField[][] = [];
     let currentRow: ContactFormField[] = [];
-
     for (const field of enabledFields) {
       if (field.halfWidth) {
         currentRow.push(field);
@@ -206,77 +203,142 @@ const Contact = () => {
                 Thông tin liên hệ
               </h2>
               <div className="space-y-6">
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                  <CardContent className="p-6 flex items-start gap-4">
-                    <div className="p-4 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                      <MapPin className="h-6 w-6 text-accent" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg mb-1">Địa chỉ</h3>
-                      <p className="text-muted-foreground whitespace-pre-line">{settings.address}</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                {settings.address && (
+                  <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                    <CardContent className="p-6 flex items-start gap-4">
+                      <div className="p-4 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <MapPin className="h-6 w-6 text-accent" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">Địa chỉ</h3>
+                        <p className="text-muted-foreground whitespace-pre-line">{settings.address}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                  <CardContent className="p-6 flex items-start gap-4">
-                    <div className="p-4 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                      <Phone className="h-6 w-6 text-accent" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg mb-1">Điện thoại</h3>
-                      <p className="text-muted-foreground">{settings.phone}</p>
-                      <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className="text-accent hover:underline text-sm mt-1 inline-block">
-                        Gọi ngay
-                      </a>
-                    </div>
-                  </CardContent>
-                </Card>
+                {settings.phone && (
+                  <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                    <CardContent className="p-6 flex items-start gap-4">
+                      <div className="p-4 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Phone className="h-6 w-6 text-accent" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">Điện thoại</h3>
+                        <p className="text-muted-foreground">{settings.phone}</p>
+                        <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className="text-accent hover:underline text-sm mt-1 inline-block">
+                          Gọi ngay
+                        </a>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                  <CardContent className="p-6 flex items-start gap-4">
-                    <div className="p-4 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                      <Mail className="h-6 w-6 text-accent" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg mb-1">Email</h3>
-                      <p className="text-muted-foreground">{settings.email}</p>
-                      <a href={`mailto:${settings.email}`} className="text-accent hover:underline text-sm mt-1 inline-block">
-                        Gửi email
-                      </a>
-                    </div>
-                  </CardContent>
-                </Card>
+                {settings.email && (
+                  <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                    <CardContent className="p-6 flex items-start gap-4">
+                      <div className="p-4 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Mail className="h-6 w-6 text-accent" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">Email</h3>
+                        <p className="text-muted-foreground">{settings.email}</p>
+                        <a href={`mailto:${settings.email}`} className="text-accent hover:underline text-sm mt-1 inline-block">
+                          Gửi email
+                        </a>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                  <CardContent className="p-6 flex items-start gap-4">
-                    <div className="p-4 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                      <Clock className="h-6 w-6 text-accent" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg mb-1">Giờ làm việc</h3>
-                      <p className="text-muted-foreground whitespace-pre-line">{settings.working_hours}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {(settings.facebook || settings.zalo) && (
-                  <div className="flex gap-4 pt-4">
-                    {settings.facebook && (
-                      <a href={settings.facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors">
-                        <Facebook className="h-5 w-5" /> Facebook
-                      </a>
-                    )}
-                    {settings.zalo && (
-                      <a href={settings.zalo.startsWith('http') ? settings.zalo : `https://zalo.me/${settings.zalo}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-3 bg-blue-400 hover:bg-blue-500 text-white rounded-xl transition-colors">
-                        <MessageCircle className="h-5 w-5" /> Zalo
-                      </a>
-                    )}
-                  </div>
+                {settings.working_hours && (
+                  <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                    <CardContent className="p-6 flex items-start gap-4">
+                      <div className="p-4 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Clock className="h-6 w-6 text-accent" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">Giờ làm việc</h3>
+                        <p className="text-muted-foreground whitespace-pre-line">{settings.working_hours}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
               </div>
             </div>
 
+            {/* Social Media & Sharing */}
+            <div className="space-y-4">
+              <h3 className="font-display text-xl font-bold">Kết nối với chúng tôi</h3>
+              
+              {/* Social links */}
+              <div className="flex flex-wrap gap-3">
+                {settings.facebook && (
+                  <a
+                    href={settings.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative flex items-center gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-600/20 hover:shadow-xl hover:shadow-blue-600/30 hover:-translate-y-0.5 transition-all duration-300"
+                  >
+                    <Facebook className="h-5 w-5" />
+                    <span className="font-medium">Facebook</span>
+                    <ExternalLink className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                )}
+                {settings.zalo && (
+                  <a
+                    href={settings.zalo.startsWith('http') ? settings.zalo : `https://zalo.me/${settings.zalo}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative flex items-center gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-400 to-cyan-400 text-white shadow-lg shadow-blue-400/20 hover:shadow-xl hover:shadow-blue-400/30 hover:-translate-y-0.5 transition-all duration-300"
+                  >
+                    <MessageCircle className="h-5 w-5" />
+                    <span className="font-medium">Zalo</span>
+                    <ExternalLink className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                )}
+              </div>
+
+              {/* Share buttons */}
+              <div className="mt-4">
+                <p className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
+                  <Share2 className="h-4 w-4" /> Chia sẻ trang này
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600/10 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-600/20 hover:border-transparent transition-all duration-300 text-sm font-medium"
+                  >
+                    <Facebook className="h-4 w-4" /> Facebook
+                  </a>
+                  <a
+                    href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sky-500/10 text-sky-500 hover:bg-sky-500 hover:text-white border border-sky-500/20 hover:border-transparent transition-all duration-300 text-sm font-medium"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    X (Twitter)
+                  </a>
+                  <a
+                    href={`mailto:?subject=${encodeURIComponent(shareText)}&body=${encodeURIComponent(shareUrl)}`}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white border border-emerald-500/20 hover:border-transparent transition-all duration-300 text-sm font-medium"
+                  >
+                    <Mail className="h-4 w-4" /> Email
+                  </a>
+                  <button
+                    onClick={handleCopyLink}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground border border-border hover:border-transparent transition-all duration-300 text-sm font-medium"
+                  >
+                    <Copy className="h-4 w-4" /> Sao chép link
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Google Map */}
             {settings.map_embed && (
               <div className="rounded-2xl overflow-hidden shadow-lg border">
                 <div
@@ -291,7 +353,7 @@ const Contact = () => {
             )}
           </div>
 
-          {/* Dynamic Contact Form */}
+          {/* Contact Form */}
           <div>
             <Card className="border-0 shadow-lg overflow-hidden sticky top-24">
               <div className="bg-gradient-to-r from-accent/10 to-transparent p-6 border-b">
