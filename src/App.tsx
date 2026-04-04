@@ -46,6 +46,7 @@ import SellerProductReview from "./pages/admin/SellerProductReview";
 import SellerRequests from "./pages/admin/SellerRequests";
 import SellerProducts from "./pages/seller/SellerProducts";
 import SellerDashboard from "./pages/seller/SellerDashboard";
+import SellerRevenue from "./pages/seller/SellerRevenue";
  import ShipperDashboard from "./pages/shipper/ShipperDashboard";
  import ShipperManagement from "./pages/admin/ShipperManagement";
  import OrderDetail from "./pages/OrderDetail";
@@ -104,6 +105,7 @@ const App = () => (
                   {/* Seller Routes */}
                   <Route path="/seller/products" element={<SellerProducts />} />
                   <Route path="/seller/dashboard" element={<SellerDashboard />} />
+                  <Route path="/seller/revenue" element={<SellerRevenue />} />
                    
                    {/* Shipper Routes */}
                    <Route path="/shipper" element={<ShipperDashboard />} />
