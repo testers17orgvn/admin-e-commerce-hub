@@ -158,6 +158,12 @@ export default function SellerDashboard() {
               <RefreshCw className="h-4 w-4 mr-2" />
               Làm mới
             </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/seller/revenue">
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Thống kê doanh thu
+              </Link>
+            </Button>
             <Button asChild>
               <Link to="/seller/products">
                 <Plus className="h-4 w-4 mr-2" />
