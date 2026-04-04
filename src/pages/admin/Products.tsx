@@ -80,7 +80,21 @@ export default function AdminProducts() {
     setLoading(false);
   };
 
+  const LOW_STOCK_THRESHOLD = 5;
+
   useEffect(() => { fetchData(); }, []);
+
+  // Low stock notification
+  useEffect(() => {
+    const lowStockProducts = products.filter(p => p.is_active && p.stock <= LOW_STOCK_THRESHOLD && p.stock > 0);
+    const outOfStock = products.filter(p => p.is_active && p.stock === 0);
+    if (outOfStock.length > 0) {
+      toast.error(`⚠️ ${outOfStock.length} sản phẩm đã hết hàng!`, { duration: 5000 });
+    }
+    if (lowStockProducts.length > 0) {
+      toast.warning(`📦 ${lowStockProducts.length} sản phẩm sắp hết hàng (≤${LOW_STOCK_THRESHOLD})`, { duration: 5000 });
+    }
+  }, [products]);
 
   // Stats
   const stats = useMemo(() => {
