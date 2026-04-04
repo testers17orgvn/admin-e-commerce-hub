@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from './AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
-import { Package, ShoppingCart, FileText, Mail, TrendingUp, RefreshCw, Calendar, Star, Truck, Trophy, User, BarChart3 } from 'lucide-react';
+import { Package, ShoppingCart, FileText, Mail, TrendingUp, RefreshCw, Calendar, Star, Truck, Trophy, User, BarChart3, Store, Crown, Shield, Settings, ExternalLink } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
   LineChart, Line, Area, AreaChart
@@ -17,6 +18,7 @@ import {
 import { ExportExcel } from '@/components/admin/ExportExcel';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({ products: 0, orders: 0, blogs: 0, contacts: 0, revenue: 0 });
   const [weeklyStats, setWeeklyStats] = useState({ revenue: 0, contacts: 0 });
   const [shipperReviewStats, setShipperReviewStats] = useState({ total: 0, avg: 0, distribution: [0, 0, 0, 0, 0] });
@@ -233,6 +235,38 @@ export default function Dashboard() {
             <p className="text-sm text-muted-foreground mt-0.5">{card.label}</p>
           </div>
         ))}
+      </div>
+
+      {/* Quick Access - Test Role Dashboards */}
+      <div className="rounded-xl border bg-card p-5 mb-6 shadow-sm">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+          <Shield className="h-4 w-4" />
+          Truy cập nhanh theo vai trò
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { label: 'Admin Dashboard', icon: Crown, href: '/admin', gradient: 'from-amber-500 to-orange-500', active: true },
+            { label: 'Seller Dashboard', icon: Store, href: '/seller/dashboard', gradient: 'from-emerald-500 to-teal-500' },
+            { label: 'Seller Revenue', icon: BarChart3, href: '/seller/revenue', gradient: 'from-purple-500 to-pink-500' },
+            { label: 'Shipper Dashboard', icon: Truck, href: '/shipper', gradient: 'from-blue-500 to-indigo-500' },
+          ].map((item) => (
+            <button
+              key={item.href}
+              onClick={() => navigate(item.href)}
+              className={`group relative flex items-center gap-3 p-3.5 rounded-xl border transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 ${
+                item.active ? 'bg-accent/10 border-accent/30' : 'hover:bg-muted'
+              }`}
+            >
+              <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-sm`}>
+                <item.icon className="h-4 w-4 text-white" />
+              </div>
+              <div className="text-left flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{item.label}</p>
+              </div>
+              <ExternalLink className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Weekly Stats */}
