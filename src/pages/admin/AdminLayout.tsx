@@ -34,6 +34,7 @@ const menuGroups = [
       { href: '/admin/shipper', icon: Truck, label: 'Quản lý giao hàng' },
       { href: '/admin/vouchers', icon: Ticket, label: 'Voucher' },
       { href: '/admin/reviews', icon: Star, label: 'Đánh giá' },
+      { href: '/admin/chat', icon: MessageCircle, label: 'Chat' },
     ]
   },
   {
