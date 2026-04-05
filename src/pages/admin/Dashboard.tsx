@@ -16,6 +16,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { ExportExcel } from '@/components/admin/ExportExcel';
+import { AdminGuide } from '@/components/guides/AdminGuide';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -545,6 +546,9 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* User Guide */}
+      <AdminGuide />
 
       {/* Top Shipper */}
       <div className="rounded-xl border bg-card p-6 shadow-sm">
