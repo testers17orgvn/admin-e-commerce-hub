@@ -16,6 +16,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { ExportExcel } from '@/components/admin/ExportExcel';
+import { AdminGuide } from '@/components/guides/AdminGuide';
 
 export default function Dashboard() {
   const navigate = useNavigate();
