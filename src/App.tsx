@@ -107,6 +107,7 @@ const App = () => (
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/cookie" element={<Cookie />} />
+                    <Route path="/chat" element={<Chat />} />
                     
                     {/* Admin Routes */}
                     <Route path="/admin" element={<Dashboard />} />
