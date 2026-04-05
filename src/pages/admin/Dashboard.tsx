@@ -547,6 +547,9 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* User Guide */}
+      <AdminGuide />
+
       {/* Top Shipper */}
       <div className="rounded-xl border bg-card p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
