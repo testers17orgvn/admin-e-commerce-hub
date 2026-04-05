@@ -29,6 +29,7 @@ const Wishlist = lazy(() => import("./pages/Wishlist"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Cookie = lazy(() => import("./pages/Cookie"));
+const Chat = lazy(() => import("./pages/Chat"));
 const Profile = lazy(() => import("./pages/Profile"));
 
 // Admin
@@ -48,6 +49,7 @@ const AdminReviews = lazy(() => import("./pages/admin/Reviews"));
 const SellerProductReview = lazy(() => import("./pages/admin/SellerProductReview"));
 const SellerRequests = lazy(() => import("./pages/admin/SellerRequests"));
 const ShipperManagement = lazy(() => import("./pages/admin/ShipperManagement"));
+const AdminChat = lazy(() => import("./pages/admin/Chat"));
 
 // Seller
 const SellerProducts = lazy(() => import("./pages/seller/SellerProducts"));
@@ -105,6 +107,7 @@ const App = () => (
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/cookie" element={<Cookie />} />
+                    <Route path="/chat" element={<Chat />} />
                     
                     {/* Admin Routes */}
                     <Route path="/admin" element={<Dashboard />} />
@@ -123,6 +126,7 @@ const App = () => (
                     <Route path="/admin/seller-products" element={<SellerProductReview />} />
                     <Route path="/admin/seller-requests" element={<SellerRequests />} />
                     <Route path="/admin/shipper" element={<ShipperManagement />} />
+                    <Route path="/admin/chat" element={<AdminChat />} />
                     
                     {/* Seller Routes */}
                     <Route path="/seller/products" element={<SellerProducts />} />
