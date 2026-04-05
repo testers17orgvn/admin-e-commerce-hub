@@ -29,6 +29,8 @@ const Wishlist = lazy(() => import("./pages/Wishlist"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Cookie = lazy(() => import("./pages/Cookie"));
+const Chat = lazy(() => import("./pages/Chat"));
+const Profile = lazy(() => import("./pages/Profile"));
 const Profile = lazy(() => import("./pages/Profile"));
 
 // Admin
