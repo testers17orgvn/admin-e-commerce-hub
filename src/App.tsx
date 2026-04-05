@@ -50,6 +50,7 @@ const AdminReviews = lazy(() => import("./pages/admin/Reviews"));
 const SellerProductReview = lazy(() => import("./pages/admin/SellerProductReview"));
 const SellerRequests = lazy(() => import("./pages/admin/SellerRequests"));
 const ShipperManagement = lazy(() => import("./pages/admin/ShipperManagement"));
+const AdminChat = lazy(() => import("./pages/admin/Chat"));
 
 // Seller
 const SellerProducts = lazy(() => import("./pages/seller/SellerProducts"));
