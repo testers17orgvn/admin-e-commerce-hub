@@ -359,6 +359,9 @@ export default function ShipperDashboard() {
           </Card>
         </div>
 
+        {/* User Guide */}
+        <ShipperGuide />
+
         {/* Active Orders - Priority */}
         {activeOrders.length > 0 && filterStatus === 'all' && (
           <Card className="border-0 shadow-md overflow-hidden">
