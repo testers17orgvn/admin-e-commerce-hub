@@ -310,6 +310,9 @@ export default function SellerDashboard() {
           </Card>
         </div>
 
+        {/* User Guide */}
+        <SellerGuide />
+
         {/* Business Info Card */}
         {profile && (
           <Card className="border-0 shadow-md">

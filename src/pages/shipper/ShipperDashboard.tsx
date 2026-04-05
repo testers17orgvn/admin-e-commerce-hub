@@ -21,6 +21,7 @@ import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Order, OrderItem } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { ShipperGuide } from '@/components/guides/ShipperGuide';
 
 const SHIPPER_STATUS_CONFIG: Record<string, { label: string; color: string; bgLight: string; icon: any }> = {
   assigned: { label: 'Đã nhận đơn', color: 'bg-blue-500', bgLight: 'bg-blue-50 text-blue-700 border-blue-200', icon: Package },
