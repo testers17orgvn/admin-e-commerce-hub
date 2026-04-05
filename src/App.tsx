@@ -31,7 +31,6 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const Cookie = lazy(() => import("./pages/Cookie"));
 const Chat = lazy(() => import("./pages/Chat"));
 const Profile = lazy(() => import("./pages/Profile"));
-const Profile = lazy(() => import("./pages/Profile"));
 
 // Admin
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
