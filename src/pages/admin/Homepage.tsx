@@ -159,7 +159,7 @@ export default function AdminHomepage() {
     }));
   };
 
-  const updateFeatured = (key: keyof typeof settings.featured, value: string) => {
+  const updateFeatured = (key: keyof typeof settings.featured, value: string | boolean) => {
     setSettings(prev => ({
       ...prev,
       featured: { ...prev.featured, [key]: value }
@@ -417,6 +417,18 @@ export default function AdminHomepage() {
               <p className="text-sm text-muted-foreground">Hiển thị các sản phẩm được đánh dấu nổi bật</p>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Show/Hide Toggle */}
+              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                <div>
+                  <Label htmlFor="show_featured" className="font-medium">Hiển thị section Sản phẩm nổi bật</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">Bật/tắt hiển thị trên trang chủ</p>
+                </div>
+                <Switch
+                  id="show_featured"
+                  checked={settings.featured.show_section !== false}
+                  onCheckedChange={(checked) => updateFeatured('show_section', checked)}
+                />
+              </div>
               <div>
                 <label className="text-sm font-medium">Badge text</label>
                 <Input
