@@ -159,7 +159,7 @@ export default function AdminHomepage() {
     }));
   };
 
-  const updateFeatured = (key: keyof typeof settings.featured, value: string) => {
+  const updateFeatured = (key: keyof typeof settings.featured, value: string | boolean) => {
     setSettings(prev => ({
       ...prev,
       featured: { ...prev.featured, [key]: value }
