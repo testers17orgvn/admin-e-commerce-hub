@@ -1028,6 +1028,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_online_status: {
+        Row: {
+          id: string
+          is_online: boolean
+          last_seen_at: string
+          show_activity: boolean
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          is_online?: boolean
+          last_seen_at?: string
+          show_activity?: boolean
+          user_id: string
+        }
+        Update: {
+          id?: string
+          is_online?: boolean
+          last_seen_at?: string
+          show_activity?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
