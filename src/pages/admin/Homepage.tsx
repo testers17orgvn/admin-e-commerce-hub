@@ -429,6 +429,7 @@ export default function AdminHomepage() {
                   onCheckedChange={(checked) => updateFeatured('show_section', checked)}
                 />
               </div>
+              <div>
                 <label className="text-sm font-medium">Badge text</label>
                 <Input
                   value={settings.featured.badge_text}
