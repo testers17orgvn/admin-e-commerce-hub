@@ -15,6 +15,7 @@ export function FeaturedProducts() {
   const featured = settings.featured;
 
   useEffect(() => {
+    if (featured.show_section === false) { setLoading(false); return; }
     async function fetchFeatured() {
       const { data } = await supabase
         .from('products')
