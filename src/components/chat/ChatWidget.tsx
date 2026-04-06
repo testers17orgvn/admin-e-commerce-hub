@@ -1,18 +1,22 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useChat, ChatConversation, ChatMessage } from '@/hooks/useChat';
+import { useChat, ChatConversation } from '@/hooks/useChat';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { OnlineIndicator } from './OnlineIndicator';
 import { 
   MessageCircle, Send, ArrowLeft, Search, X, 
-  Users, Circle, ImagePlus
+  Users, ImagePlus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format, isToday, isYesterday } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface ChatWidgetProps {
   className?: string;
@@ -20,18 +24,16 @@ interface ChatWidgetProps {
 
 export function ChatWidget({ className }: ChatWidgetProps) {
   const { user } = useAuth();
-  const {
-    conversations,
-    messages,
-    activeConversation,
-    setActiveConversation,
-    sendMessage,
-  } = useChat();
+  const { conversations, messages, activeConversation, setActiveConversation, sendMessage } = useChat();
+  const { isUserOnline, getLastSeen } = useOnlineStatus();
   
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const totalUnread = conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
 
@@ -40,17 +42,32 @@ export function ChatWidget({ className }: ChatWidgetProps) {
   }, [messages]);
 
   const handleSend = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() && !previewImage) return;
     const msg = inputValue;
+    const img = previewImage;
     setInputValue('');
-    await sendMessage(msg);
+    setPreviewImage(null);
+    await sendMessage(msg || '📷 Ảnh', img || undefined);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith('image/')) { toast.error('Chỉ hỗ trợ file ảnh'); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error('Ảnh tối đa 5MB'); return; }
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const path = `chat/${user.id}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('images').upload(path, file);
+    if (error) { toast.error('Lỗi upload ảnh'); setUploading(false); return; }
+    const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(path);
+    setPreviewImage(publicUrl);
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const formatMessageTime = (dateStr: string) => {
@@ -71,28 +88,23 @@ export function ChatWidget({ className }: ChatWidgetProps) {
     return other?.profile?.avatar_url || null;
   };
 
-  const getConversationInitial = (conv: ChatConversation) => {
-    const name = getConversationName(conv);
-    return name.charAt(0).toUpperCase();
+  const getOtherUserId = (conv: ChatConversation) => {
+    return conv.participants?.find(p => p.user_id !== user?.id)?.user_id || null;
   };
 
   const filteredConversations = conversations.filter(c => {
     if (!searchTerm) return true;
-    const name = getConversationName(c).toLowerCase();
-    return name.includes(searchTerm.toLowerCase());
+    return getConversationName(c).toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   if (!user) return null;
 
   return (
-    <div className={cn("fixed bottom-6 right-6 z-50", className)}>
-      {/* Chat Button */}
+    <div className={cn("fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50", className)}>
       {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="relative w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center"
-        >
-          <MessageCircle className="h-6 w-6" />
+        <button onClick={() => setIsOpen(true)}
+          className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center">
+          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
           {totalUnread > 0 && (
             <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-bold animate-pulse">
               {totalUnread > 9 ? '9+' : totalUnread}
@@ -101,34 +113,36 @@ export function ChatWidget({ className }: ChatWidgetProps) {
         </button>
       )}
 
-      {/* Chat Window */}
       {isOpen && (
-        <div className="w-[380px] h-[520px] bg-card border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+        <div className="w-[calc(100vw-2rem)] sm:w-[380px] h-[calc(100vh-6rem)] sm:h-[520px] max-h-[600px] bg-card border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
           {/* Header */}
-          <div className="flex items-center gap-3 p-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
+          <div className="flex items-center gap-3 p-3 sm:p-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
             {activeConversation ? (
               <>
                 <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => setActiveConversation(null)}>
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">
-                    {conversations.find(c => c.id === activeConversation) 
-                      ? getConversationName(conversations.find(c => c.id === activeConversation)!)
-                      : 'Chat'}
-                  </p>
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Circle className="h-2 w-2 fill-emerald-500 text-emerald-500" />
-                    Đang hoạt động
-                  </p>
+                  {(() => {
+                    const conv = conversations.find(c => c.id === activeConversation);
+                    const otherId = conv ? getOtherUserId(conv) : null;
+                    return (
+                      <>
+                        <p className="font-semibold text-sm truncate">
+                          {conv ? getConversationName(conv) : 'Chat'}
+                        </p>
+                        {otherId && <OnlineIndicator isOnline={isUserOnline(otherId)} lastSeen={getLastSeen(otherId)} showText size="sm" />}
+                      </>
+                    );
+                  })()}
                 </div>
               </>
             ) : (
               <>
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shrink-0">
                   <MessageCircle className="h-4 w-4 text-primary-foreground" />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm">Tin nhắn</p>
                   <p className="text-xs text-muted-foreground">{conversations.length} cuộc trò chuyện</p>
                 </div>
@@ -139,9 +153,7 @@ export function ChatWidget({ className }: ChatWidgetProps) {
             </Button>
           </div>
 
-          {/* Content */}
           {activeConversation ? (
-            // Messages View
             <>
               <ScrollArea className="flex-1 p-3">
                 <div className="space-y-3">
@@ -171,14 +183,13 @@ export function ChatWidget({ className }: ChatWidgetProps) {
                           )}
                           <div className={cn(
                             "px-3 py-2 rounded-2xl text-sm leading-relaxed break-words",
-                            isMine 
-                              ? "bg-primary text-primary-foreground rounded-br-md" 
-                              : "bg-muted rounded-bl-md"
+                            isMine ? "bg-primary text-primary-foreground rounded-br-md" : "bg-muted rounded-bl-md"
                           )}>
                             {msg.message_type === 'image' && msg.image_url && (
-                              <img src={msg.image_url} alt="" className="rounded-lg max-w-full mb-1" />
+                              <img src={msg.image_url} alt="" className="rounded-lg max-w-full max-h-40 mb-1 cursor-pointer"
+                                onClick={() => window.open(msg.image_url!, '_blank')} />
                             )}
-                            {msg.content}
+                            {msg.content !== '📷 Ảnh' && msg.content}
                           </div>
                           <p className={cn("text-[10px] text-muted-foreground px-1", isMine && "text-right")}>
                             {formatMessageTime(msg.created_at)}
@@ -191,93 +202,91 @@ export function ChatWidget({ className }: ChatWidgetProps) {
                 </div>
               </ScrollArea>
               
-              {/* Input */}
+              {previewImage && (
+                <div className="px-3 pt-2 flex items-center gap-2">
+                  <div className="relative">
+                    <img src={previewImage} alt="" className="h-12 w-12 object-cover rounded-lg border" />
+                    <button onClick={() => setPreviewImage(null)}
+                      className="absolute -top-1 -right-1 w-4 h-4 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
+                      <X className="h-2.5 w-2.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="p-3 border-t bg-card">
                 <div className="flex items-center gap-2">
-                  <Input
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Nhập tin nhắn..."
-                    className="flex-1 h-10 rounded-full bg-muted border-0 px-4 text-sm"
-                  />
-                  <Button 
-                    size="icon" 
-                    className="h-10 w-10 rounded-full shrink-0" 
-                    onClick={handleSend}
-                    disabled={!inputValue.trim()}
-                  >
+                  <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0 rounded-full"
+                    onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                    <ImagePlus className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                  <Input value={inputValue} onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={handleKeyDown} placeholder="Nhập tin nhắn..."
+                    className="flex-1 h-9 sm:h-10 rounded-full bg-muted border-0 px-4 text-sm" />
+                  <Button size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-full shrink-0"
+                    onClick={handleSend} disabled={!inputValue.trim() && !previewImage}>
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             </>
           ) : (
-            // Conversations List
             <>
-              {/* Search */}
               <div className="p-3 border-b">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Tìm kiếm cuộc trò chuyện..."
-                    className="pl-9 h-9 rounded-full bg-muted border-0 text-sm"
-                  />
+                  <Input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Tìm kiếm..." className="pl-9 h-9 rounded-full bg-muted border-0 text-sm" />
                 </div>
               </div>
-
               <ScrollArea className="flex-1">
                 {filteredConversations.length === 0 ? (
                   <div className="text-center py-16">
                     <Users className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
                     <p className="text-sm text-muted-foreground">Chưa có cuộc trò chuyện</p>
-                    <p className="text-xs text-muted-foreground mt-1">Nhắn tin với người bán hoặc admin</p>
                   </div>
                 ) : (
                   <div className="divide-y">
-                    {filteredConversations.map((conv) => (
-                      <button
-                        key={conv.id}
-                        onClick={() => setActiveConversation(conv.id)}
-                        className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left"
-                      >
-                        <div className="relative shrink-0">
-                          <Avatar className="h-11 w-11">
-                            <AvatarImage src={getConversationAvatar(conv) || ''} />
-                            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-sm font-semibold">
-                              {getConversationInitial(conv)}
-                            </AvatarFallback>
-                          </Avatar>
-                          {conv.type === 'group' && (
-                            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-muted flex items-center justify-center border-2 border-card">
-                              <Users className="h-2.5 w-2.5 text-muted-foreground" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="font-semibold text-sm truncate">{getConversationName(conv)}</p>
-                            {conv.last_message_at && (
-                              <span className="text-[10px] text-muted-foreground shrink-0">
-                                {formatMessageTime(conv.last_message_at)}
+                    {filteredConversations.map((conv) => {
+                      const otherId = getOtherUserId(conv);
+                      return (
+                        <button key={conv.id} onClick={() => setActiveConversation(conv.id)}
+                          className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left">
+                          <div className="relative shrink-0">
+                            <Avatar className="h-11 w-11">
+                              <AvatarImage src={getConversationAvatar(conv) || ''} />
+                              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-sm font-semibold">
+                                {getConversationName(conv).charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            {otherId && (
+                              <span className="absolute -bottom-0.5 -right-0.5">
+                                <OnlineIndicator isOnline={isUserOnline(otherId)} size="sm" />
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center justify-between gap-2 mt-0.5">
-                            <p className="text-xs text-muted-foreground truncate">
-                              {conv.last_message || 'Bắt đầu trò chuyện'}
-                            </p>
-                            {(conv.unread_count || 0) > 0 && (
-                              <Badge variant="destructive" className="h-5 min-w-5 text-[10px] rounded-full px-1.5 shrink-0">
-                                {conv.unread_count}
-                              </Badge>
-                            )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="font-semibold text-sm truncate">{getConversationName(conv)}</p>
+                              {conv.last_message_at && (
+                                <span className="text-[10px] text-muted-foreground shrink-0">
+                                  {formatMessageTime(conv.last_message_at)}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center justify-between gap-2 mt-0.5">
+                              <p className="text-xs text-muted-foreground truncate">{conv.last_message || 'Bắt đầu trò chuyện'}</p>
+                              {(conv.unread_count || 0) > 0 && (
+                                <Badge variant="destructive" className="h-5 min-w-5 text-[10px] rounded-full px-1.5 shrink-0">
+                                  {conv.unread_count}
+                                </Badge>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </button>
-                    ))}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </ScrollArea>
