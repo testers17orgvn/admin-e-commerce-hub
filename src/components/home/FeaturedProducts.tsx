@@ -53,13 +53,13 @@ export function FeaturedProducts() {
 
         {/* Products Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="aspect-[3/4] bg-muted animate-pulse rounded-lg" />
             ))}
           </div>
         ) : products.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             {products.map((product, index) => (
               <ScrollReveal key={product.id} direction="up" delay={index * 0.08} distance={30}>
                 <ProductCard product={product} />
