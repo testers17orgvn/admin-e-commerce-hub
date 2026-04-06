@@ -30,8 +30,10 @@ export function FeaturedProducts() {
     fetchFeatured();
   }, []);
 
+  if (featured.show_section === false) return null;
+
   return (
-    <section className="py-20 bg-secondary/30">
+    <section className="py-12 sm:py-16 md:py-20 bg-secondary/30">
       <div className="container">
         {/* Header */}
         <ScrollReveal direction="up">

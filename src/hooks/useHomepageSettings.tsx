@@ -21,6 +21,7 @@ interface FeaturedSettings {
   title: string;
   description: string;
   button_text: string;
+  show_section?: boolean;
 }
 
 interface CategoriesSettings {
