@@ -105,6 +105,7 @@ const App = () => (
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/orders" element={<OrderHistory />} />
                     <Route path="/orders/:id" element={<OrderDetail />} />
+                    <Route path="/my-products" element={<MyProducts />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/cookie" element={<Cookie />} />
