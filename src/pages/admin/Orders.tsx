@@ -212,6 +212,31 @@ export default function AdminOrders() {
                       <Badge className={status.color}>{status.icon}<span className="ml-1">{status.label}</span></Badge>
                     </td>
                     <td className="p-3">
+                      {(() => {
+                        const ps = (order as any).payment_status || 'unpaid';
+                        const cfg: Record<string, { label: string; cls: string }> = {
+                          paid: { label: '✓ Đã TT', cls: 'bg-emerald-100 text-emerald-700 border-emerald-300' },
+                          partial: { label: '½ Một phần', cls: 'bg-amber-100 text-amber-700 border-amber-300' },
+                          unpaid: { label: '⏳ Chưa TT', cls: 'bg-red-100 text-red-700 border-red-300' },
+                        };
+                        const c = cfg[ps] || cfg.unpaid;
+                        return (
+                          <div className="space-y-1">
+                            <Badge variant="outline" className={`text-xs ${c.cls}`}>{c.label}</Badge>
+                            {ps !== 'paid' && (
+                              <PaymentConfirmDialog
+                                orderId={order.id}
+                                totalAmount={Number(order.total_amount)}
+                                size="sm"
+                                variant="outline"
+                                onConfirmed={fetchData}
+                              />
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </td>
+                    <td className="p-3">
                       {(order as any).shipper_id ? (
                         <div>
                           <p className="text-sm font-medium">{getShipperName((order as any).shipper_id)}</p>
