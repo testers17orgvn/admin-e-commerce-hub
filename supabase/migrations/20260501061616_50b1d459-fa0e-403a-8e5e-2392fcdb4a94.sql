@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.match_payment_to_order(NUMERIC, TEXT, TEXT, TEXT, TEXT, JSONB) FROM PUBLIC, anon, authenticated;
