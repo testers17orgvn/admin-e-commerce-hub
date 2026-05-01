@@ -12,7 +12,7 @@ import {
   User, Package, ShoppingCart, Save, Loader2, Camera, 
   Mail, Phone, MapPin, Calendar, Shield, ChevronRight,
   Gift, Bell, LogOut, Heart, Star, Store, Truck,
-  LayoutDashboard, Settings, BarChart3, Crown
+  LayoutDashboard, Settings, BarChart3, Crown, ShoppingBag, Landmark
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCart } from '@/hooks/useCart';
