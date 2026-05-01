@@ -199,6 +199,7 @@ export default function Profile() {
   // Build menu items based on roles
   const baseMenuItems = [
     { icon: Package, label: 'Đơn hàng của tôi', value: 'orders' },
+    { icon: ShoppingBag, label: 'Sản phẩm đã mua', value: 'purchased', href: '/my-products' },
     { icon: Heart, label: 'Yêu thích', value: 'wishlist', href: '/wishlist' },
     { icon: ShoppingCart, label: 'Giỏ hàng', value: 'cart' },
     { icon: MapPin, label: 'Sổ địa chỉ', value: 'addresses' },
@@ -215,6 +216,7 @@ export default function Profile() {
   if (roles.includes('seller')) {
     roleMenuItems.push({ icon: Store, label: 'Dashboard Seller', value: 'seller-dash', href: '/seller/dashboard' });
     roleMenuItems.push({ icon: Package, label: 'Sản phẩm của tôi', value: 'seller-products', href: '/seller/products' });
+    roleMenuItems.push({ icon: Landmark, label: 'Tài khoản nhận tiền', value: 'bank' });
   }
   if (roles.includes('shipper')) {
     roleMenuItems.push({ icon: Truck, label: 'Dashboard Shipper', value: 'shipper-dash', href: '/shipper/dashboard' });
