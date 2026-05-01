@@ -188,6 +188,7 @@ export default function AdminOrders() {
                 <th className="text-left p-3 text-sm font-medium">Khách hàng</th>
                 <th className="text-left p-3 text-sm font-medium">Tổng tiền</th>
                 <th className="text-left p-3 text-sm font-medium">Trạng thái</th>
+                <th className="text-left p-3 text-sm font-medium">Thanh toán</th>
                 <th className="text-left p-3 text-sm font-medium">Shipper</th>
                 <th className="text-left p-3 text-sm font-medium">Ngày đặt</th>
                 <th className="text-right p-3 text-sm font-medium">Thao tác</th>
