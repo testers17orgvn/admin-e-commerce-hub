@@ -12,6 +12,7 @@ import { Eye, Package, Truck, CheckCircle, XCircle, Search, Clock, ShoppingCart,
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { OrderReportExport } from '@/components/admin/OrderReportExport';
+import { PaymentConfirmDialog } from '@/components/payment/PaymentConfirmDialog';
 
 const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   pending: { label: 'Chờ xử lý', color: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400', icon: <Clock className="h-4 w-4" /> },
