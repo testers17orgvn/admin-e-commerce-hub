@@ -18,14 +18,35 @@ interface PaymentSettings {
 interface PaymentQRProps {
   amount: number;
   orderDescription?: string;
+  sellerId?: string | null;
 }
 
-export function PaymentQR({ amount, orderDescription = 'Thanh toan don hang' }: PaymentQRProps) {
+export function PaymentQR({ amount, orderDescription = 'Thanh toan don hang', sellerId }: PaymentQRProps) {
   const [settings, setSettings] = useState<PaymentSettings | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchSettings() {
+      // Ưu tiên lấy tài khoản ngân hàng của seller
+      if (sellerId) {
+        const { data: seller } = await supabase
+          .from('profiles')
+          .select('bank_name, bank_account_number, bank_account_holder')
+          .eq('id', sellerId)
+          .maybeSingle();
+        if (seller?.bank_account_number && seller?.bank_name) {
+          setSettings({
+            bank_name: seller.bank_name,
+            bank_account: seller.bank_account_number,
+            bank_holder: seller.bank_account_holder || '',
+            momo_phone: '', momo_name: '',
+            enable_bank: true, enable_momo: false,
+          });
+          setLoading(false);
+          return;
+        }
+      }
+
       const { data } = await supabase
         .from('settings')
         .select('value')
@@ -38,7 +59,7 @@ export function PaymentQR({ amount, orderDescription = 'Thanh toan don hang' }: 
       setLoading(false);
     }
     fetchSettings();
-  }, []);
+  }, [sellerId]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
