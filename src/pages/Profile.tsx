@@ -735,6 +735,9 @@ export default function Profile() {
 
               {/* Seller Registration Tab */}
               {activeTab === 'seller' && <div className="animate-fade-in"><SellerRequestForm /></div>}
+
+              {/* Seller Bank Account Tab */}
+              {activeTab === 'bank' && <div className="animate-fade-in"><SellerBankSettings /></div>}
             </div>
           </div>
         </div>
