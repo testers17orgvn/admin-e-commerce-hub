@@ -428,6 +428,7 @@ export type Database = {
       orders: {
         Row: {
           actual_delivery: string | null
+          confirmed_by: string | null
           created_at: string | null
           customer_address: string | null
           customer_email: string
@@ -439,6 +440,12 @@ export type Database = {
           id: string
           items: Json
           notes: string | null
+          paid_amount: number | null
+          paid_at: string | null
+          payment_method: string | null
+          payment_reference: string | null
+          payment_status: string
+          seller_id: string | null
           shipper_id: string | null
           shipper_status: string | null
           status: string | null
@@ -448,6 +455,7 @@ export type Database = {
         }
         Insert: {
           actual_delivery?: string | null
+          confirmed_by?: string | null
           created_at?: string | null
           customer_address?: string | null
           customer_email: string
@@ -459,6 +467,12 @@ export type Database = {
           id?: string
           items?: Json
           notes?: string | null
+          paid_amount?: number | null
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          payment_status?: string
+          seller_id?: string | null
           shipper_id?: string | null
           shipper_status?: string | null
           status?: string | null
@@ -468,6 +482,7 @@ export type Database = {
         }
         Update: {
           actual_delivery?: string | null
+          confirmed_by?: string | null
           created_at?: string | null
           customer_address?: string | null
           customer_email?: string
@@ -479,12 +494,66 @@ export type Database = {
           id?: string
           items?: Json
           notes?: string | null
+          paid_amount?: number | null
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          payment_status?: string
+          seller_id?: string | null
           shipper_id?: string | null
           shipper_status?: string | null
           status?: string | null
           total_amount?: number
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      payment_transactions: {
+        Row: {
+          account_number: string | null
+          amount: number
+          bank_name: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          matched: boolean | null
+          order_id: string | null
+          raw_payload: Json | null
+          reference_code: string | null
+          source: string
+          transaction_type: string
+        }
+        Insert: {
+          account_number?: string | null
+          amount: number
+          bank_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          matched?: boolean | null
+          order_id?: string | null
+          raw_payload?: Json | null
+          reference_code?: string | null
+          source?: string
+          transaction_type?: string
+        }
+        Update: {
+          account_number?: string | null
+          amount?: number
+          bank_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          matched?: boolean | null
+          order_id?: string | null
+          raw_payload?: Json | null
+          reference_code?: string | null
+          source?: string
+          transaction_type?: string
         }
         Relationships: []
       }
@@ -690,6 +759,10 @@ export type Database = {
         Row: {
           address: string | null
           avatar_url: string | null
+          bank_account_holder: string | null
+          bank_account_number: string | null
+          bank_branch: string | null
+          bank_name: string | null
           business_description: string | null
           business_license_url: string | null
           business_model: string | null
@@ -706,6 +779,10 @@ export type Database = {
         Insert: {
           address?: string | null
           avatar_url?: string | null
+          bank_account_holder?: string | null
+          bank_account_number?: string | null
+          bank_branch?: string | null
+          bank_name?: string | null
           business_description?: string | null
           business_license_url?: string | null
           business_model?: string | null
@@ -722,6 +799,10 @@ export type Database = {
         Update: {
           address?: string | null
           avatar_url?: string | null
+          bank_account_holder?: string | null
+          bank_account_number?: string | null
+          bank_branch?: string | null
+          bank_name?: string | null
           business_description?: string | null
           business_license_url?: string | null
           business_model?: string | null
@@ -1206,6 +1287,17 @@ export type Database = {
       is_seller: { Args: { _user_id?: string }; Returns: boolean }
       is_shipper: { Args: { _user_id?: string }; Returns: boolean }
       is_tester: { Args: { _user_id?: string }; Returns: boolean }
+      match_payment_to_order: {
+        Args: {
+          _account_number: string
+          _amount: number
+          _bank_name: string
+          _description: string
+          _raw: Json
+          _reference: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "staff" | "seller" | "dealer" | "tester" | "shipper"

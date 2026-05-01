@@ -12,6 +12,7 @@ import { Eye, Package, Truck, CheckCircle, XCircle, Search, Clock, ShoppingCart,
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { OrderReportExport } from '@/components/admin/OrderReportExport';
+import { PaymentConfirmDialog } from '@/components/payment/PaymentConfirmDialog';
 
 const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   pending: { label: 'Chờ xử lý', color: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400', icon: <Clock className="h-4 w-4" /> },
@@ -187,6 +188,7 @@ export default function AdminOrders() {
                 <th className="text-left p-3 text-sm font-medium">Khách hàng</th>
                 <th className="text-left p-3 text-sm font-medium">Tổng tiền</th>
                 <th className="text-left p-3 text-sm font-medium">Trạng thái</th>
+                <th className="text-left p-3 text-sm font-medium">Thanh toán</th>
                 <th className="text-left p-3 text-sm font-medium">Shipper</th>
                 <th className="text-left p-3 text-sm font-medium">Ngày đặt</th>
                 <th className="text-right p-3 text-sm font-medium">Thao tác</th>
@@ -208,6 +210,31 @@ export default function AdminOrders() {
                     <td className="p-3 font-semibold">{formatCurrency(order.total_amount)}</td>
                     <td className="p-3">
                       <Badge className={status.color}>{status.icon}<span className="ml-1">{status.label}</span></Badge>
+                    </td>
+                    <td className="p-3">
+                      {(() => {
+                        const ps = (order as any).payment_status || 'unpaid';
+                        const cfg: Record<string, { label: string; cls: string }> = {
+                          paid: { label: '✓ Đã TT', cls: 'bg-emerald-100 text-emerald-700 border-emerald-300' },
+                          partial: { label: '½ Một phần', cls: 'bg-amber-100 text-amber-700 border-amber-300' },
+                          unpaid: { label: '⏳ Chưa TT', cls: 'bg-red-100 text-red-700 border-red-300' },
+                        };
+                        const c = cfg[ps] || cfg.unpaid;
+                        return (
+                          <div className="space-y-1">
+                            <Badge variant="outline" className={`text-xs ${c.cls}`}>{c.label}</Badge>
+                            {ps !== 'paid' && (
+                              <PaymentConfirmDialog
+                                orderId={order.id}
+                                totalAmount={Number(order.total_amount)}
+                                size="sm"
+                                variant="outline"
+                                onConfirmed={fetchData}
+                              />
+                            )}
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="p-3">
                       {(order as any).shipper_id ? (

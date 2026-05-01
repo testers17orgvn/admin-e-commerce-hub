@@ -31,6 +31,7 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const Cookie = lazy(() => import("./pages/Cookie"));
 const Chat = lazy(() => import("./pages/Chat"));
 const Profile = lazy(() => import("./pages/Profile"));
+const MyProducts = lazy(() => import("./pages/MyProducts"));
 
 // Admin
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
@@ -104,6 +105,7 @@ const App = () => (
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/orders" element={<OrderHistory />} />
                     <Route path="/orders/:id" element={<OrderDetail />} />
+                    <Route path="/my-products" element={<MyProducts />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/cookie" element={<Cookie />} />

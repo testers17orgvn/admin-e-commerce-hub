@@ -12,7 +12,7 @@ import {
   User, Package, ShoppingCart, Save, Loader2, Camera, 
   Mail, Phone, MapPin, Calendar, Shield, ChevronRight,
   Gift, Bell, LogOut, Heart, Star, Store, Truck,
-  LayoutDashboard, Settings, BarChart3, Crown
+  LayoutDashboard, Settings, BarChart3, Crown, ShoppingBag, Landmark
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCart } from '@/hooks/useCart';
@@ -23,6 +23,7 @@ import { AddressBook } from '@/components/profile/AddressBook';
 import { UserVouchers } from '@/components/profile/UserVouchers';
 import { NotificationSettings } from '@/components/profile/NotificationSettings';
 import { SellerRequestForm } from '@/components/profile/SellerRequestForm';
+import { SellerBankSettings } from '@/components/seller/SellerBankSettings';
 
 interface ProfileData {
   full_name: string;
@@ -199,6 +200,7 @@ export default function Profile() {
   // Build menu items based on roles
   const baseMenuItems = [
     { icon: Package, label: 'Đơn hàng của tôi', value: 'orders' },
+    { icon: ShoppingBag, label: 'Sản phẩm đã mua', value: 'purchased', href: '/my-products' },
     { icon: Heart, label: 'Yêu thích', value: 'wishlist', href: '/wishlist' },
     { icon: ShoppingCart, label: 'Giỏ hàng', value: 'cart' },
     { icon: MapPin, label: 'Sổ địa chỉ', value: 'addresses' },
@@ -215,6 +217,7 @@ export default function Profile() {
   if (roles.includes('seller')) {
     roleMenuItems.push({ icon: Store, label: 'Dashboard Seller', value: 'seller-dash', href: '/seller/dashboard' });
     roleMenuItems.push({ icon: Package, label: 'Sản phẩm của tôi', value: 'seller-products', href: '/seller/products' });
+    roleMenuItems.push({ icon: Landmark, label: 'Tài khoản nhận tiền', value: 'bank' });
   }
   if (roles.includes('shipper')) {
     roleMenuItems.push({ icon: Truck, label: 'Dashboard Shipper', value: 'shipper-dash', href: '/shipper/dashboard' });
@@ -733,6 +736,9 @@ export default function Profile() {
 
               {/* Seller Registration Tab */}
               {activeTab === 'seller' && <div className="animate-fade-in"><SellerRequestForm /></div>}
+
+              {/* Seller Bank Account Tab */}
+              {activeTab === 'bank' && <div className="animate-fade-in"><SellerBankSettings /></div>}
             </div>
           </div>
         </div>
