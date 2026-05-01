@@ -23,6 +23,7 @@ import { AddressBook } from '@/components/profile/AddressBook';
 import { UserVouchers } from '@/components/profile/UserVouchers';
 import { NotificationSettings } from '@/components/profile/NotificationSettings';
 import { SellerRequestForm } from '@/components/profile/SellerRequestForm';
+import { SellerBankSettings } from '@/components/seller/SellerBankSettings';
 
 interface ProfileData {
   full_name: string;
