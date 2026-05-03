@@ -34,25 +34,25 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      toast.error('Vui lòng điền đầy đủ thông tin');
+      toast.error(settings.auth_error_empty || 'Vui lòng điền đầy đủ thông tin');
       return;
     }
     setLoading(true);
     if (isLogin) {
       const { error } = await signIn(formData.email, formData.password);
       if (error) toast.error(error.message || 'Đăng nhập thất bại');
-      else toast.success('Đăng nhập thành công');
+      else toast.success(settings.auth_success_login || 'Đăng nhập thành công');
     } else {
       if (!formData.fullName) {
-        toast.error('Vui lòng nhập họ tên');
+        toast.error(settings.auth_error_name || 'Vui lòng nhập họ tên');
         setLoading(false);
         return;
       }
       const { error } = await signUp(formData.email, formData.password, formData.fullName, formData.phone);
       if (error) {
-        toast.error(error.message.includes('already registered') ? 'Email này đã được đăng ký' : error.message);
+        toast.error(error.message.includes('already registered') ? (settings.auth_error_duplicate || 'Email này đã được đăng ký') : error.message);
       } else {
-        toast.success('Đăng ký thành công! Vui lòng kiểm tra email để xác nhận.');
+        toast.success(settings.auth_success_signup || 'Đăng ký thành công! Vui lòng kiểm tra email để xác nhận.');
       }
     }
     setLoading(false);
