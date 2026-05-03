@@ -488,6 +488,80 @@ export default function AdminSettings() {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="auth" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <LogIn className="h-5 w-5" /> Tùy chỉnh trang Đăng nhập / Đăng ký
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label>Ảnh banner (khuyến nghị 960×1280)</Label>
+                <ImageUpload
+                  value={settings.auth_banner_url || ''}
+                  onChange={(url) => updateSetting('auth_banner_url', url)}
+                  bucket="settings"
+                  label="Tải ảnh banner trang Auth"
+                />
+                <p className="text-xs text-muted-foreground">Hiển thị bên trái form đăng nhập trên desktop, phía trên trên mobile</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Tiêu đề chào mừng</Label>
+                <Input
+                  value={settings.auth_welcome_title || ''}
+                  onChange={(e) => updateSetting('auth_welcome_title', e.target.value)}
+                  placeholder="Mua sắm thông minh"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Mô tả phụ</Label>
+                <Input
+                  value={settings.auth_welcome_subtitle || ''}
+                  onChange={(e) => updateSetting('auth_welcome_subtitle', e.target.value)}
+                  placeholder="Trải nghiệm mua sắm trực tuyến hiện đại"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Tính năng nổi bật (mỗi dòng 1 tính năng, tối đa 4)</Label>
+                <Textarea
+                  value={settings.auth_features || 'Giao hàng nhanh chóng toàn quốc\nThanh toán an toàn & bảo mật\nƯu đãi độc quyền mỗi ngày\nHỗ trợ khách hàng 24/7'}
+                  onChange={(e) => updateSetting('auth_features', e.target.value)}
+                  rows={4}
+                  placeholder="Mỗi dòng 1 tính năng"
+                />
+                <p className="text-xs text-muted-foreground">Hiển thị dưới banner trên desktop</p>
+              </div>
+
+              {/* Preview */}
+              <Card className="border-dashed">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Xem trước</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="relative rounded-xl overflow-hidden aspect-video bg-muted">
+                    {settings.auth_banner_url ? (
+                      <img src={settings.auth_banner_url} alt="Auth banner preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ImageIcon className="h-10 w-10 text-muted-foreground/40" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                    <div className="absolute bottom-4 left-4 text-white">
+                      <h3 className="font-bold text-lg">{settings.auth_welcome_title || 'Mua sắm thông minh'}</h3>
+                      <p className="text-white/80 text-sm">{settings.auth_welcome_subtitle || 'Trải nghiệm mua sắm trực tuyến hiện đại'}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
       </Tabs>
     </AdminLayout>
   );
