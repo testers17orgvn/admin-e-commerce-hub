@@ -265,7 +265,7 @@ const Auth = () => {
                 }}
                 className="text-sm text-accent hover:text-accent/80 font-medium transition-colors"
               >
-                {isLogin ? 'Chưa có tài khoản? Đăng ký ngay →' : '← Đã có tài khoản? Đăng nhập'}
+                {isLogin ? (settings.auth_switch_to_signup || 'Chưa có tài khoản? Đăng ký ngay →') : (settings.auth_switch_to_login || '← Đã có tài khoản? Đăng nhập')}
               </button>
             </div>
           </div>
