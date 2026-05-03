@@ -147,11 +147,14 @@ export default function AdminSettings() {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="general">Tổng quan</TabsTrigger>
           <TabsTrigger value="branding">Logo & Favicon</TabsTrigger>
           <TabsTrigger value="theme">
             <Palette className="h-4 w-4 mr-1" /> Theme
+          </TabsTrigger>
+          <TabsTrigger value="auth">
+            <LogIn className="h-4 w-4 mr-1" /> Trang Auth
           </TabsTrigger>
           <TabsTrigger value="contact">Liên hệ</TabsTrigger>
           <TabsTrigger value="social">Mạng xã hội</TabsTrigger>
