@@ -31,6 +31,20 @@ interface Settings {
   auth_welcome_title?: string;
   auth_welcome_subtitle?: string;
   auth_features?: string;
+  auth_login_title?: string;
+  auth_login_subtitle?: string;
+  auth_signup_title?: string;
+  auth_signup_subtitle?: string;
+  auth_login_button?: string;
+  auth_signup_button?: string;
+  auth_switch_to_signup?: string;
+  auth_switch_to_login?: string;
+  auth_error_empty?: string;
+  auth_error_name?: string;
+  auth_error_duplicate?: string;
+  auth_success_login?: string;
+  auth_success_signup?: string;
+  auth_footer_text?: string;
 }
 
 interface PaymentSettings {
