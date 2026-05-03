@@ -8,35 +8,47 @@ export interface AuthPageSettings {
   auth_features?: string[];
   logo_url?: string;
   site_name?: string;
+  // Form text
+  auth_login_title?: string;
+  auth_login_subtitle?: string;
+  auth_signup_title?: string;
+  auth_signup_subtitle?: string;
+  auth_login_button?: string;
+  auth_signup_button?: string;
+  auth_switch_to_signup?: string;
+  auth_switch_to_login?: string;
+  // Messages
+  auth_error_empty?: string;
+  auth_error_name?: string;
+  auth_error_duplicate?: string;
+  auth_success_login?: string;
+  auth_success_signup?: string;
+  auth_footer_text?: string;
 }
 
-const DEFAULTS: AuthPageSettings = {
-  auth_welcome_title: 'Mua sắm thông minh',
-  auth_welcome_subtitle: 'Trải nghiệm mua sắm trực tuyến hiện đại với hàng ngàn sản phẩm chất lượng',
-  auth_features: [
-    'Giao hàng nhanh chóng toàn quốc',
-    'Thanh toán an toàn & bảo mật',
-    'Ưu đãi độc quyền mỗi ngày',
-    'Hỗ trợ khách hàng 24/7',
-  ],
-};
+const ALL_KEYS = [
+  'auth_banner_url', 'auth_welcome_title', 'auth_welcome_subtitle', 'auth_features',
+  'logo_url', 'site_name',
+  'auth_login_title', 'auth_login_subtitle', 'auth_signup_title', 'auth_signup_subtitle',
+  'auth_login_button', 'auth_signup_button', 'auth_switch_to_signup', 'auth_switch_to_login',
+  'auth_error_empty', 'auth_error_name', 'auth_error_duplicate',
+  'auth_success_login', 'auth_success_signup', 'auth_footer_text',
+];
 
 export function useAuthSettings() {
-  const [settings, setSettings] = useState<AuthPageSettings>(DEFAULTS);
+  const [settings, setSettings] = useState<AuthPageSettings>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const keys = ['auth_banner_url', 'auth_welcome_title', 'auth_welcome_subtitle', 'auth_features', 'logo_url', 'site_name'];
     supabase
       .from('settings')
       .select('key, value')
-      .in('key', keys)
+      .in('key', ALL_KEYS)
       .then(({ data }) => {
         if (data) {
           const map: Record<string, unknown> = {};
           data.forEach((r: { key: string; value: unknown }) => {
             if (r.key === 'auth_features') {
-              // Stored as newline-separated string in admin
               const val = r.value as string;
               if (typeof val === 'string' && val.trim()) {
                 map[r.key] = val.split('\n').filter(Boolean).slice(0, 4);
@@ -45,12 +57,11 @@ export function useAuthSettings() {
               map[r.key] = r.value;
             }
           });
-          setSettings(prev => ({
-            ...prev,
-            ...Object.fromEntries(
+          setSettings(
+            Object.fromEntries(
               Object.entries(map).filter(([, v]) => v != null && v !== '')
-            ),
-          }));
+            ) as AuthPageSettings
+          );
         }
         setLoading(false);
       });

@@ -34,25 +34,25 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      toast.error('Vui lòng điền đầy đủ thông tin');
+      toast.error(settings.auth_error_empty || 'Vui lòng điền đầy đủ thông tin');
       return;
     }
     setLoading(true);
     if (isLogin) {
       const { error } = await signIn(formData.email, formData.password);
       if (error) toast.error(error.message || 'Đăng nhập thất bại');
-      else toast.success('Đăng nhập thành công');
+      else toast.success(settings.auth_success_login || 'Đăng nhập thành công');
     } else {
       if (!formData.fullName) {
-        toast.error('Vui lòng nhập họ tên');
+        toast.error(settings.auth_error_name || 'Vui lòng nhập họ tên');
         setLoading(false);
         return;
       }
       const { error } = await signUp(formData.email, formData.password, formData.fullName, formData.phone);
       if (error) {
-        toast.error(error.message.includes('already registered') ? 'Email này đã được đăng ký' : error.message);
+        toast.error(error.message.includes('already registered') ? (settings.auth_error_duplicate || 'Email này đã được đăng ký') : error.message);
       } else {
-        toast.success('Đăng ký thành công! Vui lòng kiểm tra email để xác nhận.');
+        toast.success(settings.auth_success_signup || 'Đăng ký thành công! Vui lòng kiểm tra email để xác nhận.');
       }
     }
     setLoading(false);
@@ -144,10 +144,10 @@ const Auth = () => {
               )}
             </div>
             <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight mb-2">
-              {isLogin ? 'Chào mừng trở lại' : 'Tạo tài khoản mới'}
+              {isLogin ? (settings.auth_login_title || 'Chào mừng trở lại') : (settings.auth_signup_title || 'Tạo tài khoản mới')}
             </h1>
             <p className="text-muted-foreground text-sm">
-              {isLogin ? 'Đăng nhập để tiếp tục mua sắm' : 'Đăng ký để bắt đầu trải nghiệm'}
+              {isLogin ? (settings.auth_login_subtitle || 'Đăng nhập để tiếp tục mua sắm') : (settings.auth_signup_subtitle || 'Đăng ký để bắt đầu trải nghiệm')}
             </p>
           </div>
 
@@ -240,7 +240,7 @@ const Auth = () => {
                   </span>
                 ) : (
                   <>
-                    {isLogin ? 'Đăng nhập' : 'Đăng ký'}
+                    {isLogin ? (settings.auth_login_button || 'Đăng nhập') : (settings.auth_signup_button || 'Đăng ký')}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </>
                 )}
@@ -265,17 +265,21 @@ const Auth = () => {
                 }}
                 className="text-sm text-accent hover:text-accent/80 font-medium transition-colors"
               >
-                {isLogin ? 'Chưa có tài khoản? Đăng ký ngay →' : '← Đã có tài khoản? Đăng nhập'}
+                {isLogin ? (settings.auth_switch_to_signup || 'Chưa có tài khoản? Đăng ký ngay →') : (settings.auth_switch_to_login || '← Đã có tài khoản? Đăng nhập')}
               </button>
             </div>
           </div>
 
-          <p className="text-center text-xs text-muted-foreground mt-6">
-            Bằng việc tiếp tục, bạn đồng ý với{' '}
-            <a href="/terms" className="underline hover:text-foreground">Điều khoản</a>
-            {' '}và{' '}
-            <a href="/privacy" className="underline hover:text-foreground">Chính sách bảo mật</a>
-          </p>
+          {settings.auth_footer_text ? (
+            <p className="text-center text-xs text-muted-foreground mt-6">{settings.auth_footer_text}</p>
+          ) : (
+            <p className="text-center text-xs text-muted-foreground mt-6">
+              Bằng việc tiếp tục, bạn đồng ý với{' '}
+              <a href="/terms" className="underline hover:text-foreground">Điều khoản</a>
+              {' '}và{' '}
+              <a href="/privacy" className="underline hover:text-foreground">Chính sách bảo mật</a>
+            </p>
+          )}
         </div>
       </div>
     </div>
