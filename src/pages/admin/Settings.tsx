@@ -550,6 +550,133 @@ export default function AdminSettings() {
                 <p className="text-xs text-muted-foreground">Hiển thị dưới banner trên desktop</p>
               </div>
 
+              {/* Form Text Customization */}
+              <div className="border-t pt-6 mt-6">
+                <h3 className="font-semibold text-base mb-4">📝 Văn bản trên form</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Tiêu đề Đăng nhập</Label>
+                    <Input
+                      value={settings.auth_login_title || ''}
+                      onChange={(e) => updateSetting('auth_login_title', e.target.value)}
+                      placeholder="Chào mừng trở lại"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Mô tả Đăng nhập</Label>
+                    <Input
+                      value={settings.auth_login_subtitle || ''}
+                      onChange={(e) => updateSetting('auth_login_subtitle', e.target.value)}
+                      placeholder="Đăng nhập để tiếp tục mua sắm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Tiêu đề Đăng ký</Label>
+                    <Input
+                      value={settings.auth_signup_title || ''}
+                      onChange={(e) => updateSetting('auth_signup_title', e.target.value)}
+                      placeholder="Tạo tài khoản mới"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Mô tả Đăng ký</Label>
+                    <Input
+                      value={settings.auth_signup_subtitle || ''}
+                      onChange={(e) => updateSetting('auth_signup_subtitle', e.target.value)}
+                      placeholder="Đăng ký để bắt đầu trải nghiệm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Nút Đăng nhập</Label>
+                    <Input
+                      value={settings.auth_login_button || ''}
+                      onChange={(e) => updateSetting('auth_login_button', e.target.value)}
+                      placeholder="Đăng nhập"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Nút Đăng ký</Label>
+                    <Input
+                      value={settings.auth_signup_button || ''}
+                      onChange={(e) => updateSetting('auth_signup_button', e.target.value)}
+                      placeholder="Đăng ký"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Link chuyển sang Đăng ký</Label>
+                    <Input
+                      value={settings.auth_switch_to_signup || ''}
+                      onChange={(e) => updateSetting('auth_switch_to_signup', e.target.value)}
+                      placeholder="Chưa có tài khoản? Đăng ký ngay →"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Link chuyển sang Đăng nhập</Label>
+                    <Input
+                      value={settings.auth_switch_to_login || ''}
+                      onChange={(e) => updateSetting('auth_switch_to_login', e.target.value)}
+                      placeholder="← Đã có tài khoản? Đăng nhập"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Error/Success Messages */}
+              <div className="border-t pt-6 mt-6">
+                <h3 className="font-semibold text-base mb-4">💬 Thông báo lỗi & thành công</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Lỗi: Chưa điền đủ</Label>
+                    <Input
+                      value={settings.auth_error_empty || ''}
+                      onChange={(e) => updateSetting('auth_error_empty', e.target.value)}
+                      placeholder="Vui lòng điền đầy đủ thông tin"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Lỗi: Chưa nhập tên</Label>
+                    <Input
+                      value={settings.auth_error_name || ''}
+                      onChange={(e) => updateSetting('auth_error_name', e.target.value)}
+                      placeholder="Vui lòng nhập họ tên"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Lỗi: Email đã đăng ký</Label>
+                    <Input
+                      value={settings.auth_error_duplicate || ''}
+                      onChange={(e) => updateSetting('auth_error_duplicate', e.target.value)}
+                      placeholder="Email này đã được đăng ký"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Thành công: Đăng nhập</Label>
+                    <Input
+                      value={settings.auth_success_login || ''}
+                      onChange={(e) => updateSetting('auth_success_login', e.target.value)}
+                      placeholder="Đăng nhập thành công"
+                    />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Thành công: Đăng ký</Label>
+                    <Input
+                      value={settings.auth_success_signup || ''}
+                      onChange={(e) => updateSetting('auth_success_signup', e.target.value)}
+                      placeholder="Đăng ký thành công! Vui lòng kiểm tra email để xác nhận."
+                    />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Ghi chú cuối trang</Label>
+                    <Input
+                      value={settings.auth_footer_text || ''}
+                      onChange={(e) => updateSetting('auth_footer_text', e.target.value)}
+                      placeholder="Bằng việc tiếp tục, bạn đồng ý với Điều khoản và Chính sách bảo mật"
+                    />
+                  </div>
+                </div>
+              </div>
+              </div>
+
               {/* Preview */}
               <Card className="border-dashed">
                 <CardHeader className="pb-2">
