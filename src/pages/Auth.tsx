@@ -144,10 +144,10 @@ const Auth = () => {
               )}
             </div>
             <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight mb-2">
-              {isLogin ? 'Chào mừng trở lại' : 'Tạo tài khoản mới'}
+              {isLogin ? (settings.auth_login_title || 'Chào mừng trở lại') : (settings.auth_signup_title || 'Tạo tài khoản mới')}
             </h1>
             <p className="text-muted-foreground text-sm">
-              {isLogin ? 'Đăng nhập để tiếp tục mua sắm' : 'Đăng ký để bắt đầu trải nghiệm'}
+              {isLogin ? (settings.auth_login_subtitle || 'Đăng nhập để tiếp tục mua sắm') : (settings.auth_signup_subtitle || 'Đăng ký để bắt đầu trải nghiệm')}
             </p>
           </div>
 
