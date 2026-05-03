@@ -501,7 +501,7 @@ export default function AdminSettings() {
                 <ImageUpload
                   value={settings.auth_banner_url || ''}
                   onChange={(url) => updateSetting('auth_banner_url', url)}
-                  bucket="settings"
+                  folder="auth"
                   label="Tải ảnh banner trang Auth"
                 />
                 <p className="text-xs text-muted-foreground">Hiển thị bên trái form đăng nhập trên desktop, phía trên trên mobile</p>
