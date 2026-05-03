@@ -27,6 +27,10 @@ interface Settings {
   footer_text?: string;
   logo_url?: string;
   favicon_url?: string;
+  auth_banner_url?: string;
+  auth_welcome_title?: string;
+  auth_welcome_subtitle?: string;
+  auth_features?: string;
 }
 
 interface PaymentSettings {
