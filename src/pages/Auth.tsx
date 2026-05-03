@@ -240,7 +240,7 @@ const Auth = () => {
                   </span>
                 ) : (
                   <>
-                    {isLogin ? 'Đăng nhập' : 'Đăng ký'}
+                    {isLogin ? (settings.auth_login_button || 'Đăng nhập') : (settings.auth_signup_button || 'Đăng ký')}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </>
                 )}
