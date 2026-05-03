@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Save, Store, Phone, Mail, MapPin, Facebook, Instagram, CreditCard, Building2, Smartphone, Image as ImageIcon, Palette } from 'lucide-react';
+import { Save, Store, Phone, Mail, MapPin, Facebook, Instagram, CreditCard, Building2, Smartphone, Image as ImageIcon, Palette, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { ThemeSelector } from '@/components/admin/ThemeSelector';
@@ -27,6 +27,10 @@ interface Settings {
   footer_text?: string;
   logo_url?: string;
   favicon_url?: string;
+  auth_banner_url?: string;
+  auth_welcome_title?: string;
+  auth_welcome_subtitle?: string;
+  auth_features?: string;
 }
 
 interface PaymentSettings {
@@ -143,11 +147,14 @@ export default function AdminSettings() {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="general">Tổng quan</TabsTrigger>
           <TabsTrigger value="branding">Logo & Favicon</TabsTrigger>
           <TabsTrigger value="theme">
             <Palette className="h-4 w-4 mr-1" /> Theme
+          </TabsTrigger>
+          <TabsTrigger value="auth">
+            <LogIn className="h-4 w-4 mr-1" /> Trang Auth
           </TabsTrigger>
           <TabsTrigger value="contact">Liên hệ</TabsTrigger>
           <TabsTrigger value="social">Mạng xã hội</TabsTrigger>
@@ -481,6 +488,80 @@ export default function AdminSettings() {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="auth" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <LogIn className="h-5 w-5" /> Tùy chỉnh trang Đăng nhập / Đăng ký
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label>Ảnh banner (khuyến nghị 960×1280)</Label>
+                <ImageUpload
+                  value={settings.auth_banner_url || ''}
+                  onChange={(url) => updateSetting('auth_banner_url', url)}
+                  folder="auth"
+                  label="Tải ảnh banner trang Auth"
+                />
+                <p className="text-xs text-muted-foreground">Hiển thị bên trái form đăng nhập trên desktop, phía trên trên mobile</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Tiêu đề chào mừng</Label>
+                <Input
+                  value={settings.auth_welcome_title || ''}
+                  onChange={(e) => updateSetting('auth_welcome_title', e.target.value)}
+                  placeholder="Mua sắm thông minh"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Mô tả phụ</Label>
+                <Input
+                  value={settings.auth_welcome_subtitle || ''}
+                  onChange={(e) => updateSetting('auth_welcome_subtitle', e.target.value)}
+                  placeholder="Trải nghiệm mua sắm trực tuyến hiện đại"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Tính năng nổi bật (mỗi dòng 1 tính năng, tối đa 4)</Label>
+                <Textarea
+                  value={settings.auth_features || 'Giao hàng nhanh chóng toàn quốc\nThanh toán an toàn & bảo mật\nƯu đãi độc quyền mỗi ngày\nHỗ trợ khách hàng 24/7'}
+                  onChange={(e) => updateSetting('auth_features', e.target.value)}
+                  rows={4}
+                  placeholder="Mỗi dòng 1 tính năng"
+                />
+                <p className="text-xs text-muted-foreground">Hiển thị dưới banner trên desktop</p>
+              </div>
+
+              {/* Preview */}
+              <Card className="border-dashed">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Xem trước</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="relative rounded-xl overflow-hidden aspect-video bg-muted">
+                    {settings.auth_banner_url ? (
+                      <img src={settings.auth_banner_url} alt="Auth banner preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ImageIcon className="h-10 w-10 text-muted-foreground/40" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                    <div className="absolute bottom-4 left-4 text-white">
+                      <h3 className="font-bold text-lg">{settings.auth_welcome_title || 'Mua sắm thông minh'}</h3>
+                      <p className="text-white/80 text-sm">{settings.auth_welcome_subtitle || 'Trải nghiệm mua sắm trực tuyến hiện đại'}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
       </Tabs>
     </AdminLayout>
   );
