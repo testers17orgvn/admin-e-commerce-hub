@@ -675,7 +675,6 @@ export default function AdminSettings() {
                   </div>
                 </div>
               </div>
-              </div>
 
               {/* Preview */}
               <Card className="border-dashed">
