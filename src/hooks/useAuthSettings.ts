@@ -35,7 +35,15 @@ export function useAuthSettings() {
         if (data) {
           const map: Record<string, unknown> = {};
           data.forEach((r: { key: string; value: unknown }) => {
-            map[r.key] = r.value;
+            if (r.key === 'auth_features') {
+              // Stored as newline-separated string in admin
+              const val = r.value as string;
+              if (typeof val === 'string' && val.trim()) {
+                map[r.key] = val.split('\n').filter(Boolean).slice(0, 4);
+              }
+            } else {
+              map[r.key] = r.value;
+            }
           });
           setSettings(prev => ({
             ...prev,
