@@ -270,12 +270,16 @@ const Auth = () => {
             </div>
           </div>
 
-          <p className="text-center text-xs text-muted-foreground mt-6">
-            Bằng việc tiếp tục, bạn đồng ý với{' '}
-            <a href="/terms" className="underline hover:text-foreground">Điều khoản</a>
-            {' '}và{' '}
-            <a href="/privacy" className="underline hover:text-foreground">Chính sách bảo mật</a>
-          </p>
+          {settings.auth_footer_text ? (
+            <p className="text-center text-xs text-muted-foreground mt-6">{settings.auth_footer_text}</p>
+          ) : (
+            <p className="text-center text-xs text-muted-foreground mt-6">
+              Bằng việc tiếp tục, bạn đồng ý với{' '}
+              <a href="/terms" className="underline hover:text-foreground">Điều khoản</a>
+              {' '}và{' '}
+              <a href="/privacy" className="underline hover:text-foreground">Chính sách bảo mật</a>
+            </p>
+          )}
         </div>
       </div>
     </div>
