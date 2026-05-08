@@ -164,7 +164,7 @@ const Auth = () => {
                         id="fullName"
                         value={formData.fullName}
                         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                        placeholder="Nguyễn Văn A"
+                        placeholder={settings.auth_placeholder_name || "Nguyễn Văn A"}
                         className="pl-10 h-12 rounded-xl"
                       />
                     </div>
@@ -180,7 +180,7 @@ const Auth = () => {
                         type="tel"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="0912 345 678"
+                        placeholder={settings.auth_placeholder_phone || "0912 345 678"}
                         className="pl-10 h-12 rounded-xl"
                       />
                     </div>
@@ -197,7 +197,7 @@ const Auth = () => {
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="email@example.com"
+                    placeholder={settings.auth_placeholder_email || "email@example.com"}
                     className="pl-10 h-12 rounded-xl"
                     autoComplete="email"
                   />
@@ -213,7 +213,7 @@ const Auth = () => {
                     type={showPassword ? 'text' : 'password'}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    placeholder="••••••••"
+                    placeholder={settings.auth_placeholder_password || "••••••••"}
                     className="pl-10 pr-12 h-12 rounded-xl"
                     autoComplete={isLogin ? 'current-password' : 'new-password'}
                   />
