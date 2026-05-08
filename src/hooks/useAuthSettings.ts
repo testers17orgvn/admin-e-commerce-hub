@@ -24,6 +24,11 @@ export interface AuthPageSettings {
   auth_success_login?: string;
   auth_success_signup?: string;
   auth_footer_text?: string;
+  // Placeholders
+  auth_placeholder_email?: string;
+  auth_placeholder_password?: string;
+  auth_placeholder_name?: string;
+  auth_placeholder_phone?: string;
 }
 
 const ALL_KEYS = [
@@ -33,6 +38,7 @@ const ALL_KEYS = [
   'auth_login_button', 'auth_signup_button', 'auth_switch_to_signup', 'auth_switch_to_login',
   'auth_error_empty', 'auth_error_name', 'auth_error_duplicate',
   'auth_success_login', 'auth_success_signup', 'auth_footer_text',
+  'auth_placeholder_email', 'auth_placeholder_password', 'auth_placeholder_name', 'auth_placeholder_phone',
 ];
 
 export function useAuthSettings() {
