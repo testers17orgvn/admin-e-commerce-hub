@@ -45,6 +45,10 @@ interface Settings {
   auth_success_login?: string;
   auth_success_signup?: string;
   auth_footer_text?: string;
+  auth_placeholder_email?: string;
+  auth_placeholder_password?: string;
+  auth_placeholder_name?: string;
+  auth_placeholder_phone?: string;
 }
 
 interface PaymentSettings {
