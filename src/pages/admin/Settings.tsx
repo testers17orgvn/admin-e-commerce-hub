@@ -621,6 +621,45 @@ export default function AdminSettings() {
                 </div>
               </div>
 
+              {/* Placeholders */}
+              <div className="border-t pt-6 mt-6">
+                <h3 className="font-semibold text-base mb-4">📝 Placeholder các ô nhập liệu</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input
+                      value={settings.auth_placeholder_email || ''}
+                      onChange={(e) => updateSetting('auth_placeholder_email', e.target.value)}
+                      placeholder="email@example.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Mật khẩu</Label>
+                    <Input
+                      value={settings.auth_placeholder_password || ''}
+                      onChange={(e) => updateSetting('auth_placeholder_password', e.target.value)}
+                      placeholder="••••••••"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Họ tên</Label>
+                    <Input
+                      value={settings.auth_placeholder_name || ''}
+                      onChange={(e) => updateSetting('auth_placeholder_name', e.target.value)}
+                      placeholder="Nguyễn Văn A"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Số điện thoại</Label>
+                    <Input
+                      value={settings.auth_placeholder_phone || ''}
+                      onChange={(e) => updateSetting('auth_placeholder_phone', e.target.value)}
+                      placeholder="0912 345 678"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Error/Success Messages */}
               <div className="border-t pt-6 mt-6">
                 <h3 className="font-semibold text-base mb-4">💬 Thông báo lỗi & thành công</h3>
