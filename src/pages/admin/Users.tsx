@@ -20,7 +20,7 @@ import { toast } from 'sonner';
 import { format, formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Checkbox } from '@/components/ui/checkbox';
-import { OnlineIndicator } from '@/components/chat/OnlineIndicator';
+
 
 type AppRole = 'admin' | 'staff' | 'seller' | 'dealer' | 'tester' | 'shipper';
 
@@ -355,7 +355,6 @@ export default function AdminUsers() {
                               {getInitials(user.full_name)}
                             </AvatarFallback>
                           </Avatar>
-                          <OnlineIndicator userId={user.id} size="sm" className="absolute -bottom-0.5 -right-0.5 ring-2 ring-card" />
                         </div>
                         <div className="min-w-0">
                           <p className="font-medium text-sm truncate">{user.full_name || 'Chưa đặt tên'}</p>
@@ -467,7 +466,6 @@ export default function AdminUsers() {
                       {getInitials(selectedUser.full_name)}
                     </AvatarFallback>
                   </Avatar>
-                  <OnlineIndicator userId={selectedUser.id} size="md" className="absolute -bottom-0.5 -right-0.5 ring-2 ring-card" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-lg truncate">{selectedUser.full_name || 'Chưa đặt tên'}</h3>
