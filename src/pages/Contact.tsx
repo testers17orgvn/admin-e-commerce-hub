@@ -204,29 +204,29 @@ const Contact = () => {
               </h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 {settings.address && (
-                  <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                    <CardContent className="p-6 flex items-start gap-4">
-                      <div className="p-4 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <MapPin className="h-6 w-6 text-accent" />
+                  <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group h-full">
+                    <CardContent className="p-5 flex items-start gap-4 h-full">
+                      <div className="p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
+                        <MapPin className="h-5 w-5 text-accent" />
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-lg mb-1">Địa chỉ</h3>
-                        <p className="text-muted-foreground whitespace-pre-line">{settings.address}</p>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-base mb-1">Địa chỉ</h3>
+                        <p className="text-sm text-muted-foreground whitespace-pre-line">{settings.address}</p>
                       </div>
                     </CardContent>
                   </Card>
                 )}
 
                 {settings.phone && (
-                  <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                    <CardContent className="p-6 flex items-start gap-4">
-                      <div className="p-4 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <Phone className="h-6 w-6 text-accent" />
+                  <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group h-full">
+                    <CardContent className="p-5 flex items-start gap-4 h-full">
+                      <div className="p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
+                        <Phone className="h-5 w-5 text-accent" />
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-lg mb-1">Điện thoại</h3>
-                        <p className="text-muted-foreground">{settings.phone}</p>
-                        <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className="text-accent hover:underline text-sm mt-1 inline-block">
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-base mb-1">Điện thoại</h3>
+                        <p className="text-sm text-muted-foreground">{settings.phone}</p>
+                        <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className="text-accent hover:underline text-xs mt-1 inline-block">
                           Gọi ngay
                         </a>
                       </div>
@@ -235,15 +235,15 @@ const Contact = () => {
                 )}
 
                 {settings.email && (
-                  <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                    <CardContent className="p-6 flex items-start gap-4">
-                      <div className="p-4 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <Mail className="h-6 w-6 text-accent" />
+                  <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group h-full">
+                    <CardContent className="p-5 flex items-start gap-4 h-full">
+                      <div className="p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
+                        <Mail className="h-5 w-5 text-accent" />
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-lg mb-1">Email</h3>
-                        <p className="text-muted-foreground">{settings.email}</p>
-                        <a href={`mailto:${settings.email}`} className="text-accent hover:underline text-sm mt-1 inline-block">
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-base mb-1">Email</h3>
+                        <p className="text-sm text-muted-foreground break-all">{settings.email}</p>
+                        <a href={`mailto:${settings.email}`} className="text-accent hover:underline text-xs mt-1 inline-block">
                           Gửi email
                         </a>
                       </div>
@@ -252,14 +252,14 @@ const Contact = () => {
                 )}
 
                 {settings.working_hours && (
-                  <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                    <CardContent className="p-6 flex items-start gap-4">
-                      <div className="p-4 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <Clock className="h-6 w-6 text-accent" />
+                  <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group h-full">
+                    <CardContent className="p-5 flex items-start gap-4 h-full">
+                      <div className="p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
+                        <Clock className="h-5 w-5 text-accent" />
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-lg mb-1">Giờ làm việc</h3>
-                        <p className="text-muted-foreground whitespace-pre-line">{settings.working_hours}</p>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-base mb-1">Giờ làm việc</h3>
+                        <p className="text-sm text-muted-foreground whitespace-pre-line">{settings.working_hours}</p>
                       </div>
                     </CardContent>
                   </Card>
