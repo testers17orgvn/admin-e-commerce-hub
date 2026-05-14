@@ -334,7 +334,7 @@ export default function AdminSettings() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium flex items-center gap-2"><Mail className="h-3 w-3" /> Email</label>
-                <Input value={settings.contact_email || ''} onChange={(e) => updateSetting('contact_email', e.target.value)} placeholder="email@example.com" />
+                <Input value={settings.contact_email || ''} onChange={(e) => updateSetting('contact_email', e.target.value)} placeholder="email@vsm.org.vn" />
               </div>
               <div>
                 <label className="text-sm font-medium flex items-center gap-2"><Phone className="h-3 w-3" /> Số điện thoại</label>
@@ -634,7 +634,7 @@ export default function AdminSettings() {
                     <Input
                       value={settings.auth_placeholder_email || ''}
                       onChange={(e) => updateSetting('auth_placeholder_email', e.target.value)}
-                      placeholder="email@example.com"
+                      placeholder="email@vsm.org.vn"
                     />
                   </div>
                   <div className="space-y-2">

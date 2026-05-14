@@ -360,7 +360,7 @@ export function CustomMascotManager() {
                   </Label>
                   <Input
                     className="mt-1"
-                    placeholder="/products hoặc https://example.com"
+                    placeholder="/products hoặc https://store.vsm.org.vn"
                     value={mascot.link_url || ''}
                     onChange={(e) => updateMascot(mascot.id, { link_url: e.target.value })}
                   />

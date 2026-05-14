@@ -21,7 +21,7 @@ export interface ContactFormField {
 
 export const DEFAULT_FORM_FIELDS: ContactFormField[] = [
   { id: 'name', label: 'Họ tên', type: 'text', placeholder: 'Nguyễn Văn A', required: true, enabled: true, isBuiltin: true, halfWidth: true },
-  { id: 'email', label: 'Email', type: 'email', placeholder: 'email@example.com', required: true, enabled: true, isBuiltin: true, halfWidth: true },
+  { id: 'email', label: 'Email', type: 'email', placeholder: 'email@vsm.org.vn', required: true, enabled: true, isBuiltin: true, halfWidth: true },
   { id: 'phone', label: 'Số điện thoại', type: 'tel', placeholder: '0909 123 456', required: false, enabled: true, isBuiltin: true, halfWidth: true },
   { id: 'subject', label: 'Tiêu đề', type: 'text', placeholder: 'Tiêu đề tin nhắn', required: false, enabled: true, isBuiltin: true, halfWidth: true },
   { id: 'message', label: 'Nội dung', type: 'textarea', placeholder: 'Nhập nội dung tin nhắn...', required: true, enabled: true, isBuiltin: true, halfWidth: false },

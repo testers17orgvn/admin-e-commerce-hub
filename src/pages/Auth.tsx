@@ -197,7 +197,7 @@ const Auth = () => {
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder={settings.auth_placeholder_email || "email@example.com"}
+                    placeholder={settings.auth_placeholder_email || "email@vsm.org.vn"}
                     className="pl-10 h-12 rounded-xl"
                     autoComplete="email"
                   />

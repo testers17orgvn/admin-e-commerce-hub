@@ -170,7 +170,7 @@ export default function AdminContactSettings() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Input value={settings.email} onChange={(e) => updateSetting('email', e.target.value)} placeholder="contact@example.com" />
+                <Input value={settings.email} onChange={(e) => updateSetting('email', e.target.value)} placeholder="contact@vsm.org.vn" />
               </CardContent>
             </Card>
             <Card>
