@@ -1,4 +1,30 @@
 {
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        { "type": "host", "value": "(?<host>.*\\.lovable\\.(app|dev))" }
+      ],
+      "destination": "https://store.vsm.org.vn/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        { "type": "host", "value": "(?<host>.*example\\.com)" }
+      ],
+      "destination": "https://store.vsm.org.vn/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        { "type": "host", "value": "www.store.vsm.org.vn" }
+      ],
+      "destination": "https://store.vsm.org.vn/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
