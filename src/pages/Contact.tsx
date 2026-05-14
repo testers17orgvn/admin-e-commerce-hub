@@ -338,52 +338,14 @@ const Contact = () => {
               </div>
             </div>
 
-            {/* Google Map - Premium */}
-            {settings.map_embed && (
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-0 group">
-                {/* Decorative frame */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-accent via-accent/50 to-accent rounded-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-500 blur-sm -z-10" />
-                <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-charcoal/80 to-transparent p-4">
-                  <div className="flex items-center gap-2 text-white">
-                    <MapPin className="h-5 w-5 text-accent animate-bounce" />
-                    <span className="font-display font-semibold text-sm">Vị trí cửa hàng</span>
-                  </div>
-                </div>
-                <div
-                  className="aspect-[4/3] md:aspect-video"
-                  dangerouslySetInnerHTML={{
-                    __html: settings.map_embed
-                      .replace(/width="\d+"/, 'width="100%"')
-                      .replace(/height="\d+"/, 'height="100%"')
-                      .replace(/style="[^"]*"/, 'style="border:0;border-radius:16px;"'),
-                  }}
-                />
-                {/* Bottom info bar */}
-                <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-charcoal/90 to-transparent p-4">
-                  <div className="flex items-center justify-between">
-                    {settings.address && (
-                      <p className="text-white/90 text-xs md:text-sm max-w-[70%] truncate">{settings.address}</p>
-                    )}
-                    <a
-                      href={`https://www.google.com/maps/search/${encodeURIComponent(settings.address || '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3 py-1.5 bg-accent hover:bg-accent/90 text-white text-xs font-medium rounded-full transition-colors flex items-center gap-1"
-                    >
-                      <ExternalLink className="h-3 w-3" /> Xem trên Maps
-                    </a>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Contact Form */}
-          <div>
+          <div className="lg:col-span-2">
             <Card className="border-0 shadow-lg overflow-hidden sticky top-24">
               <div className="bg-gradient-to-r from-accent/10 to-transparent p-6 border-b">
                 <h2 className="font-display text-2xl font-bold">Gửi tin nhắn</h2>
-                <p className="text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   Chúng tôi sẽ phản hồi trong thời gian sớm nhất
                 </p>
               </div>
@@ -410,6 +372,41 @@ const Contact = () => {
             </Card>
           </div>
         </div>
+
+        {/* Google Map – full width below */}
+        {settings.map_embed && (
+          <div className="max-w-7xl mx-auto mt-12 md:mt-16">
+            <div className="flex items-end justify-between mb-4 gap-4">
+              <div>
+                <h2 className="font-display text-2xl md:text-3xl font-bold flex items-center gap-2">
+                  <MapPin className="h-6 w-6 text-accent" /> Vị trí cửa hàng
+                </h2>
+                {settings.address && (
+                  <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{settings.address}</p>
+                )}
+              </div>
+              <a
+                href={`https://www.google.com/maps/search/${encodeURIComponent(settings.address || '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 px-4 py-2 bg-accent hover:bg-accent/90 text-white text-xs md:text-sm font-medium rounded-full transition-colors flex items-center gap-1.5"
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> Xem trên Maps
+              </a>
+            </div>
+            <div className="rounded-2xl overflow-hidden shadow-xl ring-1 ring-border">
+              <div
+                className="aspect-[16/7] md:aspect-[21/8]"
+                dangerouslySetInnerHTML={{
+                  __html: settings.map_embed
+                    .replace(/width="\d+"/, 'width="100%"')
+                    .replace(/height="\d+"/, 'height="100%"')
+                    .replace(/style="[^"]*"/, 'style="border:0;"'),
+                }}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );
