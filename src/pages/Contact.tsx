@@ -195,14 +195,14 @@ const Contact = () => {
       </div>
 
       <div className="container py-12 md:py-16">
-        <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-          {/* Contact Info */}
-          <div className="space-y-8">
+        <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 max-w-7xl mx-auto">
+          {/* Contact Info – wider column */}
+          <div className="lg:col-span-3 space-y-10">
             <div>
-              <h2 className="font-display text-2xl md:text-3xl font-bold mb-8">
+              <h2 className="font-display text-2xl md:text-3xl font-bold mb-6">
                 Thông tin liên hệ
               </h2>
-              <div className="space-y-6">
+              <div className="grid sm:grid-cols-2 gap-4">
                 {settings.address && (
                   <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
                     <CardContent className="p-6 flex items-start gap-4">
