@@ -411,7 +411,7 @@ export default function AdminBlogs() {
                             {form.meta_title || form.title || 'Tiêu đề bài viết'}
                           </p>
                           <p className="text-green-700 text-sm">
-                            example.com/blog/{form.slug || 'duong-dan-bai-viet'}
+                            store.vsm.org.vn/blog/{form.slug || 'duong-dan-bai-viet'}
                           </p>
                           <p className="text-sm text-muted-foreground line-clamp-2">
                             {form.meta_description || form.excerpt || 'Mô tả ngắn về bài viết sẽ hiển thị ở đây...'}

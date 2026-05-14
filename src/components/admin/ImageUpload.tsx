@@ -130,7 +130,7 @@ export function ImageUpload({ value, onChange, folder = 'general', label = 'Hìn
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="https://example.com/image.jpg"
+          placeholder="https://store.vsm.org.vn/image.jpg"
           className="text-sm"
         />
       )}

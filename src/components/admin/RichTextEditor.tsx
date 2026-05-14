@@ -318,7 +318,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
           <PopoverContent className="w-80 p-3">
             <p className="text-sm font-medium mb-2">Chèn liên kết</p>
             <div className="flex gap-2">
-              <Input placeholder="https://example.com" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addLink()} />
+              <Input placeholder="https://store.vsm.org.vn" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addLink()} />
               <Button size="sm" onClick={addLink}>Thêm</Button>
             </div>
             {editor.isActive('link') && (
