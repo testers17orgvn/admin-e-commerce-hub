@@ -272,15 +272,15 @@ const Contact = () => {
               <h3 className="font-display text-xl font-bold">Kết nối với chúng tôi</h3>
               
               {/* Social links */}
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2.5 sm:gap-3">
                 {settings.facebook && (
                   <a
                     href={settings.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative flex items-center gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-600/20 hover:shadow-xl hover:shadow-blue-600/30 hover:-translate-y-0.5 transition-all duration-300"
+                    className="group relative flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm shadow-lg shadow-blue-600/20 hover:shadow-xl hover:shadow-blue-600/30 hover:-translate-y-0.5 transition-all duration-300"
                   >
-                    <Facebook className="h-5 w-5" />
+                    <Facebook className="h-4 w-4 sm:h-5 sm:w-5" />
                     <span className="font-medium">Facebook</span>
                     <ExternalLink className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
                   </a>
@@ -290,9 +290,9 @@ const Contact = () => {
                     href={settings.zalo.startsWith('http') ? settings.zalo : `https://zalo.me/${settings.zalo}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative flex items-center gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-400 to-cyan-400 text-white shadow-lg shadow-blue-400/20 hover:shadow-xl hover:shadow-blue-400/30 hover:-translate-y-0.5 transition-all duration-300"
+                    className="group relative flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-blue-400 to-cyan-400 text-white text-sm shadow-lg shadow-blue-400/20 hover:shadow-xl hover:shadow-blue-400/30 hover:-translate-y-0.5 transition-all duration-300"
                   >
-                    <MessageCircle className="h-5 w-5" />
+                    <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                     <span className="font-medium">Zalo</span>
                     <ExternalLink className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
                   </a>
