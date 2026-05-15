@@ -375,28 +375,28 @@ const Contact = () => {
 
         {/* Google Map – full width below */}
         {settings.map_embed && (
-          <div className="max-w-7xl mx-auto mt-12 md:mt-16">
-            <div className="flex items-end justify-between mb-4 gap-4">
-              <div>
-                <h2 className="font-display text-2xl md:text-3xl font-bold flex items-center gap-2">
-                  <MapPin className="h-6 w-6 text-accent" /> Vị trí cửa hàng
+          <div className="max-w-7xl mx-auto mt-10 sm:mt-12 md:mt-16">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-4 gap-3 sm:gap-4">
+              <div className="min-w-0">
+                <h2 className="font-display text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-2">
+                  <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-accent" /> Vị trí cửa hàng
                 </h2>
                 {settings.address && (
-                  <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{settings.address}</p>
+                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2 sm:line-clamp-1">{settings.address}</p>
                 )}
               </div>
               <a
                 href={`https://www.google.com/maps/search/${encodeURIComponent(settings.address || '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="shrink-0 px-4 py-2 bg-accent hover:bg-accent/90 text-white text-xs md:text-sm font-medium rounded-full transition-colors flex items-center gap-1.5"
+                className="self-start sm:self-auto shrink-0 px-4 py-2 bg-accent hover:bg-accent/90 text-white text-xs md:text-sm font-medium rounded-full transition-colors flex items-center gap-1.5"
               >
                 <ExternalLink className="h-3.5 w-3.5" /> Xem trên Maps
               </a>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-xl ring-1 ring-border">
               <div
-                className="aspect-[16/7] md:aspect-[21/8]"
+                className="aspect-[4/3] sm:aspect-[16/7] md:aspect-[21/8]"
                 dangerouslySetInnerHTML={{
                   __html: settings.map_embed
                     .replace(/width="\d+"/, 'width="100%"')
