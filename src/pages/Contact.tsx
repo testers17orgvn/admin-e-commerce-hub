@@ -205,8 +205,8 @@ const Contact = () => {
               <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
                 {settings.address && (
                   <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group h-full">
-                    <CardContent className="p-5 flex items-start gap-4 h-full">
-                      <div className="p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <CardContent className="p-4 sm:p-5 flex items-start gap-3 sm:gap-4 h-full">
+                      <div className="p-2.5 sm:p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
                         <MapPin className="h-5 w-5 text-accent" />
                       </div>
                       <div className="min-w-0">
@@ -219,8 +219,8 @@ const Contact = () => {
 
                 {settings.phone && (
                   <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group h-full">
-                    <CardContent className="p-5 flex items-start gap-4 h-full">
-                      <div className="p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <CardContent className="p-4 sm:p-5 flex items-start gap-3 sm:gap-4 h-full">
+                      <div className="p-2.5 sm:p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
                         <Phone className="h-5 w-5 text-accent" />
                       </div>
                       <div className="min-w-0">
@@ -236,8 +236,8 @@ const Contact = () => {
 
                 {settings.email && (
                   <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group h-full">
-                    <CardContent className="p-5 flex items-start gap-4 h-full">
-                      <div className="p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <CardContent className="p-4 sm:p-5 flex items-start gap-3 sm:gap-4 h-full">
+                      <div className="p-2.5 sm:p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
                         <Mail className="h-5 w-5 text-accent" />
                       </div>
                       <div className="min-w-0">
@@ -253,8 +253,8 @@ const Contact = () => {
 
                 {settings.working_hours && (
                   <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group h-full">
-                    <CardContent className="p-5 flex items-start gap-4 h-full">
-                      <div className="p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <CardContent className="p-4 sm:p-5 flex items-start gap-3 sm:gap-4 h-full">
+                      <div className="p-2.5 sm:p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
                         <Clock className="h-5 w-5 text-accent" />
                       </div>
                       <div className="min-w-0">
