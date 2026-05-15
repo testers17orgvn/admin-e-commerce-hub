@@ -354,7 +354,7 @@ const Contact = () => {
                   {renderFormFields()}
                   <Button
                     type="submit"
-                    className="w-full h-14 rounded-xl bg-accent hover:bg-accent/90 text-lg font-medium"
+                    className="w-full h-12 sm:h-14 rounded-xl bg-accent hover:bg-accent/90 text-base sm:text-lg font-medium"
                     disabled={loading}
                   >
                     {loading ? (
