@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Grid3X3, LayoutGrid, List, X, Package, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
+import { SaleHeroBanner } from '@/components/products/SaleHeroBanner';
 
 interface FilterState {
   colors: string[];
@@ -148,6 +149,11 @@ const Products = () => {
   return (
     <Layout>
       <div className="container py-6 md:py-10">
+        {/* Sale Hero Banner */}
+        <ScrollReveal direction="up">
+          <SaleHeroBanner />
+        </ScrollReveal>
+
         {/* Category Icons - Shopee style */}
         {categories.length > 0 && (
           <ScrollReveal direction="up">
