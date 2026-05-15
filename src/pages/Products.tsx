@@ -149,6 +149,11 @@ const Products = () => {
   return (
     <Layout>
       <div className="container py-6 md:py-10">
+        {/* Sale Hero Banner */}
+        <ScrollReveal direction="up">
+          <SaleHeroBanner />
+        </ScrollReveal>
+
         {/* Category Icons - Shopee style */}
         {categories.length > 0 && (
           <ScrollReveal direction="up">
