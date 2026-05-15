@@ -342,14 +342,14 @@ const Contact = () => {
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <Card className="border-0 shadow-lg overflow-hidden sticky top-24">
-              <div className="bg-gradient-to-r from-accent/10 to-transparent p-6 border-b">
-                <h2 className="font-display text-2xl font-bold">Gửi tin nhắn</h2>
+            <Card className="border-0 shadow-lg overflow-hidden lg:sticky lg:top-24">
+              <div className="bg-gradient-to-r from-accent/10 to-transparent p-5 sm:p-6 border-b">
+                <h2 className="font-display text-xl sm:text-2xl font-bold">Gửi tin nhắn</h2>
                 <p className="text-sm text-muted-foreground mt-1">
                   Chúng tôi sẽ phản hồi trong thời gian sớm nhất
                 </p>
               </div>
-              <CardContent className="p-6 md:p-8">
+              <CardContent className="p-5 sm:p-6 md:p-8">
                 <form onSubmit={handleSubmit} className="space-y-5">
                   {renderFormFields()}
                   <Button
