@@ -182,31 +182,31 @@ const Contact = () => {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,hsl(var(--accent)/0.3),transparent_50%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(var(--accent)/0.2),transparent_40%)]" />
         </div>
-        <div className="container py-16 md:py-24 relative">
+        <div className="container px-4 sm:px-6 py-10 sm:py-16 md:py-24 relative">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4">
               {settings.intro_title}
             </h1>
-            <p className="text-lg md:text-xl text-white/80">
+            <p className="text-base sm:text-lg md:text-xl text-white/80">
               {settings.intro_description}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="container py-12 md:py-16">
-        <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 max-w-7xl mx-auto">
+      <div className="container px-4 sm:px-6 py-8 sm:py-12 md:py-16">
+        <div className="grid lg:grid-cols-5 gap-6 md:gap-8 lg:gap-12 max-w-7xl mx-auto">
           {/* Contact Info – wider column */}
-          <div className="lg:col-span-3 space-y-10">
+          <div className="lg:col-span-3 space-y-8 md:space-y-10">
             <div>
-              <h2 className="font-display text-2xl md:text-3xl font-bold mb-6">
+              <h2 className="font-display text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6">
                 Thông tin liên hệ
               </h2>
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
                 {settings.address && (
                   <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group h-full">
-                    <CardContent className="p-5 flex items-start gap-4 h-full">
-                      <div className="p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <CardContent className="p-4 sm:p-5 flex items-start gap-3 sm:gap-4 h-full">
+                      <div className="p-2.5 sm:p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
                         <MapPin className="h-5 w-5 text-accent" />
                       </div>
                       <div className="min-w-0">
@@ -219,8 +219,8 @@ const Contact = () => {
 
                 {settings.phone && (
                   <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group h-full">
-                    <CardContent className="p-5 flex items-start gap-4 h-full">
-                      <div className="p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <CardContent className="p-4 sm:p-5 flex items-start gap-3 sm:gap-4 h-full">
+                      <div className="p-2.5 sm:p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
                         <Phone className="h-5 w-5 text-accent" />
                       </div>
                       <div className="min-w-0">
@@ -236,8 +236,8 @@ const Contact = () => {
 
                 {settings.email && (
                   <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group h-full">
-                    <CardContent className="p-5 flex items-start gap-4 h-full">
-                      <div className="p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <CardContent className="p-4 sm:p-5 flex items-start gap-3 sm:gap-4 h-full">
+                      <div className="p-2.5 sm:p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
                         <Mail className="h-5 w-5 text-accent" />
                       </div>
                       <div className="min-w-0">
@@ -253,8 +253,8 @@ const Contact = () => {
 
                 {settings.working_hours && (
                   <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group h-full">
-                    <CardContent className="p-5 flex items-start gap-4 h-full">
-                      <div className="p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <CardContent className="p-4 sm:p-5 flex items-start gap-3 sm:gap-4 h-full">
+                      <div className="p-2.5 sm:p-3 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl group-hover:scale-110 transition-transform duration-300 shrink-0">
                         <Clock className="h-5 w-5 text-accent" />
                       </div>
                       <div className="min-w-0">
@@ -272,15 +272,15 @@ const Contact = () => {
               <h3 className="font-display text-xl font-bold">Kết nối với chúng tôi</h3>
               
               {/* Social links */}
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2.5 sm:gap-3">
                 {settings.facebook && (
                   <a
                     href={settings.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative flex items-center gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-600/20 hover:shadow-xl hover:shadow-blue-600/30 hover:-translate-y-0.5 transition-all duration-300"
+                    className="group relative flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm shadow-lg shadow-blue-600/20 hover:shadow-xl hover:shadow-blue-600/30 hover:-translate-y-0.5 transition-all duration-300"
                   >
-                    <Facebook className="h-5 w-5" />
+                    <Facebook className="h-4 w-4 sm:h-5 sm:w-5" />
                     <span className="font-medium">Facebook</span>
                     <ExternalLink className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
                   </a>
@@ -290,9 +290,9 @@ const Contact = () => {
                     href={settings.zalo.startsWith('http') ? settings.zalo : `https://zalo.me/${settings.zalo}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative flex items-center gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-400 to-cyan-400 text-white shadow-lg shadow-blue-400/20 hover:shadow-xl hover:shadow-blue-400/30 hover:-translate-y-0.5 transition-all duration-300"
+                    className="group relative flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-blue-400 to-cyan-400 text-white text-sm shadow-lg shadow-blue-400/20 hover:shadow-xl hover:shadow-blue-400/30 hover:-translate-y-0.5 transition-all duration-300"
                   >
-                    <MessageCircle className="h-5 w-5" />
+                    <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                     <span className="font-medium">Zalo</span>
                     <ExternalLink className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
                   </a>
@@ -342,19 +342,19 @@ const Contact = () => {
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <Card className="border-0 shadow-lg overflow-hidden sticky top-24">
-              <div className="bg-gradient-to-r from-accent/10 to-transparent p-6 border-b">
-                <h2 className="font-display text-2xl font-bold">Gửi tin nhắn</h2>
+            <Card className="border-0 shadow-lg overflow-hidden lg:sticky lg:top-24">
+              <div className="bg-gradient-to-r from-accent/10 to-transparent p-5 sm:p-6 border-b">
+                <h2 className="font-display text-xl sm:text-2xl font-bold">Gửi tin nhắn</h2>
                 <p className="text-sm text-muted-foreground mt-1">
                   Chúng tôi sẽ phản hồi trong thời gian sớm nhất
                 </p>
               </div>
-              <CardContent className="p-6 md:p-8">
+              <CardContent className="p-5 sm:p-6 md:p-8">
                 <form onSubmit={handleSubmit} className="space-y-5">
                   {renderFormFields()}
                   <Button
                     type="submit"
-                    className="w-full h-14 rounded-xl bg-accent hover:bg-accent/90 text-lg font-medium"
+                    className="w-full h-12 sm:h-14 rounded-xl bg-accent hover:bg-accent/90 text-base sm:text-lg font-medium"
                     disabled={loading}
                   >
                     {loading ? (
@@ -375,28 +375,28 @@ const Contact = () => {
 
         {/* Google Map – full width below */}
         {settings.map_embed && (
-          <div className="max-w-7xl mx-auto mt-12 md:mt-16">
-            <div className="flex items-end justify-between mb-4 gap-4">
-              <div>
-                <h2 className="font-display text-2xl md:text-3xl font-bold flex items-center gap-2">
-                  <MapPin className="h-6 w-6 text-accent" /> Vị trí cửa hàng
+          <div className="max-w-7xl mx-auto mt-10 sm:mt-12 md:mt-16">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-4 gap-3 sm:gap-4">
+              <div className="min-w-0">
+                <h2 className="font-display text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-2">
+                  <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-accent" /> Vị trí cửa hàng
                 </h2>
                 {settings.address && (
-                  <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{settings.address}</p>
+                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2 sm:line-clamp-1">{settings.address}</p>
                 )}
               </div>
               <a
                 href={`https://www.google.com/maps/search/${encodeURIComponent(settings.address || '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="shrink-0 px-4 py-2 bg-accent hover:bg-accent/90 text-white text-xs md:text-sm font-medium rounded-full transition-colors flex items-center gap-1.5"
+                className="self-start sm:self-auto shrink-0 px-4 py-2 bg-accent hover:bg-accent/90 text-white text-xs md:text-sm font-medium rounded-full transition-colors flex items-center gap-1.5"
               >
                 <ExternalLink className="h-3.5 w-3.5" /> Xem trên Maps
               </a>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-xl ring-1 ring-border">
               <div
-                className="aspect-[16/7] md:aspect-[21/8]"
+                className="aspect-[4/3] sm:aspect-[16/7] md:aspect-[21/8]"
                 dangerouslySetInnerHTML={{
                   __html: settings.map_embed
                     .replace(/width="\d+"/, 'width="100%"')
