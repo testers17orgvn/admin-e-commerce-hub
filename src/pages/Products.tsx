@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Grid3X3, LayoutGrid, List, X, Package, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
+import { SaleHeroBanner } from '@/components/products/SaleHeroBanner';
 
 interface FilterState {
   colors: string[];
