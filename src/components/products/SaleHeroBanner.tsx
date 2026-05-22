@@ -124,6 +124,26 @@ export function SaleHeroBanner() {
               </div>
             )}
           </div>
+
+          {timeLeft ? (
+            <div className="mt-3 md:mt-4 flex items-center gap-1.5 sm:gap-2">
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-200 flex-shrink-0" />
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <CountdownUnit value={timeLeft.days} label="Ngày" />
+                <CountdownSeparator />
+                <CountdownUnit value={timeLeft.hours} label="Giờ" />
+                <CountdownSeparator />
+                <CountdownUnit value={timeLeft.minutes} label="Phút" />
+                <CountdownSeparator />
+                <CountdownUnit value={timeLeft.seconds} label="Giây" />
+              </div>
+            </div>
+          ) : s.ends_at ? (
+            <div className="mt-3 md:mt-4 inline-flex items-center gap-1.5 text-white/70 text-xs font-medium">
+              <Clock className="w-3.5 h-3.5" />
+              Flash sale đã kết thúc
+            </div>
+          ) : null}
         </div>
 
         <div className="hidden sm:flex flex-shrink-0 relative animate-float-y">
