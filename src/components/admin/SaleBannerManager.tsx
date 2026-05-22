@@ -22,6 +22,7 @@ export interface SaleBannerSettings {
   big_label_bottom: string;
   link_url: string;
   background_image: string;
+  ends_at: string;
 }
 
 export const defaultSaleBanner: SaleBannerSettings = {
