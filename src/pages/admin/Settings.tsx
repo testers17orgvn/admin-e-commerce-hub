@@ -15,6 +15,7 @@ import { ImageUpload } from '@/components/admin/ImageUpload';
 import { ThemeSelector } from '@/components/admin/ThemeSelector';
 import { CustomMascotManager } from '@/components/admin/CustomMascotManager';
 import { MobilePopupManager } from '@/components/admin/MobilePopupManager';
+import { SaleBannerManager } from '@/components/admin/SaleBannerManager';
 
 interface Settings {
   site_name?: string;
@@ -165,7 +166,7 @@ export default function AdminSettings() {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="general">Tổng quan</TabsTrigger>
           <TabsTrigger value="branding">Logo & Favicon</TabsTrigger>
           <TabsTrigger value="theme">
@@ -177,6 +178,7 @@ export default function AdminSettings() {
           <TabsTrigger value="contact">Liên hệ</TabsTrigger>
           <TabsTrigger value="social">Mạng xã hội</TabsTrigger>
           <TabsTrigger value="payment">Thanh toán</TabsTrigger>
+          <TabsTrigger value="sale_banner">Banner Sale</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="space-y-6">
@@ -743,6 +745,10 @@ export default function AdminSettings() {
               </Card>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="sale_banner" className="space-y-6">
+          <SaleBannerManager />
         </TabsContent>
 
       </Tabs>
