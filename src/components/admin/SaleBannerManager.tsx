@@ -38,6 +38,7 @@ export const defaultSaleBanner: SaleBannerSettings = {
   big_label_bottom: 'Off',
   link_url: '',
   background_image: '',
+  ends_at: '',
 };
 
 export function SaleBannerManager() {
