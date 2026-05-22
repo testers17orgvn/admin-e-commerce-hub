@@ -116,6 +116,15 @@ export function SaleBannerManager() {
             <Label>Phụ đề</Label>
             <Input value={settings.subtitle} onChange={(e) => update('subtitle', e.target.value)} />
           </div>
+          <div className="md:col-span-2">
+            <Label>Thời gian kết thúc Flash Sale</Label>
+            <Input
+              type="datetime-local"
+              value={settings.ends_at}
+              onChange={(e) => update('ends_at', e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground mt-1">Để trống nếu không muốn hiển thị đếm ngược.</p>
+          </div>
           <div>
             <Label>Chip 1</Label>
             <Input value={settings.chip1_text} onChange={(e) => update('chip1_text', e.target.value)} />
