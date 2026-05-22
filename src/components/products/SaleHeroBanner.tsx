@@ -1,8 +1,41 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Zap, Tag, Flame } from 'lucide-react';
+import { Sparkles, Zap, Tag, Flame, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { defaultSaleBanner, type SaleBannerSettings } from '@/components/admin/SaleBannerManager';
+
+function getTimeLeft(endIso: string) {
+  const end = new Date(endIso).getTime();
+  const now = Date.now();
+  const diff = end - now;
+  if (diff <= 0) return null;
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  return { days, hours, minutes, seconds };
+}
+
+function CountdownUnit({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="flex flex-col items-center">
+      <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-lg">
+        <span className="font-display text-sm sm:text-base md:text-lg font-black text-white tabular-nums">
+          {String(value).padStart(2, '0')}
+        </span>
+      </div>
+      <span className="text-[9px] sm:text-[10px] md:text-xs font-bold text-white/80 uppercase tracking-wider mt-1">{label}</span>
+    </div>
+  );
+}
+
+function CountdownSeparator() {
+  return (
+    <div className="flex flex-col justify-center pb-4 sm:pb-5">
+      <span className="text-white/70 font-black text-sm sm:text-base md:text-lg">:</span>
+    </div>
+  );
+}
 
 export function SaleHeroBanner() {
   const [s, setS] = useState<SaleBannerSettings>(defaultSaleBanner);
