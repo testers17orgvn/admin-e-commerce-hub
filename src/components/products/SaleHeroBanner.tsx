@@ -40,6 +40,7 @@ function CountdownSeparator() {
 export function SaleHeroBanner() {
   const [s, setS] = useState<SaleBannerSettings>(defaultSaleBanner);
   const [loaded, setLoaded] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<ReturnType<typeof getTimeLeft>>(null);
 
   useEffect(() => {
     (async () => {
@@ -54,6 +55,17 @@ export function SaleHeroBanner() {
       setLoaded(true);
     })();
   }, []);
+
+  useEffect(() => {
+    if (!s.ends_at) {
+      setTimeLeft(null);
+      return;
+    }
+    const tick = () => setTimeLeft(getTimeLeft(s.ends_at));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [s.ends_at]);
 
   if (!loaded || !s.is_active) return null;
 
