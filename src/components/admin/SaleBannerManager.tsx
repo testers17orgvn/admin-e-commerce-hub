@@ -22,6 +22,7 @@ export interface SaleBannerSettings {
   big_label_bottom: string;
   link_url: string;
   background_image: string;
+  ends_at: string;
 }
 
 export const defaultSaleBanner: SaleBannerSettings = {
@@ -37,6 +38,7 @@ export const defaultSaleBanner: SaleBannerSettings = {
   big_label_bottom: 'Off',
   link_url: '',
   background_image: '',
+  ends_at: '',
 };
 
 export function SaleBannerManager() {
@@ -113,6 +115,15 @@ export function SaleBannerManager() {
           <div className="md:col-span-2">
             <Label>Phụ đề</Label>
             <Input value={settings.subtitle} onChange={(e) => update('subtitle', e.target.value)} />
+          </div>
+          <div className="md:col-span-2">
+            <Label>Thời gian kết thúc Flash Sale</Label>
+            <Input
+              type="datetime-local"
+              value={settings.ends_at}
+              onChange={(e) => update('ends_at', e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground mt-1">Để trống nếu không muốn hiển thị đếm ngược.</p>
           </div>
           <div>
             <Label>Chip 1</Label>
