@@ -11,6 +11,7 @@ import { Grid3X3, LayoutGrid, List, X, Package, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { SaleHeroBanner } from '@/components/products/SaleHeroBanner';
+import { useProductFilterSettings } from '@/hooks/useProductFilterSettings';
 
 interface FilterState {
   colors: string[];
@@ -28,6 +29,9 @@ const Products = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const { settings: filterSettings } = useProductFilterSettings();
+  const showVertical = filterSettings.layout === 'vertical' || filterSettings.layout === 'both';
+  const showHorizontal = filterSettings.layout === 'horizontal' || filterSettings.layout === 'both';
 
   const categorySlug = searchParams.get('category');
   const sortBy = searchParams.get('sort') || 'newest';
