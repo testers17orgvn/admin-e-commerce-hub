@@ -108,14 +108,15 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       </div>
       
       {/* Navigation */}
-      <ScrollArea className="flex-1 py-4">
-        <nav className="px-3 space-y-6">
+      <ScrollArea className="flex-1 py-3">
+        <nav className="px-2.5 space-y-1">
           {menuGroups.map((group, index) => (
-            <div key={index}>
-              <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            <div key={index} className="pb-2">
+              {index > 0 && <div className="mx-3 my-2 h-px bg-border/60" />}
+              <p className="px-3 pt-2 pb-1.5 text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.12em]">
                 {group.label}
               </p>
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {group.items.map((item) => {
                   const isActive = location.pathname === item.href;
                   return (
@@ -123,15 +124,15 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                       key={item.href}
                       to={item.href}
                       className={cn(
-                        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200',
+                        'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200',
                         isActive
-                          ? 'bg-accent text-accent-foreground shadow-sm'
+                          ? 'bg-accent text-accent-foreground shadow-sm font-medium'
                           : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                       )}
                     >
-                      <item.icon className={cn("h-4 w-4", isActive && "text-accent-foreground")} />
-                      <span className="flex-1">{item.label}</span>
-                      {isActive && <ChevronRight className="h-4 w-4" />}
+                      <item.icon className={cn('h-4 w-4 shrink-0', isActive && 'text-accent-foreground')} />
+                      <span className="flex-1 truncate">{item.label}</span>
+                      {isActive && <ChevronRight className="h-3.5 w-3.5 opacity-70" />}
                     </Link>
                   );
                 })}
@@ -140,6 +141,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           ))}
         </nav>
       </ScrollArea>
+
 
       {/* Footer */}
       <div className="p-3 border-t flex-shrink-0 bg-card">

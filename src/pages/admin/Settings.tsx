@@ -9,13 +9,14 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Save, Store, Phone, Mail, MapPin, Facebook, Instagram, CreditCard, Building2, Smartphone, Image as ImageIcon, Palette, LogIn } from 'lucide-react';
+import { Save, Store, Phone, Mail, MapPin, Facebook, Instagram, CreditCard, Building2, Smartphone, Image as ImageIcon, Palette, LogIn, SlidersHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { ThemeSelector } from '@/components/admin/ThemeSelector';
 import { CustomMascotManager } from '@/components/admin/CustomMascotManager';
 import { MobilePopupManager } from '@/components/admin/MobilePopupManager';
 import { SaleBannerManager } from '@/components/admin/SaleBannerManager';
+import { ProductFilterSettingsManager } from '@/components/admin/ProductFilterSettingsManager';
 
 interface Settings {
   site_name?: string;
@@ -166,7 +167,7 @@ export default function AdminSettings() {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="flex flex-wrap h-auto w-full justify-start gap-1 p-1">
           <TabsTrigger value="general">Tổng quan</TabsTrigger>
           <TabsTrigger value="branding">Logo & Favicon</TabsTrigger>
           <TabsTrigger value="theme">
@@ -179,7 +180,15 @@ export default function AdminSettings() {
           <TabsTrigger value="social">Mạng xã hội</TabsTrigger>
           <TabsTrigger value="payment">Thanh toán</TabsTrigger>
           <TabsTrigger value="sale_banner">Banner Sale</TabsTrigger>
+          <TabsTrigger value="product_filter">
+            <SlidersHorizontal className="h-4 w-4 mr-1" /> Bộ lọc SP
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="product_filter" className="space-y-6">
+          <ProductFilterSettingsManager />
+        </TabsContent>
+
 
         <TabsContent value="general" className="space-y-6">
           {/* Header Preview */}
