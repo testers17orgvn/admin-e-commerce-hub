@@ -250,6 +250,24 @@ const Products = () => {
           </div>
         </ScrollReveal>
 
+        {/* Horizontal filter bar (configurable) */}
+        {showHorizontal && (
+          <div className="hidden lg:block">
+            <ProductFilters
+              availableColors={availableColors}
+              availableSizes={availableSizes}
+              availableTags={availableTags}
+              categories={categories}
+              maxPrice={maxPrice}
+              filters={filters}
+              onFiltersChange={setFilters}
+              onReset={resetFilters}
+              isHorizontal
+              settings={filterSettings}
+            />
+          </div>
+        )}
+
         {/* Toolbar */}
         <div className="flex items-center justify-between mb-6 gap-3">
           <div className="flex items-center gap-2 flex-wrap">
@@ -264,6 +282,7 @@ const Products = () => {
                 onFiltersChange={setFilters}
                 onReset={resetFilters}
                 isMobileOnly
+                settings={filterSettings}
               />
             </div>
             <Select value={sortBy} onValueChange={handleSortChange}>
@@ -302,19 +321,22 @@ const Products = () => {
         {/* Main Content */}
         <div className="flex gap-6">
           {/* Desktop Sidebar */}
-          <div className="hidden lg:block">
-            <ProductFilters
-              availableColors={availableColors}
-              availableSizes={availableSizes}
-              availableTags={availableTags}
-              categories={categories}
-              maxPrice={maxPrice}
-              filters={filters}
-              onFiltersChange={setFilters}
-              onReset={resetFilters}
-              isDesktopOnly
-            />
-          </div>
+          {showVertical && (
+            <div className="hidden lg:block">
+              <ProductFilters
+                availableColors={availableColors}
+                availableSizes={availableSizes}
+                availableTags={availableTags}
+                categories={categories}
+                maxPrice={maxPrice}
+                filters={filters}
+                onFiltersChange={setFilters}
+                onReset={resetFilters}
+                isDesktopOnly
+                settings={filterSettings}
+              />
+            </div>
+          )}
 
           {/* Products */}
           <div className="flex-1 min-w-0">
@@ -327,8 +349,10 @@ const Products = () => {
             ) : filteredProducts.length > 0 ? (
               <div className={cn(
                 'grid gap-4 md:gap-6',
-                viewMode === 'grid' 
-                  ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-3' 
+                viewMode === 'grid'
+                  ? showVertical
+                    ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-3'
+                    : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
                   : 'grid-cols-1 md:grid-cols-2'
               )}>
                 {filteredProducts.map((product) => (
@@ -346,6 +370,7 @@ const Products = () => {
             )}
           </div>
         </div>
+
       </div>
     </Layout>
   );
