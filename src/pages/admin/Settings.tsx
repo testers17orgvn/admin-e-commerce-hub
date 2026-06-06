@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Save, Store, Phone, Mail, MapPin, Facebook, Instagram, CreditCard, Building2, Smartphone, Image as ImageIcon, Palette, LogIn, SlidersHorizontal } from 'lucide-react';
+import { Save, Store, Phone, Mail, MapPin, Facebook, Instagram, CreditCard, Building2, Smartphone, Image as ImageIcon, Palette, LogIn, SlidersHorizontal, Bot } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { ThemeSelector } from '@/components/admin/ThemeSelector';
@@ -17,6 +17,7 @@ import { CustomMascotManager } from '@/components/admin/CustomMascotManager';
 import { MobilePopupManager } from '@/components/admin/MobilePopupManager';
 import { SaleBannerManager } from '@/components/admin/SaleBannerManager';
 import { ProductFilterSettingsManager } from '@/components/admin/ProductFilterSettingsManager';
+import { AIChatbotManager } from '@/components/admin/AIChatbotManager';
 
 interface Settings {
   site_name?: string;
@@ -183,11 +184,19 @@ export default function AdminSettings() {
           <TabsTrigger value="product_filter">
             <SlidersHorizontal className="h-4 w-4 mr-1" /> Bộ lọc SP
           </TabsTrigger>
+          <TabsTrigger value="ai_chatbot">
+            <Bot className="h-4 w-4 mr-1" /> Chatbot AI
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="ai_chatbot" className="space-y-6">
+          <AIChatbotManager />
+        </TabsContent>
 
         <TabsContent value="product_filter" className="space-y-6">
           <ProductFilterSettingsManager />
         </TabsContent>
+
 
 
         <TabsContent value="general" className="space-y-6">
