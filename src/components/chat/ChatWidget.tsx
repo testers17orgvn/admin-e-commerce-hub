@@ -100,7 +100,7 @@ export function ChatWidget({ className }: ChatWidgetProps) {
   if (!user) return null;
 
   return (
-    <div className={cn("fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50", className)}>
+    <div className={cn("fixed bottom-36 right-4 sm:bottom-44 sm:right-6 z-50", className)}>
       {!isOpen && (
         <button onClick={() => setIsOpen(true)}
           className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center">
