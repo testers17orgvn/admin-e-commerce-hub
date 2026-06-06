@@ -1274,6 +1274,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_voucher: { Args: { _voucher_id: string }; Returns: Json }
       generate_slug: { Args: { input_text: string }; Returns: string }
       has_role: {
         Args: {
