@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 const BlogDetail = () => {
   const { slug } = useParams();
@@ -256,7 +257,7 @@ const BlogDetail = () => {
             [&_video]:rounded-xl [&_video]:my-6 [&_video]:shadow-md
             [&_mark]:px-1 [&_mark]:rounded
             dark:prose-invert"
-          dangerouslySetInnerHTML={{ __html: blog.content || '<p class="text-muted-foreground">Chưa có nội dung.</p>' }}
+          dangerouslySetInnerHTML={{ __html: blog.content ? sanitizeHtml(blog.content) : '<p class="text-muted-foreground">Chưa có nội dung.</p>' }}
         />
 
         {/* Tags */}
