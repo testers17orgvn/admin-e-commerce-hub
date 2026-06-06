@@ -222,24 +222,15 @@ const Cart = () => {
       return;
     }
 
-    // Update voucher usage
+    // Update voucher usage atomically via SECURITY DEFINER RPC (prevents race conditions)
     if (appliedVoucher) {
-      // First get current used_count
-      const { data: voucherData } = await supabase
-        .from('vouchers')
-        .select('used_count')
-        .eq('id', appliedVoucher.id)
-        .single();
-
-      if (voucherData) {
-        await supabase
-          .from('vouchers')
-          .update({ used_count: (voucherData.used_count || 0) + 1 })
-          .eq('id', appliedVoucher.id);
-      }
-
-      // Track user voucher usage if logged in
-      if (user) {
+      const { data: claim, error: claimErr } = await supabase.rpc('claim_voucher', {
+        _voucher_id: appliedVoucher.id,
+      });
+      if (claimErr || !(claim as any)?.success) {
+        // Voucher could not be claimed (limit reached / expired). Order is created, just skip tracking.
+        console.warn('Voucher claim failed', claimErr || claim);
+      } else if (user) {
         await supabase.from('user_vouchers').upsert({
           user_id: user.id,
           voucher_id: appliedVoucher.id,
