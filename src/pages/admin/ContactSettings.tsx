@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Save, MapPin, Phone, Mail, Clock, MessageSquare, Globe, Eye, Map, FormInput } from 'lucide-react';
 import { toast } from 'sonner';
 import { ContactFormFieldManager, ContactFormField, DEFAULT_FORM_FIELDS } from '@/components/admin/ContactFormFieldManager';
+import { sanitizeMapEmbed } from '@/lib/sanitize';
 
 interface ContactSettings {
   address: string;
@@ -215,7 +216,7 @@ export default function AdminContactSettings() {
               {settings.map_embed && (
                 <div className="mt-4">
                   <p className="text-sm font-medium mb-2">Xem trước:</p>
-                  <div className="rounded-lg overflow-hidden border aspect-video" dangerouslySetInnerHTML={{ __html: settings.map_embed.replace(/width="\d+"/, 'width="100%"').replace(/height="\d+"/, 'height="100%"') }} />
+                  <div className="rounded-lg overflow-hidden border aspect-video" dangerouslySetInnerHTML={{ __html: sanitizeMapEmbed(settings.map_embed.replace(/width="\d+"/, 'width="100%"').replace(/height="\d+"/, 'height="100%"')) }} />
                 </div>
               )}
             </CardContent>

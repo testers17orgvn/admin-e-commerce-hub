@@ -10,6 +10,7 @@ import { useContactSettings } from '@/hooks/useContactSettings';
 import { toast } from 'sonner';
 import { Mail, Phone, MapPin, Clock, Send, Loader2, MessageCircle, Facebook, Share2, Copy, ExternalLink } from 'lucide-react';
 import { ContactFormField, DEFAULT_FORM_FIELDS } from '@/components/admin/ContactFormFieldManager';
+import { sanitizeMapEmbed } from '@/lib/sanitize';
 
 const SITE_URL = 'https://store.vsm.org.vn';
 
@@ -398,10 +399,12 @@ const Contact = () => {
               <div
                 className="aspect-[4/3] sm:aspect-[16/7] md:aspect-[21/8]"
                 dangerouslySetInnerHTML={{
-                  __html: settings.map_embed
-                    .replace(/width="\d+"/, 'width="100%"')
-                    .replace(/height="\d+"/, 'height="100%"')
-                    .replace(/style="[^"]*"/, 'style="border:0;"'),
+                  __html: sanitizeMapEmbed(
+                    settings.map_embed
+                      .replace(/width="\d+"/, 'width="100%"')
+                      .replace(/height="\d+"/, 'height="100%"')
+                      .replace(/style="[^"]*"/, 'style="border:0;"')
+                  ),
                 }}
               />
             </div>
