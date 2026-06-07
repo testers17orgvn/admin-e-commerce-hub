@@ -8,8 +8,10 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BookOpen, Plus, Pencil, Trash2, Save, X, Search } from 'lucide-react';
+import { BookOpen, Plus, Pencil, Trash2, Save, X, Search, Flame, ArrowUpDown, LayoutGrid } from 'lucide-react';
 import { toast } from 'sonner';
+
+type Priority = 'high' | 'medium' | 'low';
 
 interface KBItem {
   id: string;
@@ -18,18 +20,27 @@ interface KBItem {
   answer: string;
   sort_order: number;
   is_active: boolean;
+  priority: Priority;
 }
 
 const DEFAULT_CATEGORIES = ['FAQ', 'Chính sách', 'Sản phẩm', 'Vận chuyển', 'Thanh toán', 'Khác'];
+
+const PRIORITY_META: Record<Priority, { label: string; weight: number; badgeClass: string; icon?: any }> = {
+  high:   { label: 'Cao',        weight: 0, badgeClass: 'bg-red-500/15 text-red-600 border-red-500/30',         icon: Flame },
+  medium: { label: 'Bình thường', weight: 1, badgeClass: 'bg-blue-500/15 text-blue-600 border-blue-500/30' },
+  low:    { label: 'Thấp',        weight: 2, badgeClass: 'bg-muted text-muted-foreground border-border' },
+};
 
 export function ChatbotKnowledgeManager() {
   const [items, setItems] = useState<KBItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeCat, setActiveCat] = useState<string>('all');
+  const [activePriority, setActivePriority] = useState<'all' | Priority>('all');
+  const [groupMode, setGroupMode] = useState<'category' | 'priority'>('category');
   const [editing, setEditing] = useState<KBItem | null>(null);
   const [draft, setDraft] = useState<Partial<KBItem>>({
-    category: 'FAQ', question: '', answer: '', sort_order: 0, is_active: true,
+    category: 'FAQ', question: '', answer: '', sort_order: 0, is_active: true, priority: 'medium',
   });
 
   const load = async () => {
@@ -37,7 +48,7 @@ export function ChatbotKnowledgeManager() {
     const { data, error } = await supabase
       .from('chatbot_knowledge')
       .select('*')
-      .order('category', { ascending: true })
+      .order('priority', { ascending: true })
       .order('sort_order', { ascending: true });
     if (error) toast.error(error.message);
     setItems((data as KBItem[]) || []);
@@ -53,18 +64,30 @@ export function ChatbotKnowledgeManager() {
 
   const filtered = items.filter(i =>
     (activeCat === 'all' || i.category === activeCat) &&
+    (activePriority === 'all' || i.priority === activePriority) &&
     (!search || i.question.toLowerCase().includes(search.toLowerCase()) || i.answer.toLowerCase().includes(search.toLowerCase()))
   );
 
+  const sortedFiltered = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      const pw = PRIORITY_META[a.priority].weight - PRIORITY_META[b.priority].weight;
+      if (pw !== 0) return pw;
+      return (a.sort_order || 0) - (b.sort_order || 0);
+    });
+  }, [filtered]);
+
   const grouped = useMemo(() => {
     const g: Record<string, KBItem[]> = {};
-    filtered.forEach(i => { (g[i.category] ||= []).push(i); });
+    sortedFiltered.forEach(i => {
+      const key = groupMode === 'category' ? i.category : `${PRIORITY_META[i.priority].label} (ưu tiên ${i.priority === 'high' ? 'cao' : i.priority === 'medium' ? 'thường' : 'thấp'})`;
+      (g[key] ||= []).push(i);
+    });
     return g;
-  }, [filtered]);
+  }, [sortedFiltered, groupMode]);
 
   const resetDraft = () => {
     setEditing(null);
-    setDraft({ category: activeCat !== 'all' ? activeCat : 'FAQ', question: '', answer: '', sort_order: 0, is_active: true });
+    setDraft({ category: activeCat !== 'all' ? activeCat : 'FAQ', question: '', answer: '', sort_order: 0, is_active: true, priority: 'medium' });
   };
 
   const save = async () => {
@@ -78,6 +101,7 @@ export function ChatbotKnowledgeManager() {
       answer: draft.answer!.trim(),
       sort_order: Number(draft.sort_order) || 0,
       is_active: draft.is_active ?? true,
+      priority: (draft.priority || 'medium') as Priority,
     };
     const op = editing
       ? supabase.from('chatbot_knowledge').update(payload).eq('id', editing.id)
@@ -120,7 +144,7 @@ export function ChatbotKnowledgeManager() {
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-4 gap-4">
             <div>
               <Label>Mục</Label>
               <Select value={draft.category} onValueChange={(v) => setDraft(d => ({ ...d, category: v }))}>
@@ -137,7 +161,18 @@ export function ChatbotKnowledgeManager() {
               />
             </div>
             <div>
-              <Label>Thứ tự hiển thị</Label>
+              <Label className="flex items-center gap-1"><Flame className="h-3.5 w-3.5" /> Mức ưu tiên</Label>
+              <Select value={draft.priority || 'medium'} onValueChange={(v) => setDraft(d => ({ ...d, priority: v as Priority }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">🔥 Cao — bot trích trước</SelectItem>
+                  <SelectItem value="medium">Bình thường</SelectItem>
+                  <SelectItem value="low">Thấp — chỉ tham khảo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Thứ tự</Label>
               <Input
                 type="number"
                 value={draft.sort_order ?? 0}
@@ -186,25 +221,52 @@ export function ChatbotKnowledgeManager() {
 
       <Card>
         <CardHeader>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <CardTitle>Danh sách kiến thức ({items.length})</CardTitle>
-            <div className="flex gap-2 flex-1 md:max-w-md">
-              <div className="relative flex-1">
-                <Search className="h-4 w-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  className="pl-8"
-                  placeholder="Tìm kiếm..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              <CardTitle>Danh sách kiến thức ({items.length})</CardTitle>
+              <div className="flex gap-2 flex-1 md:max-w-md">
+                <div className="relative flex-1">
+                  <Search className="h-4 w-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    className="pl-8"
+                    placeholder="Tìm kiếm..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2 items-center">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground"><LayoutGrid className="h-3.5 w-3.5" /> Nhóm theo:</div>
+              <div className="inline-flex rounded-md border p-0.5 bg-muted/30">
+                <button
+                  onClick={() => setGroupMode('category')}
+                  className={`px-3 py-1 text-xs rounded ${groupMode === 'category' ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground'}`}
+                >Danh mục</button>
+                <button
+                  onClick={() => setGroupMode('priority')}
+                  className={`px-3 py-1 text-xs rounded ${groupMode === 'priority' ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground'}`}
+                >Ưu tiên</button>
               </div>
               <Select value={activeCat} onValueChange={setActiveCat}>
-                <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-40 h-8 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả mục</SelectItem>
                   {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                 </SelectContent>
               </Select>
+              <Select value={activePriority} onValueChange={(v) => setActivePriority(v as any)}>
+                <SelectTrigger className="w-40 h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Mọi mức ưu tiên</SelectItem>
+                  <SelectItem value="high">🔥 Cao</SelectItem>
+                  <SelectItem value="medium">Bình thường</SelectItem>
+                  <SelectItem value="low">Thấp</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="ml-auto text-xs text-muted-foreground flex items-center gap-1">
+                <ArrowUpDown className="h-3 w-3" /> Sắp xếp: ưu tiên → thứ tự
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -222,14 +284,26 @@ export function ChatbotKnowledgeManager() {
                     <Badge variant="secondary">{list.length}</Badge>
                   </div>
                   <div className="space-y-2">
-                    {list.map(it => (
+                    {list.map(it => {
+                      const pm = PRIORITY_META[it.priority];
+                      return (
                       <div
                         key={it.id}
-                        className={`p-3 rounded-lg border bg-card hover:border-accent/40 transition ${!it.is_active ? 'opacity-50' : ''}`}
+                        className={`p-3 rounded-lg border bg-card hover:border-accent/40 transition ${!it.is_active ? 'opacity-50' : ''} ${it.priority === 'high' ? 'border-l-4 border-l-red-500' : ''}`}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm">{it.question}</div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded border ${pm.badgeClass}`}>
+                                {pm.icon && <pm.icon className="h-3 w-3" />}
+                                {pm.label}
+                              </span>
+                              {groupMode === 'priority' && (
+                                <Badge variant="outline" className="text-[10px]">{it.category}</Badge>
+                              )}
+                              <span className="text-[10px] text-muted-foreground">#{it.sort_order}</span>
+                            </div>
+                            <div className="font-medium text-sm mt-1">{it.question}</div>
                             <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{it.answer}</div>
                           </div>
                           <div className="flex items-center gap-1 shrink-0">
@@ -243,7 +317,7 @@ export function ChatbotKnowledgeManager() {
                           </div>
                         </div>
                       </div>
-                    ))}
+                    );})}
                   </div>
                 </div>
               ))}
