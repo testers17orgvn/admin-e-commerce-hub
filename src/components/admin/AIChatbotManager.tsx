@@ -11,6 +11,7 @@ import { ImageUpload } from './ImageUpload';
 import { Bot, Save, Sparkles, BookOpen, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { defaultAIChatbot, AIChatbotSettings } from '@/hooks/useAIChatbotSettings';
+import { ChatbotKnowledgeManager } from './ChatbotKnowledgeManager';
 
 const MODELS = [
   { value: 'google/gemini-2.5-flash', label: 'Gemini 2.5 Flash (nhanh, miễn phí)' },
@@ -156,19 +157,18 @@ export function AIChatbotManager() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><BookOpen className="h-5 w-5" /> Kiến thức (Knowledge Base)</CardTitle>
+          <CardTitle className="flex items-center gap-2"><BookOpen className="h-5 w-5" /> Kiến thức chung (tuỳ chọn)</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Dán thông tin về cửa hàng, sản phẩm, chính sách, FAQ... Bot sẽ tham khảo khi trả lời.
+            Văn bản tự do bổ sung. Dùng cho thông tin ngắn — để FAQ chi tiết hãy dùng phần "Quản lý FAQ" bên dưới.
           </p>
         </CardHeader>
         <CardContent>
           <Textarea
             value={s.knowledge_base}
             onChange={(e) => set('knowledge_base', e.target.value)}
-            rows={12}
-            placeholder={'VD:\n- Giờ làm việc: 8h-22h hàng ngày\n- Hotline: 0123 456 789\n- Phí ship nội thành: 25k, ngoại thành: 35k\n- Đổi trả trong 7 ngày\n- Bộ sưu tập mới: ...'}
+            rows={6}
+            placeholder={'VD: Giờ làm việc 8h-22h, hotline 0123 456 789...'}
           />
-          <p className="text-xs text-muted-foreground mt-2">Khuyến nghị dưới 5000 ký tự để bot phản hồi nhanh.</p>
         </CardContent>
       </Card>
 
@@ -176,6 +176,16 @@ export function AIChatbotManager() {
         <Button onClick={save} disabled={saving} size="lg">
           <Save className="h-4 w-4 mr-2" /> {saving ? 'Đang lưu...' : 'Lưu cấu hình chatbot'}
         </Button>
+      </div>
+
+      <div className="pt-4 border-t">
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <BookOpen className="h-5 w-5" /> Quản lý FAQ / Knowledge Base
+          </h3>
+          <p className="text-sm text-muted-foreground">Thêm, sửa, xoá từng mục theo danh mục. Bot sẽ tự động tham khảo.</p>
+        </div>
+        <ChatbotKnowledgeManager />
       </div>
     </div>
   );

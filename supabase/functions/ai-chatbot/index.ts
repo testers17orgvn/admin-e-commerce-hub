@@ -29,9 +29,29 @@ Deno.serve(async (req) => {
     const knowledge = (cfg.knowledge_base || "").trim();
     const model = cfg.model || "google/gemini-2.5-flash";
 
-    const systemContent = knowledge
-      ? `${systemPrompt}\n\nKIẾN THỨC THAM KHẢO:\n${knowledge}`
-      : systemPrompt;
+    // Fetch structured FAQ knowledge base
+    const { data: kbRows } = await supabase
+      .from("chatbot_knowledge")
+      .select("category, question, answer, sort_order")
+      .eq("is_active", true)
+      .order("category", { ascending: true })
+      .order("sort_order", { ascending: true });
+
+    let kbText = "";
+    if (kbRows && kbRows.length > 0) {
+      const grouped: Record<string, { question: string; answer: string }[]> = {};
+      for (const r of kbRows as any[]) {
+        (grouped[r.category] ||= []).push({ question: r.question, answer: r.answer });
+      }
+      kbText = Object.entries(grouped)
+        .map(([cat, list]) => `### ${cat}\n` + list.map(i => `Q: ${i.question}\nA: ${i.answer}`).join("\n\n"))
+        .join("\n\n");
+    }
+
+    const parts = [systemPrompt];
+    if (kbText) parts.push(`KIẾN THỨC THAM KHẢO (FAQ):\n${kbText}`);
+    if (knowledge) parts.push(`GHI CHÚ THÊM:\n${knowledge}`);
+    const systemContent = parts.join("\n\n");
 
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) {
