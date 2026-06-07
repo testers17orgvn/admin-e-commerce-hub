@@ -29,27 +29,52 @@ Deno.serve(async (req) => {
     const knowledge = (cfg.knowledge_base || "").trim();
     const model = cfg.model || "google/gemini-2.5-flash";
 
-    // Fetch structured FAQ knowledge base
+    // Fetch structured FAQ knowledge base, ordered by priority then sort_order
     const { data: kbRows } = await supabase
       .from("chatbot_knowledge")
-      .select("category, question, answer, sort_order")
+      .select("category, question, answer, sort_order, priority")
       .eq("is_active", true)
-      .order("category", { ascending: true })
+      .order("priority", { ascending: true })
       .order("sort_order", { ascending: true });
 
+    const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
+    const PRIORITY_LABEL: Record<string, string> = { high: "ƯU TIÊN CAO", medium: "Bình thường", low: "Tham khảo" };
+
     let kbText = "";
+    let hasHighPriority = false;
     if (kbRows && kbRows.length > 0) {
-      const grouped: Record<string, { question: string; answer: string }[]> = {};
-      for (const r of kbRows as any[]) {
-        (grouped[r.category] ||= []).push({ question: r.question, answer: r.answer });
+      const sorted = [...(kbRows as any[])].sort((a, b) => {
+        const pr = (PRIORITY_RANK[a.priority] ?? 1) - (PRIORITY_RANK[b.priority] ?? 1);
+        return pr !== 0 ? pr : (a.sort_order || 0) - (b.sort_order || 0);
+      });
+      // Group by category, but mark each item with its priority tag so the model can see ordering
+      const grouped: Record<string, any[]> = {};
+      for (const r of sorted) {
+        if (r.priority === "high") hasHighPriority = true;
+        (grouped[r.category] ||= []).push(r);
       }
       kbText = Object.entries(grouped)
-        .map(([cat, list]) => `### ${cat}\n` + list.map(i => `Q: ${i.question}\nA: ${i.answer}`).join("\n\n"))
+        .map(([cat, list]) =>
+          `### ${cat}\n` +
+          list.map(i => `[${PRIORITY_LABEL[i.priority] || "Bình thường"}] Q: ${i.question}\nA: ${i.answer}`).join("\n\n")
+        )
         .join("\n\n");
     }
 
+    const rules = [
+      "QUY TẮC SỬ DỤNG KIẾN THỨC:",
+      "1. Luôn ưu tiên trích dẫn các mục được đánh dấu [ƯU TIÊN CAO] khi câu hỏi liên quan.",
+      "2. Nếu nhiều mục cùng chủ đề, chọn mục có ưu tiên cao hơn; chỉ dùng mục [Tham khảo] khi không có nguồn nào tốt hơn.",
+      "3. Khi trả lời, ghi rõ thông tin lấy từ danh mục nào (vd: 'Theo Chính sách...').",
+      "4. Nếu không có mục FAQ phù hợp, trả lời dựa trên kiến thức chung và nói rõ.",
+    ].join("\n");
+
     const parts = [systemPrompt];
-    if (kbText) parts.push(`KIẾN THỨC THAM KHẢO (FAQ):\n${kbText}`);
+    if (kbText) {
+      parts.push(`KIẾN THỨC THAM KHẢO (FAQ — đã sắp theo độ ưu tiên):\n${kbText}`);
+      parts.push(rules);
+      if (hasHighPriority) parts.push("Lưu ý: có các mục ƯU TIÊN CAO — bot phải dùng trước tiên khi phù hợp.");
+    }
     if (knowledge) parts.push(`GHI CHÚ THÊM:\n${knowledge}`);
     const systemContent = parts.join("\n\n");
 
