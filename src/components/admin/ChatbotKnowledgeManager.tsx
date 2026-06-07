@@ -144,7 +144,7 @@ export function ChatbotKnowledgeManager() {
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-4 gap-4">
             <div>
               <Label>Mục</Label>
               <Select value={draft.category} onValueChange={(v) => setDraft(d => ({ ...d, category: v }))}>
@@ -161,7 +161,18 @@ export function ChatbotKnowledgeManager() {
               />
             </div>
             <div>
-              <Label>Thứ tự hiển thị</Label>
+              <Label className="flex items-center gap-1"><Flame className="h-3.5 w-3.5" /> Mức ưu tiên</Label>
+              <Select value={draft.priority || 'medium'} onValueChange={(v) => setDraft(d => ({ ...d, priority: v as Priority }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">🔥 Cao — bot trích trước</SelectItem>
+                  <SelectItem value="medium">Bình thường</SelectItem>
+                  <SelectItem value="low">Thấp — chỉ tham khảo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Thứ tự</Label>
               <Input
                 type="number"
                 value={draft.sort_order ?? 0}
@@ -210,25 +221,52 @@ export function ChatbotKnowledgeManager() {
 
       <Card>
         <CardHeader>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <CardTitle>Danh sách kiến thức ({items.length})</CardTitle>
-            <div className="flex gap-2 flex-1 md:max-w-md">
-              <div className="relative flex-1">
-                <Search className="h-4 w-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  className="pl-8"
-                  placeholder="Tìm kiếm..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              <CardTitle>Danh sách kiến thức ({items.length})</CardTitle>
+              <div className="flex gap-2 flex-1 md:max-w-md">
+                <div className="relative flex-1">
+                  <Search className="h-4 w-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    className="pl-8"
+                    placeholder="Tìm kiếm..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2 items-center">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground"><LayoutGrid className="h-3.5 w-3.5" /> Nhóm theo:</div>
+              <div className="inline-flex rounded-md border p-0.5 bg-muted/30">
+                <button
+                  onClick={() => setGroupMode('category')}
+                  className={`px-3 py-1 text-xs rounded ${groupMode === 'category' ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground'}`}
+                >Danh mục</button>
+                <button
+                  onClick={() => setGroupMode('priority')}
+                  className={`px-3 py-1 text-xs rounded ${groupMode === 'priority' ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground'}`}
+                >Ưu tiên</button>
               </div>
               <Select value={activeCat} onValueChange={setActiveCat}>
-                <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-40 h-8 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả mục</SelectItem>
                   {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                 </SelectContent>
               </Select>
+              <Select value={activePriority} onValueChange={(v) => setActivePriority(v as any)}>
+                <SelectTrigger className="w-40 h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Mọi mức ưu tiên</SelectItem>
+                  <SelectItem value="high">🔥 Cao</SelectItem>
+                  <SelectItem value="medium">Bình thường</SelectItem>
+                  <SelectItem value="low">Thấp</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="ml-auto text-xs text-muted-foreground flex items-center gap-1">
+                <ArrowUpDown className="h-3 w-3" /> Sắp xếp: ưu tiên → thứ tự
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -246,14 +284,26 @@ export function ChatbotKnowledgeManager() {
                     <Badge variant="secondary">{list.length}</Badge>
                   </div>
                   <div className="space-y-2">
-                    {list.map(it => (
+                    {list.map(it => {
+                      const pm = PRIORITY_META[it.priority];
+                      return (
                       <div
                         key={it.id}
-                        className={`p-3 rounded-lg border bg-card hover:border-accent/40 transition ${!it.is_active ? 'opacity-50' : ''}`}
+                        className={`p-3 rounded-lg border bg-card hover:border-accent/40 transition ${!it.is_active ? 'opacity-50' : ''} ${it.priority === 'high' ? 'border-l-4 border-l-red-500' : ''}`}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm">{it.question}</div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded border ${pm.badgeClass}`}>
+                                {pm.icon && <pm.icon className="h-3 w-3" />}
+                                {pm.label}
+                              </span>
+                              {groupMode === 'priority' && (
+                                <Badge variant="outline" className="text-[10px]">{it.category}</Badge>
+                              )}
+                              <span className="text-[10px] text-muted-foreground">#{it.sort_order}</span>
+                            </div>
+                            <div className="font-medium text-sm mt-1">{it.question}</div>
                             <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{it.answer}</div>
                           </div>
                           <div className="flex items-center gap-1 shrink-0">
@@ -267,7 +317,7 @@ export function ChatbotKnowledgeManager() {
                           </div>
                         </div>
                       </div>
-                    ))}
+                    );})}
                   </div>
                 </div>
               ))}
