@@ -231,6 +231,19 @@ export function useChat() {
     return newConv.id;
   }, [user, fetchConversations]);
 
+  // Start chat with an admin (picks the first admin found)
+  const startAdminChat = useCallback(async () => {
+    if (!user) return null;
+    const { data: admins } = await supabase
+      .from('user_roles')
+      .select('user_id')
+      .eq('role', 'admin')
+      .limit(5);
+    const adminId = admins?.find(a => a.user_id !== user.id)?.user_id;
+    if (!adminId) return null;
+    return startDirectChat(adminId);
+  }, [user, startDirectChat]);
+
   // Realtime subscriptions
   useEffect(() => {
     if (!user) return;
