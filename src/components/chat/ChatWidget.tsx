@@ -234,18 +234,22 @@ export function ChatWidget({ className }: ChatWidgetProps) {
             </>
           ) : (
             <>
-              <div className="p-3 border-b">
+              <div className="p-3 border-b space-y-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Tìm kiếm..." className="pl-9 h-9 rounded-full bg-muted border-0 text-sm" />
                 </div>
+                <div className="flex justify-end">
+                  <NewChatDialog onStartChat={startDirectChat} />
+                </div>
               </div>
               <ScrollArea className="flex-1">
                 {filteredConversations.length === 0 ? (
-                  <div className="text-center py-16">
+                  <div className="text-center py-12 px-4">
                     <Users className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-                    <p className="text-sm text-muted-foreground">Chưa có cuộc trò chuyện</p>
+                    <p className="text-sm text-muted-foreground mb-4">Chưa có cuộc trò chuyện</p>
+                    <NewChatDialog onStartChat={startDirectChat} />
                   </div>
                 ) : (
                   <div className="divide-y">
