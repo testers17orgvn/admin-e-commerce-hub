@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useChat, ChatConversation } from '@/hooks/useChat';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
@@ -9,9 +10,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { OnlineIndicator } from './OnlineIndicator';
 import { NewChatDialog } from './NewChatDialog';
-import { 
-  MessageCircle, Send, ArrowLeft, Search, X, 
-  Users, ImagePlus
+import {
+  MessageCircle, Send, ArrowLeft, Search, X,
+  Users, ImagePlus, Headphones, LogIn, Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format, isToday, isYesterday } from 'date-fns';
@@ -25,14 +26,18 @@ interface ChatWidgetProps {
 
 export function ChatWidget({ className }: ChatWidgetProps) {
   const { user } = useAuth();
-  const { conversations, messages, activeConversation, setActiveConversation, sendMessage, startDirectChat } = useChat();
+  const {
+    conversations, messages, activeConversation,
+    setActiveConversation, sendMessage, startDirectChat, startAdminChat,
+  } = useChat();
   const { isUserOnline, getLastSeen } = useOnlineStatus();
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [uploading, setUploading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [contactingAdmin, setContactingAdmin] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -71,6 +76,15 @@ export function ChatWidget({ className }: ChatWidgetProps) {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const handleContactAdmin = async () => {
+    setContactingAdmin(true);
+    const convId = await startAdminChat();
+    setContactingAdmin(false);
+    if (!convId) {
+      toast.error('Hiện chưa có quản trị viên trực tuyến');
+    }
+  };
+
   const formatMessageTime = (dateStr: string) => {
     const date = new Date(dateStr);
     if (isToday(date)) return format(date, 'HH:mm');
@@ -98,65 +112,103 @@ export function ChatWidget({ className }: ChatWidgetProps) {
     return getConversationName(c).toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  if (!user) return null;
+  // Floating launcher button (shared for guest + user)
+  const launcher = !isOpen && (
+    <button
+      onClick={() => setIsOpen(true)}
+      aria-label="Mở tin nhắn"
+      className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 text-white shadow-[0_8px_30px_rgba(99,102,241,0.45)] hover:shadow-[0_12px_40px_rgba(168,85,247,0.55)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center ring-2 ring-white/30"
+    >
+      <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+      {user && totalUnread > 0 && (
+        <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-background animate-pulse">
+          {totalUnread > 9 ? '9+' : totalUnread}
+        </span>
+      )}
+      <span className="absolute inline-flex h-3 w-3 rounded-full bg-emerald-400 ring-2 ring-white -bottom-0.5 -right-0.5" />
+    </button>
+  );
 
   return (
     <div className={cn("fixed right-3 sm:right-6 bottom-[12.5rem] lg:bottom-44 z-50", className)}>
-      {!isOpen && (
-        <button onClick={() => setIsOpen(true)}
-          className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center">
-          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
-          {totalUnread > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-bold animate-pulse">
-              {totalUnread > 9 ? '9+' : totalUnread}
-            </span>
-          )}
-        </button>
-      )}
+      {launcher}
 
       {isOpen && (
-        <div className="fixed right-2 left-2 sm:left-auto sm:right-6 bottom-[5.5rem] lg:bottom-6 sm:w-[380px] h-[calc(100dvh-7rem)] lg:h-[520px] max-h-[600px] bg-card border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
-          {/* Header */}
-          <div className="flex items-center gap-3 p-3 sm:p-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
-            {activeConversation ? (
-              <>
-                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => setActiveConversation(null)}>
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <div className="flex-1 min-w-0">
-                  {(() => {
-                    const conv = conversations.find(c => c.id === activeConversation);
-                    const otherId = conv ? getOtherUserId(conv) : null;
-                    return (
-                      <>
-                        <p className="font-semibold text-sm truncate">
-                          {conv ? getConversationName(conv) : 'Chat'}
-                        </p>
-                        {otherId && <OnlineIndicator isOnline={isUserOnline(otherId)} lastSeen={getLastSeen(otherId)} showText size="sm" />}
-                      </>
-                    );
-                  })()}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shrink-0">
-                  <MessageCircle className="h-4 w-4 text-primary-foreground" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm">Tin nhắn</p>
-                  <p className="text-xs text-muted-foreground">{conversations.length} cuộc trò chuyện</p>
-                </div>
-              </>
-            )}
-            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => { setIsOpen(false); setActiveConversation(null); }}>
-              <X className="h-4 w-4" />
-            </Button>
+        <div className="fixed right-2 left-2 sm:left-auto sm:right-6 bottom-[5.5rem] lg:bottom-6 sm:w-[380px] h-[calc(100dvh-7rem)] lg:h-[560px] max-h-[640px] bg-card border rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300">
+          {/* Header — gradient */}
+          <div className="relative px-4 py-3.5 text-white bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 overflow-hidden">
+            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute -bottom-10 -left-6 w-28 h-28 rounded-full bg-white/10 blur-2xl" />
+            <div className="relative flex items-center gap-3">
+              {activeConversation ? (
+                <>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-white hover:bg-white/15" onClick={() => setActiveConversation(null)}>
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  <div className="flex-1 min-w-0">
+                    {(() => {
+                      const conv = conversations.find(c => c.id === activeConversation);
+                      const otherId = conv ? getOtherUserId(conv) : null;
+                      return (
+                        <>
+                          <p className="font-semibold text-sm truncate">
+                            {conv ? getConversationName(conv) : 'Chat'}
+                          </p>
+                          {otherId && (
+                            <div className="text-[11px] text-white/80">
+                              <OnlineIndicator isOnline={isUserOnline(otherId)} lastSeen={getLastSeen(otherId)} showText size="sm" />
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0 ring-1 ring-white/30">
+                    <MessageCircle className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-base leading-tight">Tin nhắn</p>
+                    <p className="text-[11px] text-white/85">
+                      {user ? `${conversations.length} cuộc trò chuyện` : 'Hỗ trợ trực tuyến'}
+                    </p>
+                  </div>
+                </>
+              )}
+              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-white hover:bg-white/15" onClick={() => { setIsOpen(false); setActiveConversation(null); }}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
-          {activeConversation ? (
+          {/* Guest state */}
+          {!user ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-6 gap-4 bg-gradient-to-b from-background to-muted/30">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/15 to-fuchsia-500/15 flex items-center justify-center">
+                <Sparkles className="h-8 w-8 text-violet-500" />
+              </div>
+              <div className="space-y-1.5">
+                <p className="font-bold text-base">Đăng nhập để trò chuyện</p>
+                <p className="text-xs text-muted-foreground leading-relaxed max-w-[260px]">
+                  Bạn cần đăng nhập tài khoản để nhắn tin trực tiếp với quản trị viên và những người dùng khác.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 w-full max-w-[240px]">
+                <Button asChild className="rounded-full bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:opacity-90">
+                  <Link to="/auth" onClick={() => setIsOpen(false)}>
+                    <LogIn className="h-4 w-4 mr-1.5" /> Đăng nhập
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="rounded-full">
+                  <Link to="/auth?mode=signup" onClick={() => setIsOpen(false)}>Đăng ký tài khoản</Link>
+                </Button>
+              </div>
+            </div>
+          ) : activeConversation ? (
             <>
-              <ScrollArea className="flex-1 p-3">
+              <ScrollArea className="flex-1 p-3 bg-gradient-to-b from-muted/20 to-background">
                 <div className="space-y-3">
                   {messages.length === 0 && (
                     <div className="text-center py-12">
@@ -183,8 +235,10 @@ export function ChatWidget({ className }: ChatWidgetProps) {
                             </p>
                           )}
                           <div className={cn(
-                            "px-3 py-2 rounded-2xl text-sm leading-relaxed break-words",
-                            isMine ? "bg-primary text-primary-foreground rounded-br-md" : "bg-muted rounded-bl-md"
+                            "px-3 py-2 rounded-2xl text-sm leading-relaxed break-words shadow-sm",
+                            isMine
+                              ? "bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white rounded-br-md"
+                              : "bg-card border rounded-bl-md"
                           )}>
                             {msg.message_type === 'image' && msg.image_url && (
                               <img src={msg.image_url} alt="" className="rounded-lg max-w-full max-h-40 mb-1 cursor-pointer"
@@ -202,7 +256,7 @@ export function ChatWidget({ className }: ChatWidgetProps) {
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
-              
+
               {previewImage && (
                 <div className="px-3 pt-2 flex items-center gap-2">
                   <div className="relative">
@@ -225,7 +279,7 @@ export function ChatWidget({ className }: ChatWidgetProps) {
                   <Input value={inputValue} onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown} placeholder="Nhập tin nhắn..."
                     className="flex-1 h-9 sm:h-10 rounded-full bg-muted border-0 px-4 text-sm" />
-                  <Button size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-full shrink-0"
+                  <Button size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-full shrink-0 bg-gradient-to-br from-indigo-500 to-fuchsia-500 hover:opacity-90"
                     onClick={handleSend} disabled={!inputValue.trim() && !previewImage}>
                     <Send className="h-4 w-4" />
                   </Button>
@@ -234,11 +288,32 @@ export function ChatWidget({ className }: ChatWidgetProps) {
             </>
           ) : (
             <>
+              {/* Quick action: Chat with admin */}
+              <div className="p-3 border-b bg-gradient-to-br from-indigo-50/50 via-violet-50/50 to-fuchsia-50/50 dark:from-indigo-950/20 dark:via-violet-950/20 dark:to-fuchsia-950/20">
+                <button
+                  onClick={handleContactAdmin}
+                  disabled={contactingAdmin}
+                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-card hover:bg-muted/60 border transition-all shadow-sm hover:shadow group disabled:opacity-60"
+                >
+                  <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 flex items-center justify-center text-white shrink-0">
+                    <Headphones className="h-5 w-5" />
+                    <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-card" />
+                  </div>
+                  <div className="flex-1 min-w-0 text-left">
+                    <p className="font-semibold text-sm">Chat với Quản trị viên</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {contactingAdmin ? 'Đang kết nối...' : 'Phản hồi trực tiếp, hỗ trợ 24/7'}
+                    </p>
+                  </div>
+                  <ArrowLeft className="h-4 w-4 text-muted-foreground rotate-180 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              </div>
+
               <div className="p-3 border-b space-y-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Tìm kiếm..." className="pl-9 h-9 rounded-full bg-muted border-0 text-sm" />
+                    placeholder="Tìm kiếm cuộc trò chuyện..." className="pl-9 h-9 rounded-full bg-muted border-0 text-sm" />
                 </div>
                 <div className="flex justify-end">
                   <NewChatDialog onStartChat={startDirectChat} />
@@ -246,10 +321,10 @@ export function ChatWidget({ className }: ChatWidgetProps) {
               </div>
               <ScrollArea className="flex-1">
                 {filteredConversations.length === 0 ? (
-                  <div className="text-center py-12 px-4">
+                  <div className="text-center py-10 px-4">
                     <Users className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-                    <p className="text-sm text-muted-foreground mb-4">Chưa có cuộc trò chuyện</p>
-                    <NewChatDialog onStartChat={startDirectChat} />
+                    <p className="text-sm text-muted-foreground mb-2">Chưa có cuộc trò chuyện</p>
+                    <p className="text-[11px] text-muted-foreground/70">Nhấn "Chat với Quản trị viên" ở trên để bắt đầu</p>
                   </div>
                 ) : (
                   <div className="divide-y">
@@ -261,7 +336,7 @@ export function ChatWidget({ className }: ChatWidgetProps) {
                           <div className="relative shrink-0">
                             <Avatar className="h-11 w-11">
                               <AvatarImage src={getConversationAvatar(conv) || ''} />
-                              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-sm font-semibold">
+                              <AvatarFallback className="bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 text-sm font-semibold">
                                 {getConversationName(conv).charAt(0).toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
