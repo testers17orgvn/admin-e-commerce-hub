@@ -301,6 +301,7 @@ export function useChat() {
     setActiveConversation,
     sendMessage,
     startDirectChat,
+    startAdminChat,
     fetchConversations,
     loading,
   };
