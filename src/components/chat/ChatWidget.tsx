@@ -101,7 +101,7 @@ export function ChatWidget({ className }: ChatWidgetProps) {
   if (!user) return null;
 
   return (
-    <div className={cn("fixed bottom-36 right-4 sm:bottom-44 sm:right-6 z-50", className)}>
+    <div className={cn("fixed right-3 sm:right-6 bottom-[12.5rem] lg:bottom-44 z-50", className)}>
       {!isOpen && (
         <button onClick={() => setIsOpen(true)}
           className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center">
@@ -115,7 +115,7 @@ export function ChatWidget({ className }: ChatWidgetProps) {
       )}
 
       {isOpen && (
-        <div className="w-[calc(100vw-2rem)] sm:w-[380px] h-[calc(100vh-6rem)] sm:h-[520px] max-h-[600px] bg-card border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed right-2 left-2 sm:left-auto sm:right-6 bottom-[5.5rem] lg:bottom-6 sm:w-[380px] h-[calc(100dvh-7rem)] lg:h-[520px] max-h-[600px] bg-card border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
           {/* Header */}
           <div className="flex items-center gap-3 p-3 sm:p-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
             {activeConversation ? (
