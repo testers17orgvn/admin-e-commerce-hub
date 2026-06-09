@@ -25,7 +25,7 @@ interface ChatWidgetProps {
 
 export function ChatWidget({ className }: ChatWidgetProps) {
   const { user } = useAuth();
-  const { conversations, messages, activeConversation, setActiveConversation, sendMessage } = useChat();
+  const { conversations, messages, activeConversation, setActiveConversation, sendMessage, startDirectChat } = useChat();
   const { isUserOnline, getLastSeen } = useOnlineStatus();
   
   const [isOpen, setIsOpen] = useState(false);
