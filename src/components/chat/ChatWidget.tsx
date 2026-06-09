@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { OnlineIndicator } from './OnlineIndicator';
+import { NewChatDialog } from './NewChatDialog';
 import { 
   MessageCircle, Send, ArrowLeft, Search, X, 
   Users, ImagePlus
@@ -24,7 +25,7 @@ interface ChatWidgetProps {
 
 export function ChatWidget({ className }: ChatWidgetProps) {
   const { user } = useAuth();
-  const { conversations, messages, activeConversation, setActiveConversation, sendMessage } = useChat();
+  const { conversations, messages, activeConversation, setActiveConversation, sendMessage, startDirectChat } = useChat();
   const { isUserOnline, getLastSeen } = useOnlineStatus();
   
   const [isOpen, setIsOpen] = useState(false);
@@ -100,7 +101,7 @@ export function ChatWidget({ className }: ChatWidgetProps) {
   if (!user) return null;
 
   return (
-    <div className={cn("fixed bottom-36 right-4 sm:bottom-44 sm:right-6 z-50", className)}>
+    <div className={cn("fixed right-3 sm:right-6 bottom-[12.5rem] lg:bottom-44 z-50", className)}>
       {!isOpen && (
         <button onClick={() => setIsOpen(true)}
           className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center">
@@ -114,7 +115,7 @@ export function ChatWidget({ className }: ChatWidgetProps) {
       )}
 
       {isOpen && (
-        <div className="w-[calc(100vw-2rem)] sm:w-[380px] h-[calc(100vh-6rem)] sm:h-[520px] max-h-[600px] bg-card border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed right-2 left-2 sm:left-auto sm:right-6 bottom-[5.5rem] lg:bottom-6 sm:w-[380px] h-[calc(100dvh-7rem)] lg:h-[520px] max-h-[600px] bg-card border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
           {/* Header */}
           <div className="flex items-center gap-3 p-3 sm:p-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
             {activeConversation ? (
@@ -233,18 +234,22 @@ export function ChatWidget({ className }: ChatWidgetProps) {
             </>
           ) : (
             <>
-              <div className="p-3 border-b">
+              <div className="p-3 border-b space-y-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Tìm kiếm..." className="pl-9 h-9 rounded-full bg-muted border-0 text-sm" />
                 </div>
+                <div className="flex justify-end">
+                  <NewChatDialog onStartChat={startDirectChat} />
+                </div>
               </div>
               <ScrollArea className="flex-1">
                 {filteredConversations.length === 0 ? (
-                  <div className="text-center py-16">
+                  <div className="text-center py-12 px-4">
                     <Users className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-                    <p className="text-sm text-muted-foreground">Chưa có cuộc trò chuyện</p>
+                    <p className="text-sm text-muted-foreground mb-4">Chưa có cuộc trò chuyện</p>
+                    <NewChatDialog onStartChat={startDirectChat} />
                   </div>
                 ) : (
                   <div className="divide-y">

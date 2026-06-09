@@ -106,7 +106,7 @@ export function AIChatBot() {
         <button
           aria-label="Mở trợ lý AI"
           onClick={() => setOpen(true)}
-          className="group fixed bottom-20 right-4 sm:bottom-24 sm:right-6 z-50 h-14 w-14 sm:h-16 sm:w-16 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center text-white"
+          className="group fixed right-3 sm:right-6 bottom-[9rem] lg:bottom-24 z-50 h-12 w-12 sm:h-14 sm:w-14 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center text-white overflow-hidden"
           style={{
             background: `linear-gradient(135deg, ${accent}, ${accent}cc)`,
             boxShadow: `0 10px 40px -10px ${accent}99`,
@@ -116,16 +116,16 @@ export function AIChatBot() {
           {settings.avatar_url ? (
             <img src={settings.avatar_url} alt={settings.name} className="h-full w-full object-cover rounded-full" />
           ) : (
-            <Bot className="h-6 w-6 sm:h-7 sm:w-7 relative z-10" />
+            <Bot className="h-5 w-5 sm:h-6 sm:w-6 relative z-10" />
           )}
-          <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 border-2 border-background animate-pulse" />
+          <span className="absolute top-0.5 right-0.5 h-3 w-3 rounded-full bg-emerald-500 border-2 border-background animate-pulse" />
         </button>
       )}
 
       {/* Chat panel */}
       {open && (
         <div
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[400px] h-[calc(100vh-6rem)] sm:h-[600px] max-h-[640px] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300 border border-border/50 bg-card"
+          className="fixed right-2 left-2 sm:left-auto sm:right-6 bottom-[5.5rem] lg:bottom-6 z-50 sm:w-[400px] h-[calc(100dvh-7rem)] lg:h-[600px] max-h-[640px] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300 border border-border/50 bg-card"
         >
           {/* Header */}
           <div
