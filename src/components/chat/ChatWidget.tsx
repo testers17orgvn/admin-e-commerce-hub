@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { OnlineIndicator } from './OnlineIndicator';
+import { NewChatDialog } from './NewChatDialog';
 import { 
   MessageCircle, Send, ArrowLeft, Search, X, 
   Users, ImagePlus
