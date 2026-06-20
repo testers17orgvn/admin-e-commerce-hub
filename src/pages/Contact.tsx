@@ -397,13 +397,13 @@ const Contact = () => {
             </div>
             <div className="rounded-2xl overflow-hidden shadow-xl ring-1 ring-border">
               <div
-                className="aspect-[4/3] sm:aspect-[16/7] md:aspect-[21/8]"
+                className="aspect-[4/3] sm:aspect-[16/7] md:aspect-[21/8] [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:block [&>iframe]:border-0"
                 dangerouslySetInnerHTML={{
                   __html: sanitizeMapEmbed(
                     settings.map_embed
-                      .replace(/width="\d+"/, 'width="100%"')
-                      .replace(/height="\d+"/, 'height="100%"')
-                      .replace(/style="[^"]*"/, 'style="border:0;"')
+                      .replace(/\swidth="\d+"/gi, ' width="100%"')
+                      .replace(/\sheight="\d+"/gi, ' height="100%"')
+                      .replace(/\sstyle="[^"]*"/gi, ' style="border:0;width:100%;height:100%;"')
                   ),
                 }}
               />
