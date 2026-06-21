@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Save, MapPin, Phone, Mail, Clock, MessageSquare, Globe, Eye, Map, FormInput } from 'lucide-react';
+import { Save, MapPin, Phone, Mail, Clock, MessageSquare, Globe, Eye, Map, FormInput, Navigation, Loader2, Code2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ContactFormFieldManager, ContactFormField, DEFAULT_FORM_FIELDS } from '@/components/admin/ContactFormFieldManager';
 import { sanitizeMapEmbed } from '@/lib/sanitize';
+import { StoreLocationMap } from '@/components/maps/StoreLocationMap';
 
 interface ContactSettings {
   address: string;
@@ -17,6 +18,9 @@ interface ContactSettings {
   email: string;
   working_hours: string;
   map_embed: string;
+  map_lat: string;
+  map_lng: string;
+  map_place_name: string;
   facebook: string;
   zalo: string;
   intro_title: string;
@@ -29,6 +33,9 @@ const defaultSettings: ContactSettings = {
   email: '',
   working_hours: 'Thứ 2 - Thứ 7: 9:00 - 21:00\nChủ nhật: 10:00 - 18:00',
   map_embed: '',
+  map_lat: '',
+  map_lng: '',
+  map_place_name: '',
   facebook: '',
   zalo: '',
   intro_title: 'Liên hệ với chúng tôi',
