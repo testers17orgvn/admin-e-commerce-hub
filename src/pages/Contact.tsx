@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Mail, Phone, MapPin, Clock, Send, Loader2, MessageCircle, Facebook, Share2, Copy, ExternalLink } from 'lucide-react';
 import { ContactFormField, DEFAULT_FORM_FIELDS } from '@/components/admin/ContactFormFieldManager';
 import { sanitizeMapEmbed } from '@/lib/sanitize';
+import { StoreLocationMap } from '@/components/maps/StoreLocationMap';
 
 const SITE_URL = 'https://store.vsm.org.vn';
 
@@ -375,7 +376,7 @@ const Contact = () => {
         </div>
 
         {/* Google Map – full width below */}
-        {settings.map_embed && (
+        {(settings.map_lat && settings.map_lng) || settings.map_embed ? (
           <div className="max-w-7xl mx-auto mt-10 sm:mt-12 md:mt-16">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-4 gap-3 sm:gap-4">
               <div className="min-w-0">
@@ -387,29 +388,43 @@ const Contact = () => {
                 )}
               </div>
               <a
-                href={`https://www.google.com/maps/search/${encodeURIComponent(settings.address || '')}`}
+                href={
+                  settings.map_lat && settings.map_lng
+                    ? `https://www.google.com/maps/dir/?api=1&destination=${settings.map_lat},${settings.map_lng}`
+                    : `https://www.google.com/maps/search/${encodeURIComponent(settings.address || '')}`
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 className="self-start sm:self-auto shrink-0 px-4 py-2 bg-accent hover:bg-accent/90 text-white text-xs md:text-sm font-medium rounded-full transition-colors flex items-center gap-1.5"
               >
-                <ExternalLink className="h-3.5 w-3.5" /> Xem trên Maps
+                <ExternalLink className="h-3.5 w-3.5" /> Chỉ đường
               </a>
             </div>
-            <div className="rounded-2xl overflow-hidden shadow-xl ring-1 ring-border">
-              <div
-                className="aspect-[4/3] sm:aspect-[16/7] md:aspect-[21/8] [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:block [&>iframe]:border-0"
-                dangerouslySetInnerHTML={{
-                  __html: sanitizeMapEmbed(
-                    settings.map_embed
-                      .replace(/\swidth="\d+"/gi, ' width="100%"')
-                      .replace(/\sheight="\d+"/gi, ' height="100%"')
-                      .replace(/\sstyle="[^"]*"/gi, ' style="border:0;width:100%;height:100%;"')
-                  ),
-                }}
+            {settings.map_lat && settings.map_lng ? (
+              <StoreLocationMap
+                lat={parseFloat(settings.map_lat)}
+                lng={parseFloat(settings.map_lng)}
+                name={settings.map_place_name || settings.intro_title}
+                address={settings.address}
+                height="460px"
               />
-            </div>
+            ) : (
+              <div className="rounded-2xl overflow-hidden shadow-xl ring-1 ring-border">
+                <div
+                  className="aspect-[4/3] sm:aspect-[16/7] md:aspect-[21/8] [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:block [&>iframe]:border-0"
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeMapEmbed(
+                      settings.map_embed
+                        .replace(/\swidth="\d+"/gi, ' width="100%"')
+                        .replace(/\sheight="\d+"/gi, ' height="100%"')
+                        .replace(/\sstyle="[^"]*"/gi, ' style="border:0;width:100%;height:100%;"')
+                    ),
+                  }}
+                />
+              </div>
+            )}
           </div>
-        )}
+        ) : null}
       </div>
     </Layout>
   );
