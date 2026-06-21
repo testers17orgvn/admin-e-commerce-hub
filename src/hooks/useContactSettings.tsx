@@ -7,6 +7,9 @@ export interface ContactSettings {
   email: string;
   working_hours: string;
   map_embed: string;
+  map_lat: string;
+  map_lng: string;
+  map_place_name: string;
   facebook: string;
   zalo: string;
   intro_title: string;
@@ -19,6 +22,9 @@ const defaultSettings: ContactSettings = {
   email: '',
   working_hours: 'Thứ 2 - Thứ 7: 9:00 - 21:00\nChủ nhật: 10:00 - 18:00',
   map_embed: '',
+  map_lat: '',
+  map_lng: '',
+  map_place_name: '',
   facebook: '',
   zalo: '',
   intro_title: 'Liên hệ',
@@ -32,13 +38,12 @@ export function useContactSettings() {
   useEffect(() => {
     const fetchSettings = async () => {
       const { data, error } = await supabase.from('contact_settings').select('*');
-      
       if (error) {
         console.error('Error fetching contact settings:', error);
       } else if (data) {
         const settingsMap: Partial<ContactSettings> = {};
         data.forEach((item: { key: string; value: string | null }) => {
-          if (item.value) {
+          if (item.value != null) {
             settingsMap[item.key as keyof ContactSettings] = item.value;
           }
         });
@@ -46,7 +51,6 @@ export function useContactSettings() {
       }
       setLoading(false);
     };
-
     fetchSettings();
   }, []);
 
