@@ -51,6 +51,7 @@ const SellerProductReview = lazy(() => import("./pages/admin/SellerProductReview
 const SellerRequests = lazy(() => import("./pages/admin/SellerRequests"));
 const ShipperManagement = lazy(() => import("./pages/admin/ShipperManagement"));
 const AdminChat = lazy(() => import("./pages/admin/Chat"));
+const AdminRoleGuides = lazy(() => import("./pages/admin/RoleGuides"));
 
 // Seller
 const SellerProducts = lazy(() => import("./pages/seller/SellerProducts"));
@@ -129,6 +130,7 @@ const App = () => (
                     <Route path="/admin/seller-requests" element={<SellerRequests />} />
                     <Route path="/admin/shipper" element={<ShipperManagement />} />
                     <Route path="/admin/chat" element={<AdminChat />} />
+                    <Route path="/admin/guides" element={<AdminRoleGuides />} />
                     
                     {/* Seller Routes */}
                     <Route path="/seller/products" element={<SellerProducts />} />
