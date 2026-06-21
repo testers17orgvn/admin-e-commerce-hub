@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { 
   LayoutDashboard, Package, FolderOpen, Image, FileText, Mail, ShoppingCart, 
   Settings, LogOut, Users, Ticket, MessageSquare, Star, PackageCheck, ChevronRight,
-  UserCheck, Truck, Menu, X, MessageCircle
+  UserCheck, Truck, Menu, X, MessageCircle, BookOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AdminNotificationBell } from '@/components/notifications/AdminNotificationBell';
@@ -51,6 +51,7 @@ const menuGroups = [
       { href: '/admin/users', icon: Users, label: 'Người dùng' },
       { href: '/admin/contacts', icon: Mail, label: 'Liên hệ' },
       { href: '/admin/contact-settings', icon: MessageSquare, label: 'Cài đặt liên hệ' },
+      { href: '/admin/guides', icon: BookOpen, label: 'Hướng dẫn role' },
       { href: '/admin/settings', icon: Settings, label: 'Cài đặt' },
     ]
   },
