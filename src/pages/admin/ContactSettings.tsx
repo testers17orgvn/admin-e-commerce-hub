@@ -109,6 +109,55 @@ export default function AdminContactSettings() {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
+  const [geocoding, setGeocoding] = useState(false);
+  const geocodeFromAddress = async () => {
+    if (!settings.address.trim()) {
+      toast.error('Nhập địa chỉ trước khi tìm toạ độ');
+      return;
+    }
+    setGeocoding(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(settings.address)}`,
+        { headers: { 'Accept-Language': 'vi' } }
+      );
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        const { lat, lon, display_name } = data[0];
+        setSettings(prev => ({
+          ...prev,
+          map_lat: parseFloat(lat).toFixed(6),
+          map_lng: parseFloat(lon).toFixed(6),
+          map_place_name: prev.map_place_name || display_name?.split(',')[0] || prev.map_place_name,
+        }));
+        toast.success('Đã tìm thấy vị trí trên bản đồ');
+      } else {
+        toast.error('Không tìm thấy địa chỉ. Hãy nhấp trực tiếp lên bản đồ.');
+      }
+    } catch (e) {
+      toast.error('Lỗi tìm toạ độ');
+    }
+    setGeocoding(false);
+  };
+
+  const useMyLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error('Trình duyệt không hỗ trợ định vị');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setSettings(prev => ({
+          ...prev,
+          map_lat: pos.coords.latitude.toFixed(6),
+          map_lng: pos.coords.longitude.toFixed(6),
+        }));
+        toast.success('Đã lấy vị trí hiện tại');
+      },
+      () => toast.error('Không thể lấy vị trí'),
+    );
+  };
+
   if (loading) {
     return <AdminLayout><div className="p-8 text-center">Đang tải...</div></AdminLayout>;
   }
