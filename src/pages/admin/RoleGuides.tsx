@@ -9,9 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import * as LucideIcons from 'lucide-react';
 import { BookOpen, Save, Plus, Trash2, ChevronUp, ChevronDown, RotateCcw, Eye, GripVertical } from 'lucide-react';
 import { ROLE_GUIDES, type GuideRole, type RoleGuideConfig, type GuideSection, type GuideItem } from '@/lib/roleGuideDefaults';
-import { RoleGuide } from '@/components/guides/RoleGuide';
 
 const ROLE_LABELS: Record<GuideRole, string> = { admin: 'Admin', seller: 'Seller', shipper: 'Shipper' };
 const GRADIENTS = [
