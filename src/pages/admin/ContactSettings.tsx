@@ -258,22 +258,84 @@ export default function AdminContactSettings() {
         </TabsContent>
 
         <TabsContent value="map" className="space-y-6">
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-accent/10 to-transparent">
               <CardTitle className="flex items-center gap-2">
-                <Map className="h-5 w-5 text-accent" /> Nhúng bản đồ Google Maps
+                <MapPin className="h-5 w-5 text-accent" /> Vị trí cửa hàng trên bản đồ
               </CardTitle>
               <CardDescription>
-                Dán mã nhúng iframe từ Google Maps. Để lấy mã, vào Google Maps → Tìm địa chỉ → Chia sẻ → Nhúng bản đồ → Sao chép HTML
+                Pin chính xác vị trí cửa hàng. Khách hàng sẽ thấy marker + tooltip tên cửa hàng và nút chỉ đường trực tiếp.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea value={settings.map_embed} onChange={(e) => updateSetting('map_embed', e.target.value)} placeholder='<iframe src="https://www.google.com/maps/embed?pb=..." ...' rows={4} className="font-mono text-sm" />
-              {settings.map_embed && (
-                <div className="mt-4">
-                  <p className="text-sm font-medium mb-2">Xem trước:</p>
-                  <div className="rounded-lg overflow-hidden border aspect-video" dangerouslySetInnerHTML={{ __html: sanitizeMapEmbed(settings.map_embed.replace(/width="\d+"/, 'width="100%"').replace(/height="\d+"/, 'height="100%"')) }} />
+            <CardContent className="space-y-5 pt-6">
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Tên hiển thị trên pin</label>
+                  <Input
+                    value={settings.map_place_name}
+                    onChange={(e) => updateSetting('map_place_name', e.target.value)}
+                    placeholder="VSM Store - Cửa hàng chính"
+                  />
                 </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Vĩ độ (Lat)</label>
+                    <Input value={settings.map_lat} onChange={(e) => updateSetting('map_lat', e.target.value)} placeholder="21.028511" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Kinh độ (Lng)</label>
+                    <Input value={settings.map_lng} onChange={(e) => updateSetting('map_lng', e.target.value)} placeholder="105.804817" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={geocodeFromAddress} disabled={geocoding}>
+                  {geocoding ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Navigation className="h-4 w-4 mr-1.5" />}
+                  Tìm từ địa chỉ
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={useMyLocation}>
+                  <MapPin className="h-4 w-4 mr-1.5" /> Dùng vị trí hiện tại
+                </Button>
+              </div>
+
+              {settings.map_lat && settings.map_lng && !isNaN(parseFloat(settings.map_lat)) && !isNaN(parseFloat(settings.map_lng)) ? (
+                <StoreLocationMap
+                  lat={parseFloat(settings.map_lat)}
+                  lng={parseFloat(settings.map_lng)}
+                  name={settings.map_place_name || settings.intro_title}
+                  address={settings.address}
+                  editable
+                  height="380px"
+                  onChange={(lat, lng) => setSettings(prev => ({ ...prev, map_lat: lat.toFixed(6), map_lng: lng.toFixed(6) }))}
+                />
+              ) : (
+                <div className="rounded-2xl border-2 border-dashed p-10 text-center text-sm text-muted-foreground bg-muted/30">
+                  <MapPin className="h-10 w-10 mx-auto mb-2 text-muted-foreground/40" />
+                  Nhập toạ độ hoặc bấm <strong>"Tìm từ địa chỉ"</strong> để hiển thị bản đồ.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Code2 className="h-4 w-4" /> Nhúng iframe (tuỳ chọn — dự phòng)
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Chỉ dùng nếu không nhập toạ độ. Nếu có toạ độ, hệ thống ưu tiên bản đồ marker.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Textarea value={settings.map_embed} onChange={(e) => updateSetting('map_embed', e.target.value)} placeholder='<iframe src="https://www.google.com/maps/embed?pb=..." ...' rows={3} className="font-mono text-xs" />
+              {settings.map_embed && (
+                <div
+                  className="rounded-lg overflow-hidden border aspect-video [&>iframe]:w-full [&>iframe]:h-full"
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeMapEmbed(settings.map_embed.replace(/\swidth="\d+"/gi, ' width="100%"').replace(/\sheight="\d+"/gi, ' height="100%"')),
+                  }}
+                />
               )}
             </CardContent>
           </Card>
