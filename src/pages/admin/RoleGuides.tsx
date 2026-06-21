@@ -214,16 +214,13 @@ function GuideEditor({ role }: { role: GuideRole }) {
 }
 
 function PreviewWithConfig({ config }: { config: RoleGuideConfig }) {
-  // Inline lightweight preview using RoleGuide render logic — we render via a temporary key for re-render
   return <RoleGuidePreview config={config} />;
 }
 
 function RoleGuidePreview({ config }: { config: RoleGuideConfig }) {
-  // Reuse RoleGuide visual style by inlining minimal version
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  // dynamic import not needed — reuse icons
-  const Icons = require('lucide-react') as Record<string, React.ComponentType<{ className?: string }>>;
-  const getIcon = (n: string) => Icons[n] || Icons.Circle;
+  const Lucide = LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>;
+  const getIcon = (n: string) => Lucide[n] || Lucide.Circle;
   const Accent = getIcon(config.accentIcon);
   return (
     <div className="rounded-2xl border bg-card overflow-hidden">
