@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getCache, setCache } from '@/lib/cacheStorage';
+
+const CACHE_KEY = 'homepage_settings';
 
 interface HeroSettings {
   badge_text: string;
@@ -80,8 +83,11 @@ const defaultSettings: HomepageSettings = {
 };
 
 export function useHomepageSettings() {
-  const [settings, setSettings] = useState<HomepageSettings>(defaultSettings);
-  const [loading, setLoading] = useState(true);
+  const cached = getCache<HomepageSettings>(CACHE_KEY);
+  const [settings, setSettings] = useState<HomepageSettings>(
+    cached ? { ...defaultSettings, ...cached } : defaultSettings,
+  );
+  const [loading, setLoading] = useState(!cached);
 
   useEffect(() => {
     async function fetchSettings() {
@@ -133,6 +139,7 @@ export function useHomepageSettings() {
           });
           
           setSettings(newSettings);
+          setCache(CACHE_KEY, newSettings);
         }
       } catch (error) {
         console.error('Error fetching homepage settings:', error);

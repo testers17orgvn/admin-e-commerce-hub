@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getCache, setCache } from '@/lib/cacheStorage';
+
+const CACHE_KEY = 'ai_chatbot_settings';
 
 export interface AIChatbotSettings {
   enabled: boolean;
@@ -29,8 +32,11 @@ export const defaultAIChatbot: AIChatbotSettings = {
 };
 
 export function useAIChatbotSettings() {
-  const [settings, setSettings] = useState<AIChatbotSettings>(defaultAIChatbot);
-  const [loading, setLoading] = useState(true);
+  const cached = getCache<AIChatbotSettings>(CACHE_KEY);
+  const [settings, setSettings] = useState<AIChatbotSettings>(
+    cached ? { ...defaultAIChatbot, ...cached } : defaultAIChatbot,
+  );
+  const [loading, setLoading] = useState(!cached);
 
   useEffect(() => {
     let mounted = true;
@@ -41,7 +47,9 @@ export function useAIChatbotSettings() {
         .eq('key', 'ai_chatbot_settings')
         .maybeSingle();
       if (mounted && data?.value) {
-        setSettings({ ...defaultAIChatbot, ...(data.value as Partial<AIChatbotSettings>) });
+        const merged = { ...defaultAIChatbot, ...(data.value as Partial<AIChatbotSettings>) };
+        setSettings(merged);
+        setCache(CACHE_KEY, merged);
       }
       if (mounted) setLoading(false);
     })();
