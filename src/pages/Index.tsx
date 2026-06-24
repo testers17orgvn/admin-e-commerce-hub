@@ -19,7 +19,7 @@ const sectionComponents: Record<string, React.ComponentType> = {
 };
 
 const Index = () => {
-  const { sections, loading } = useHomepageSections();
+  const { sections } = useHomepageSections();
 
   const enabledSections = sections
     .filter((section) => section.enabled)
@@ -27,20 +27,10 @@ const Index = () => {
 
   return (
     <Layout>
-      {loading ? (
-        <>
-          <HeroSection />
-          <CategoriesSection />
-          <PromoBannerSection />
-          <FeaturedProducts />
-          <NewsletterSection />
-        </>
-      ) : (
-        enabledSections.map((section) => {
-          const Component = sectionComponents[section.id];
-          return Component ? <Component key={section.id} /> : null;
-        })
-      )}
+      {enabledSections.map((section) => {
+        const Component = sectionComponents[section.id];
+        return Component ? <Component key={section.id} /> : null;
+      })}
     </Layout>
   );
 };

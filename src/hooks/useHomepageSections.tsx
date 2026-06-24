@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getCache, setCache } from '@/lib/cacheStorage';
+
+const CACHE_KEY = 'homepage_sections';
 
 export interface HomepageSection {
   id: string;
@@ -19,8 +22,11 @@ const defaultSections: HomepageSection[] = [
 ];
 
 export function useHomepageSections() {
-  const [sections, setSections] = useState<HomepageSection[]>(defaultSections);
-  const [loading, setLoading] = useState(true);
+  const cached = getCache<HomepageSection[]>(CACHE_KEY);
+  const [sections, setSections] = useState<HomepageSection[]>(
+    cached && cached.length ? cached : defaultSections,
+  );
+  const [loading, setLoading] = useState(!cached);
 
   const fetchSections = async () => {
     try {
@@ -40,6 +46,7 @@ export function useHomepageSections() {
         // Sort by order
         mergedSections.sort((a, b) => a.order - b.order);
         setSections(mergedSections);
+        setCache(CACHE_KEY, mergedSections);
       }
     } catch (error) {
       console.error('Error fetching homepage sections:', error);
@@ -71,6 +78,7 @@ export function useHomepageSections() {
           .insert([{ key: 'homepage_sections', value: newSections as never }]);
       }
       setSections(newSections);
+      setCache(CACHE_KEY, newSections);
       return true;
     } catch (error) {
       console.error('Error saving homepage sections:', error);

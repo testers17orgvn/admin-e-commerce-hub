@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getCache, setCache } from '@/lib/cacheStorage';
+
+const CACHE_KEY = 'contact_settings';
 
 export interface ContactSettings {
   address: string;
@@ -32,8 +35,11 @@ const defaultSettings: ContactSettings = {
 };
 
 export function useContactSettings() {
-  const [settings, setSettings] = useState<ContactSettings>(defaultSettings);
-  const [loading, setLoading] = useState(true);
+  const cached = getCache<ContactSettings>(CACHE_KEY);
+  const [settings, setSettings] = useState<ContactSettings>(
+    cached ? { ...defaultSettings, ...cached } : defaultSettings,
+  );
+  const [loading, setLoading] = useState(!cached);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -47,7 +53,11 @@ export function useContactSettings() {
             settingsMap[item.key as keyof ContactSettings] = item.value;
           }
         });
-        setSettings(prev => ({ ...prev, ...settingsMap }));
+        setSettings(prev => {
+          const next = { ...prev, ...settingsMap };
+          setCache(CACHE_KEY, next);
+          return next;
+        });
       }
       setLoading(false);
     };
