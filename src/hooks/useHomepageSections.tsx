@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { getCache, setCache } from '@/lib/cacheStorage';
+import { getCache, setCache, subscribeCache } from '@/lib/cacheStorage';
 
 const CACHE_KEY = 'homepage_sections';
 
@@ -57,6 +57,26 @@ export function useHomepageSections() {
 
   useEffect(() => {
     fetchSections();
+
+    // Realtime: refetch whenever the settings row changes (any admin CRUD)
+    const channel = supabase
+      .channel('rt:homepage_sections')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'settings', filter: 'key=eq.homepage_sections' },
+        () => fetchSections(),
+      )
+      .subscribe();
+
+    // Cross-tab: react to cache writes from other tabs
+    const off = subscribeCache<HomepageSection[]>(CACHE_KEY, (v) => {
+      if (v && Array.isArray(v) && v.length) setSections(v);
+    });
+
+    return () => {
+      supabase.removeChannel(channel);
+      off();
+    };
   }, []);
 
   const saveSections = async (newSections: HomepageSection[]) => {

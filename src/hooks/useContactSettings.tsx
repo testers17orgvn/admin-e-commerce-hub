@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { getCache, setCache } from '@/lib/cacheStorage';
+import { getCache, setCache, subscribeCache } from '@/lib/cacheStorage';
 
 const CACHE_KEY = 'contact_settings';
 
@@ -62,6 +62,24 @@ export function useContactSettings() {
       setLoading(false);
     };
     fetchSettings();
+
+    const channel = supabase
+      .channel('rt:contact_settings')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'contact_settings' },
+        () => fetchSettings(),
+      )
+      .subscribe();
+
+    const off = subscribeCache<ContactSettings>(CACHE_KEY, (v) => {
+      if (v) setSettings({ ...defaultSettings, ...v });
+    });
+
+    return () => {
+      supabase.removeChannel(channel);
+      off();
+    };
   }, []);
 
   return { settings, loading };
