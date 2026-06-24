@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { getCache, setCache } from '@/lib/cacheStorage';
+import { getCache, setCache, subscribeCache } from '@/lib/cacheStorage';
 
 const CACHE_KEY = 'homepage_settings';
 
@@ -149,6 +149,30 @@ export function useHomepageSettings() {
     }
 
     fetchSettings();
+
+    const channel = supabase
+      .channel('rt:homepage_settings')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'settings' },
+        (payload) => {
+          const k = (payload.new as { key?: string } | null)?.key
+            ?? (payload.old as { key?: string } | null)?.key;
+          if (k && ['homepage_hero', 'homepage_featured', 'homepage_categories', 'homepage_newsletter'].includes(k)) {
+            fetchSettings();
+          }
+        },
+      )
+      .subscribe();
+
+    const off = subscribeCache<HomepageSettings>(CACHE_KEY, (v) => {
+      if (v) setSettings({ ...defaultSettings, ...v });
+    });
+
+    return () => {
+      supabase.removeChannel(channel);
+      off();
+    };
   }, []);
 
   return { settings, loading };
