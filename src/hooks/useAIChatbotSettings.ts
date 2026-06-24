@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { getCache, setCache } from '@/lib/cacheStorage';
+import { getCache, setCache, subscribeCache } from '@/lib/cacheStorage';
 
 const CACHE_KEY = 'ai_chatbot_settings';
 
@@ -40,7 +40,7 @@ export function useAIChatbotSettings() {
 
   useEffect(() => {
     let mounted = true;
-    (async () => {
+    const load = async () => {
       const { data } = await supabase
         .from('settings')
         .select('value')
@@ -52,8 +52,27 @@ export function useAIChatbotSettings() {
         setCache(CACHE_KEY, merged);
       }
       if (mounted) setLoading(false);
-    })();
-    return () => { mounted = false; };
+    };
+    load();
+
+    const channel = supabase
+      .channel('rt:ai_chatbot_settings')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'settings', filter: 'key=eq.ai_chatbot_settings' },
+        () => load(),
+      )
+      .subscribe();
+
+    const off = subscribeCache<AIChatbotSettings>(CACHE_KEY, (v) => {
+      if (v) setSettings({ ...defaultAIChatbot, ...v });
+    });
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(channel);
+      off();
+    };
   }, []);
 
   return { settings, loading };
