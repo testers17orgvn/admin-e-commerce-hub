@@ -12,6 +12,7 @@ import { ThemeParticles } from "@/components/effects/ThemeParticles";
 import { CustomMascotRenderer } from "@/components/effects/CustomMascotRenderer";
 import { MobilePopup } from "@/components/effects/MobilePopup";
 import { SEOHead } from "@/components/SEOHead";
+import { PageLoader } from "@/components/loading/PageLoader";
 
 // Lazy load pages
 const Index = lazy(() => import("./pages/Index"));
@@ -72,11 +73,6 @@ const queryClient = new QueryClient({
   },
 });
 
-const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
-    <div className="animate-spin h-8 w-8 border-4 border-accent border-t-transparent rounded-full" />
-  </div>
-);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
