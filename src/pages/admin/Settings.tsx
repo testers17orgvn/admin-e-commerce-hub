@@ -188,7 +188,14 @@ export default function AdminSettings() {
           <TabsTrigger value="ai_chatbot">
             <Bot className="h-4 w-4 mr-1" /> Chatbot AI
           </TabsTrigger>
+          <TabsTrigger value="loading">
+            <Loader2 className="h-4 w-4 mr-1" /> Loading
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="loading" className="space-y-6">
+          <LoadingSettingsManager />
+        </TabsContent>
 
         <TabsContent value="ai_chatbot" className="space-y-6">
           <AIChatbotManager />
