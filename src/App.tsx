@@ -12,6 +12,7 @@ import { ThemeParticles } from "@/components/effects/ThemeParticles";
 import { CustomMascotRenderer } from "@/components/effects/CustomMascotRenderer";
 import { MobilePopup } from "@/components/effects/MobilePopup";
 import { SEOHead } from "@/components/SEOHead";
+import { PageLoader } from "@/components/loading/PageLoader";
 
 // Lazy load pages
 const Index = lazy(() => import("./pages/Index"));
