@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Save, Store, Phone, Mail, MapPin, Facebook, Instagram, CreditCard, Building2, Smartphone, Image as ImageIcon, Palette, LogIn, SlidersHorizontal, Bot } from 'lucide-react';
+import { Save, Store, Phone, Mail, MapPin, Facebook, Instagram, CreditCard, Building2, Smartphone, Image as ImageIcon, Palette, LogIn, SlidersHorizontal, Bot, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { ThemeSelector } from '@/components/admin/ThemeSelector';
@@ -18,6 +18,7 @@ import { MobilePopupManager } from '@/components/admin/MobilePopupManager';
 import { SaleBannerManager } from '@/components/admin/SaleBannerManager';
 import { ProductFilterSettingsManager } from '@/components/admin/ProductFilterSettingsManager';
 import { AIChatbotManager } from '@/components/admin/AIChatbotManager';
+import { LoadingSettingsManager } from '@/components/admin/LoadingSettingsManager';
 
 interface Settings {
   site_name?: string;
