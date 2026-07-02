@@ -312,3 +312,26 @@
     animation: floatY 3.5s ease-in-out infinite;
   }
 }
+
+/* App loader keyframes */
+@keyframes loader-breath {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.85; }
+}
+@keyframes loader-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(-10px); opacity: 1; }
+}
+@keyframes loader-wave {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1); }
+}
+@keyframes loader-float {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-30px) translateX(10px); }
+}
+
+/* Mobile bottom nav safe area */
+.mobile-bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom);
+}
