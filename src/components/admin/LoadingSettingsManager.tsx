@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Save, Loader2, Eye } from 'lucide-react';
+import { Save, Loader2, Eye, Monitor, Smartphone, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUpload } from './ImageUpload';
 import { AppLoader } from '@/components/loading/AppLoader';
@@ -26,7 +26,8 @@ export function LoadingSettingsManager() {
   const { settings, save } = useLoadingSettings();
   const [local, setLocal] = useState<LoadingSettings>(settings);
   const [saving, setSaving] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
+  const [previewDevice, setPreviewDevice] = useState<null | 'desktop' | 'mobile'>(null);
+
 
   useEffect(() => setLocal(settings), [settings]);
 
@@ -58,9 +59,12 @@ export function LoadingSettingsManager() {
                 Tùy chỉnh giao diện màn hình chờ khi tải trang, chuyển route, và khi mở app.
               </CardDescription>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setShowPreview(true)}>
-                <Eye className="h-4 w-4 mr-1" /> Xem trước
+            <div className="flex gap-2 flex-wrap">
+              <Button variant="outline" size="sm" onClick={() => setPreviewDevice('desktop')}>
+                <Monitor className="h-4 w-4 mr-1" /> Fullscreen Desktop
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setPreviewDevice('mobile')}>
+                <Smartphone className="h-4 w-4 mr-1" /> Fullscreen Mobile
               </Button>
               <Button size="sm" onClick={handleSave} disabled={saving}>
                 <Save className="h-4 w-4 mr-1" />
@@ -160,15 +164,42 @@ export function LoadingSettingsManager() {
         </CardContent>
       </Card>
 
-      {showPreview && (
-        <div className="fixed inset-0 z-[10000]" onClick={() => setShowPreview(false)}>
-          <AppLoader settings={local} fullScreen />
-          <button
-            className="fixed top-4 right-4 z-[10001] px-4 py-2 rounded-full bg-white/20 backdrop-blur text-white text-sm"
-            onClick={() => setShowPreview(false)}
-          >
-            Đóng
-          </button>
+      {previewDevice && (
+        <div className="fixed inset-0 z-[10000] bg-black/80 flex items-center justify-center p-4">
+          {previewDevice === 'desktop' ? (
+            <div className="relative w-full h-full">
+              <AppLoader settings={local} fullScreen={false} className="!min-h-full !h-full w-full" />
+            </div>
+          ) : (
+            <div
+              className="relative rounded-[2.5rem] overflow-hidden border-[10px] border-neutral-900 shadow-2xl bg-black"
+              style={{ width: 390, height: 'min(844px, 90vh)', maxWidth: '95vw' }}
+            >
+              <AppLoader settings={local} fullScreen={false} className="!min-h-full !h-full w-full" />
+            </div>
+          )}
+          <div className="fixed top-4 right-4 z-[10001] flex gap-2">
+            <div className="flex rounded-full bg-white/10 backdrop-blur p-1">
+              <button
+                onClick={() => setPreviewDevice('desktop')}
+                className={`px-3 py-1.5 rounded-full text-xs flex items-center gap-1 ${previewDevice === 'desktop' ? 'bg-white text-black' : 'text-white'}`}
+              >
+                <Monitor className="h-3.5 w-3.5" /> Desktop
+              </button>
+              <button
+                onClick={() => setPreviewDevice('mobile')}
+                className={`px-3 py-1.5 rounded-full text-xs flex items-center gap-1 ${previewDevice === 'mobile' ? 'bg-white text-black' : 'text-white'}`}
+              >
+                <Smartphone className="h-3.5 w-3.5" /> Mobile
+              </button>
+            </div>
+            <button
+              className="px-3 py-1.5 rounded-full bg-white/20 backdrop-blur text-white text-xs flex items-center gap-1"
+              onClick={() => setPreviewDevice(null)}
+            >
+              <X className="h-3.5 w-3.5" /> Đóng
+            </button>
+          </div>
         </div>
       )}
     </>
