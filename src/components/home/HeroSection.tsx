@@ -29,7 +29,7 @@ export function HeroSection() {
   })
 
   return (
-    <section className="relative min-h-[100svh] md:min-h-[90vh] flex items-center overflow-hidden">
+    <section className="relative min-h-[70svh] sm:min-h-[80svh] md:min-h-[90vh] max-h-[100svh] flex items-center overflow-hidden w-full max-w-full">
       
       {/* Background with parallax-like slow zoom */}
       <div className="absolute inset-0">
