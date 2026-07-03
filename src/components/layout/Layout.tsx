@@ -12,9 +12,11 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col w-full max-w-[100vw] overflow-x-hidden">
       <Header />
-      <main className="flex-1 pb-16 md:pb-0">{children}</main>
+      <main className="flex-1 pb-16 md:pb-0 w-full max-w-[100vw] overflow-x-hidden">
+        <div className="w-full max-w-[100vw] overflow-x-hidden">{children}</div>
+      </main>
       <Footer />
       <MobileBottomNav />
       <ChatWidget />

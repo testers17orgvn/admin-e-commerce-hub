@@ -368,5 +368,40 @@ html, body, #root {
     max-width: 100%;
     overflow-x: auto;
   }
+  /* Extra overflow guards */
+  section, article, header, footer, nav, aside, main, div {
+    max-width: 100%;
+  }
+  /* Fixed/absolute elements must not push viewport */
+  .fixed, .absolute {
+    max-width: 100vw;
+  }
+  /* Flex/grid children shrink properly */
+  .flex > *, .grid > * {
+    min-width: 0;
+  }
+  /* Common wide utilities clamp to viewport */
+  [class*="w-screen"] {
+    max-width: 100vw;
+  }
+  /* Horizontally-scrolling rails allowed only when explicit */
+  .allow-x-scroll {
+    overflow-x: auto;
+  }
+  /* Prevent tap-highlight rectangles from causing layout jitter */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
+
+/* Prevent vertical layout collapse from fixed viewport heights on mobile */
+@media (max-width: 767px) {
+  .min-h-screen {
+    min-height: 100svh;
+  }
+  .h-screen {
+    height: 100svh;
+  }
+}
+
 
