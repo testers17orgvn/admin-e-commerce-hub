@@ -192,6 +192,7 @@ export default function LayoutTest() {
               style={{ width: w, height: h, flexShrink: 0 }}
             >
               <iframe
+                ref={iframeRef}
                 title="Layout Preview"
                 src={previewUrl}
                 className="border-0 bg-white"
