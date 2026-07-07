@@ -74,21 +74,37 @@ export default function LayoutTest() {
           </div>
         </div>
 
-        <Card className="p-3 md:p-6 bg-muted/30 overflow-auto">
-          <div className="mx-auto bg-background border-8 border-foreground/80 rounded-[2rem] shadow-2xl overflow-hidden transition-all"
-            style={{ width: Math.min(w, 1200), maxWidth: '100%', height: Math.min(h, 800) }}
-          >
-            <iframe
-              title="Layout Preview"
-              src={`/admin/layout-test/frame`}
-              className="w-full h-full border-0"
-              style={{ width: w, height: h, transform: `scale(${Math.min(1, Math.min(1200, window.innerWidth - 80) / w, 800 / h)})`, transformOrigin: 'top left' }}
-            />
+        <Card className="p-3 md:p-6 bg-muted/30">
+          <div className="flex flex-wrap gap-2 mb-3">
+            {['/', '/products', '/cart', '/blog', '/contact'].map((u) => (
+              <Button
+                key={u}
+                variant={previewUrl === u ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setPreviewUrl(u)}
+              >
+                {u}
+              </Button>
+            ))}
+          </div>
+          <div className="overflow-auto flex justify-center">
+            <div
+              className="bg-background border-8 border-foreground/80 rounded-[2rem] shadow-2xl overflow-hidden transition-all"
+              style={{ width: w, height: h, flexShrink: 0 }}
+            >
+              <iframe
+                title="Layout Preview"
+                src={previewUrl}
+                className="border-0 bg-white"
+                style={{ width: w, height: h }}
+              />
+            </div>
           </div>
           <p className="text-center text-xs text-muted-foreground mt-3">
-            {device} · {orientation} · {w}×{h}px
+            {device} · {orientation} · {w}×{h}px — cuộn ngang nếu khung lớn hơn màn hình
           </p>
         </Card>
+
 
         <Tabs defaultValue="images">
           <TabsList>
