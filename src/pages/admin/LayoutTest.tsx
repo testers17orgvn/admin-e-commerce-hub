@@ -3,8 +3,11 @@ import { AdminLayout } from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Monitor, Tablet, Smartphone, RotateCw } from 'lucide-react';
+import { Monitor, Tablet, Smartphone, RotateCw, Camera, Images } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import html2canvas from 'html2canvas';
+import { useRef } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 type Device = 'desktop' | 'tablet' | 'mobile';
 type Orientation = 'portrait' | 'landscape';
