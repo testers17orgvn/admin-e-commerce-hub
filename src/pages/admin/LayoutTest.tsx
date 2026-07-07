@@ -33,9 +33,97 @@ const LONG_TEXT =
 export default function LayoutTest() {
   const [device, setDevice] = useState<Device>('mobile');
   const [orientation, setOrientation] = useState<Orientation>('portrait');
+  const [capturing, setCapturing] = useState(false);
 
   const [w, h] = DEVICE_SIZES[device][orientation === 'portrait' ? 'p' : 'l'];
   const [previewUrl, setPreviewUrl] = useState('/');
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const waitFor = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  const captureIframe = async (label: string) => {
+    const iframe = iframeRef.current;
+    const doc = iframe?.contentDocument;
+    const win = iframe?.contentWindow;
+    if (!iframe || !doc || !win || !doc.body) {
+      toast({ title: 'Không chụp được', description: 'Preview chưa sẵn sàng.', variant: 'destructive' });
+      return null;
+    }
+    try {
+      const canvas = await html2canvas(doc.body, {
+        width: w,
+        height: h,
+        windowWidth: w,
+        windowHeight: h,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        scale: 1,
+      });
+      const url = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      const safeRoute = previewUrl.replace(/\//g, '_') || '_root';
+      a.download = `layout-test${safeRoute}-${label}.png`;
+      a.href = url;
+      a.click();
+      return url;
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Lỗi chụp ảnh', description: String(e), variant: 'destructive' });
+      return null;
+    }
+  };
+
+  const captureCurrent = async () => {
+    setCapturing(true);
+    await captureIframe(`${device}-${orientation}-${w}x${h}`);
+    setCapturing(false);
+    toast({ title: 'Đã tải ảnh', description: `${device} · ${orientation} · ${w}×${h}` });
+  };
+
+  const captureAll = async () => {
+    setCapturing(true);
+    const combos: Array<[Device, Orientation]> = [
+      ['desktop', 'landscape'],
+      ['tablet', 'portrait'],
+      ['tablet', 'landscape'],
+      ['mobile', 'portrait'],
+      ['mobile', 'landscape'],
+    ];
+    for (const [d, o] of combos) {
+      setDevice(d);
+      setOrientation(o);
+      // wait for iframe layout to settle
+      await waitFor(700);
+      const [cw, ch] = DEVICE_SIZES[d][o === 'portrait' ? 'p' : 'l'];
+      const iframe = iframeRef.current;
+      const doc = iframe?.contentDocument;
+      if (!iframe || !doc?.body) continue;
+      try {
+        const canvas = await html2canvas(doc.body, {
+          width: cw,
+          height: ch,
+          windowWidth: cw,
+          windowHeight: ch,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          scale: 1,
+        });
+        const a = document.createElement('a');
+        const safeRoute = previewUrl.replace(/\//g, '_') || '_root';
+        a.download = `layout-test${safeRoute}-${d}-${o}-${cw}x${ch}.png`;
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+        await waitFor(250);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    setCapturing(false);
+    toast({ title: 'Đã chụp tất cả', description: 'Đã tải ảnh cho mọi chế độ.' });
+  };
+
 
   return (
     <AdminLayout>
