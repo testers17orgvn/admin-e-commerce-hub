@@ -32,6 +32,7 @@ export default function LayoutTest() {
   const [orientation, setOrientation] = useState<Orientation>('portrait');
 
   const [w, h] = DEVICE_SIZES[device][orientation === 'portrait' ? 'p' : 'l'];
+  const [previewUrl, setPreviewUrl] = useState('/');
 
   return (
     <AdminLayout>
