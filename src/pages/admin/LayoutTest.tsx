@@ -162,6 +162,14 @@ export default function LayoutTest() {
               <RotateCw className="h-4 w-4 mr-1.5" />
               {orientation === 'portrait' ? 'Dọc' : 'Ngang'}
             </Button>
+            <Button size="sm" onClick={captureCurrent} disabled={capturing}>
+              <Camera className="h-4 w-4 mr-1.5" />
+              Chụp ảnh
+            </Button>
+            <Button size="sm" variant="secondary" onClick={captureAll} disabled={capturing}>
+              <Images className="h-4 w-4 mr-1.5" />
+              Chụp tất cả
+            </Button>
           </div>
         </div>
 
