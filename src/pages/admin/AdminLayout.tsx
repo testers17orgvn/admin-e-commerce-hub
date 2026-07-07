@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { 
   LayoutDashboard, Package, FolderOpen, Image, FileText, Mail, ShoppingCart, 
   Settings, LogOut, Users, Ticket, MessageSquare, Star, PackageCheck, ChevronRight,
-  UserCheck, Truck, Menu, X, MessageCircle, BookOpen
+  UserCheck, Truck, Menu, X, MessageCircle, BookOpen, LayoutTemplate
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AdminNotificationBell } from '@/components/notifications/AdminNotificationBell';
